@@ -35,14 +35,21 @@ const App = () => {
     <div className="app">
   <div className="chat">
         <div className="sidebars">
+          <p>          step,
+                codebase_id,
+                is_paywalled,
+                is_finished,
+                progress_target,</p>
  <BrowserRouter>
-         <SideNavbar/>
+  <SideNavbar/>
+
         <Routes>
           <Route path='/' exact element={Home} />
           <Route path='/reports' element={Reports} />
           <Route path='/products' element={Products} />
         </Routes>
       </BrowserRouter>
+      </div >
 
           <div className="chat-panel">
         <div className="chat-messages">
@@ -60,7 +67,6 @@ const App = () => {
         </div>
       </div >
     </div>
-        </div>
   );
 };
 export default App;

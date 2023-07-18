@@ -130,3 +130,21 @@
 
 
 
+.chat-messages::-webkit-scrollbar {
+  height: 10px;
+
+  width: 11px; /* Increase the scrollbar width */
+  background-color:  #0c051a; /* Set the background color of the scrollbar track */
+  border-radius: 5px;
+
+  box-shadow: 0 0 10px #0e0a0d; /* Set the curvature of the scrollbar */}
+.chat-messages::-webkit-scrollbar-track {
+  background-color:  #0c051a;
+  height: 100px;
+
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background-color: #373142; /* Set the color of the scrollbar thumb */
+  border-radius: 10px; 
+}

@@ -41,10 +41,13 @@
       position: sticky;
       bottom: 0;
       width: 100%;
+      display: flex;
+      align-items: center;
   }
 
 .input-box {
   margin-left: 70px;
+  margin-right: 40px;
     width: 70%;
     height: 40px; /* Increase the height as desired */
     padding: 5px;
@@ -59,6 +62,8 @@
   box-shadow: 0 0 10px #ffd2f2;
 }
 .send-button {
+  margin-top: -13px;
+  width:90px;
   background-color: #fbeee0;
   border: 2px solid #422800;
   border-radius: 30px;

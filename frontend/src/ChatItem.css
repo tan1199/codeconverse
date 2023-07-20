@@ -1,0 +1,26 @@
+/* ChatItem.css */
+
+.chat-item {
+    width: 150px;
+    padding: 10px;
+    margin: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    color: rgb(255, 255, 255); /* Default font color is white */
+    transition: background-color 0.2s ease-in-out;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.2); /* Example background color for active chat item */
+    flex-grow: 1;
+    overflow-y: auto;
+
+  }
+  
+  .chat-item.active {
+    border-radius: 10px;
+    box-shadow: 0 0 5px #5512b9;
+    color: rgb(175, 153, 210); /* Active chat item font color is pink */
+    background-color: rgba(255, 255, 255, 0.2); /* Example background color for active chat item */
+  }
+
+
+

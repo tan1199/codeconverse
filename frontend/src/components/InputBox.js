@@ -22,13 +22,13 @@ const InputBox = ({ onSendMessage }) => {
         value={message}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
-        class="input-box"
+        className="input-box"
         autoFocus
         rows={1} // Start with a single row
         style={{ height: `${(message.split('\n').length + 1) * 30}px` }}
     
       />
-      <button onClick={() => onSendMessage(message)}  class="send-button">Ask</button>
+      <button onClick={() => onSendMessage(message)}  className="send-button">Ask</button>
 
     </div>
   );

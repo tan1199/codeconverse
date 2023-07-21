@@ -8,6 +8,9 @@ const InputBox = ({ onSendMessage }) => {
   };
 
   const handleKeyDown = (e) => {
+    if (e.keyCode === 13) {
+      e.preventDefault();
+    }
     if (e.key === 'Enter' && message.trim() !== '') {
       onSendMessage(message);
       setMessage('');

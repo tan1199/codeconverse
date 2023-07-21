@@ -18,7 +18,7 @@ import Products from './pages/Products';
 const App = () => {
 
   
-  // const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [chats, setChats] = useState([]);
 const chats1 = ['CP2OjIkU5f', '6arELI86qY', 'JSql2fp2UQ', '2n7lGWSUtW', 'U0s3FJ4jj6', 'gV022AfgJi', 'g3wbgZ6BzG', 'AJgUp71Hly', 'ZwLiazPGSD', 'V0Qp2QIVnt'];
@@ -29,19 +29,28 @@ const chats1 = ['CP2OjIkU5f', '6arELI86qY', 'JSql2fp2UQ', '2n7lGWSUtW', 'U0s3FJ4
     console.log("bbbbbbbbbbbb");
   };
   const code = `
-  import loggingvvv
+  import logging
   `
   const handleSendMessage = (message, chatId) => {
     console.log("qqqqqqqqqqqqq")
     console.log(chatId);
 
     const newMessage = {
-      id: Date.now(),
+      id: messages.length + 1,
       avatar: 'https://example.com/avatar.png',
       username: 'John Doe',
-     message: message,
+      message,
       timestamp: Date.now(),
     };
+
+    console.log("tttttttt")
+    console.log(messages)
+
+    setMessages([...messages, newMessage]);
+    console.log("rrrrr")
+
+    console.log(messages)
+
     setChats((prevChats) => {
       return prevChats.map((chat) =>
         chat.chatId === chatId
@@ -49,45 +58,6 @@ const chats1 = ['CP2OjIkU5f', '6arELI86qY', 'JSql2fp2UQ', '2n7lGWSUtW', 'U0s3FJ4
           : chat
       );
     });
-    console.log("tttttttt")
-    // console.log(messages)
-
-    // setMessages([...messages, newMessage]);
-    console.log("rrrrr")
-// 
-    // console.log(messages)
-    fetch("http://localhost:8000/api/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ message: message }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data.message);
-      const back_end_message=data.message;
-      console.log("fgfggfg");
-      console.log(data);
-        const new_message_from_backend = {
-          id: Date.now(),
-          avatar: 'https://example.com/avatar.png',
-          username: 'AI Assistant',
-          message:back_end_message,
-          timestamp: Date.now(),
-        };
-        setChats((prevChats) => {
-          return prevChats.map((chat) =>
-            chat.chatId === chatId
-              ? { ...chat, messages: [...chat.messages, new_message_from_backend] }
-              : chat
-          );
-        });
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      })
-
     console.log(chats);
 
     setSelectedChatId(chatId);
@@ -96,7 +66,7 @@ const chats1 = ['CP2OjIkU5f', '6arELI86qY', 'JSql2fp2UQ', '2n7lGWSUtW', 'U0s3FJ4
     console.log("ooooo");
     const selectedChat = chats.find((chat) => chat.chatId === chatId);
     console.log(selectedChat)
-    // console.log(messages)
+    console.log(messages)
     return selectedChat ? selectedChat.messages : [];
   };
   

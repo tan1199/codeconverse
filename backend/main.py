@@ -1,7 +1,7 @@
 import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from openaiManager import completion_endpoint_plain
 app = FastAPI()
 
 # Configure CORS
@@ -33,7 +33,7 @@ def root():
 
 @app.get("/api/messages")
 def get_messages():
-    return {"messages": messages}
+    return {"messages": "hello there"}
 
 
 @app.post("/api/messages")
@@ -42,4 +42,6 @@ def add_message(message: dict):
     print("fdgdfgfdf fgfhf")
     logging.info(f"Received new message: {new_message}")
     messages.append(new_message)
-    return {"message": new_message}
+    backend_response = completion_endpoint_plain(new_message)
+    # return {"message": "\nimport sys\nsys.path.append('/path/to/folder')\nfrom my_module import my_function"}
+    return {"message": backend_response}

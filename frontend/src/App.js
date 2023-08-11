@@ -49,8 +49,7 @@ const chats1 = ['CP2OjIkU5f', '6arELI86qY', 'JSql2fp2UQ', '2n7lGWSUtW', 'U0s3FJ4
           : chat
       );
     });
-    console.log("tttttttt")
-    // console.log(messages)
+
 
     // setMessages([...messages, newMessage]);
     console.log("rrrrr")

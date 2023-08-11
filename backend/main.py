@@ -42,6 +42,6 @@ def add_message(message: dict):
     print("fdgdfgfdf fgfhf")
     logging.info(f"Received new message: {new_message}")
     messages.append(new_message)
-    backend_response = completion_endpoint_plain(new_message)
-    # return {"message": "\nimport sys\nsys.path.append('/path/to/folder')\nfrom my_module import my_function"}
-    return {"message": backend_response}
+    # backend_response = completion_endpoint_plain(new_message)
+    return {"message": "\nimport sys\nsys.path.append('/path/to/folder')\nfrom my_module import my_function"}
+    # return {"message": backend_response}

@@ -11,9 +11,10 @@ import { IconContext } from 'react-icons';
 
 
 function SideNavbar({ chats, selectedChatId, handleChatItemClick, handleAddChatWindow }) {
-
+console.log("dfdgfgd")
+console.log(selectedChatId)
   const [isOpen, setIsOpen] = useState(true);
-
+const abc=selectedChatId;
   function menuBtnChange() {
     setIsOpen(!isOpen);
   }
@@ -28,9 +29,8 @@ function SideNavbar({ chats, selectedChatId, handleChatItemClick, handleAddChatW
        <FaIcons.FaBars size={10}  onClick={menuBtnChange} />
       </button>      </div>
       <ul className="nav-list">
-      <button id="btn" onClick={handleAddChatWindow}>Add New Chat Window</button>
 
-
+      <button id="btn" onClick={handleAddChatWindow}>{abc}</button>
 
 
 

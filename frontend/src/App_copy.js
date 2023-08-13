@@ -1,5 +1,4 @@
-import React, { useState, useEffect,useRef } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import ChatMessage from './components/ChatMessage';
 import UserList from './components/UserList';
 import InputBox from './components/InputBox';
@@ -12,16 +11,11 @@ import Header from './Header';
 import SideNavbar from './SideNavbar';
 import ChatPanel from './ChatPanel';
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import { useNavigate } from 'react-router-dom';
-
 import Home from './pages/Home';
 import Reports from './pages/Reports';
 import 'boxicons'
 import Products from './pages/Products';
 const App = () => {
-  const navigate = useNavigate();
-
-  // Update the route whenever chatid changes
   const [statusMessage, setStatusMessage] = useState('');
   const [chatMessage, setChatMessage] = useState('');
   const [statusSocket, setStatusSocket] = useState(null);
@@ -48,20 +42,15 @@ const App = () => {
     };
   }, []);
   // const [messages, setMessages] = useState([]);
-  const selectedChatIdRef = useRef(null);
-
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [chats, setChats] = useState([]);
 const chats1 = ['CP2OjIkU5f', '6arELI86qY', 'JSql2fp2UQ', '2n7lGWSUtW', 'U0s3FJ4jj6', 'gV022AfgJi', 'g3wbgZ6BzG', 'AJgUp71Hly', 'ZwLiazPGSD', 'V0Qp2QIVnt'];
-const handleAddChatWindow = () => {
-  const newChatId = Date.now().toString();
-  setChats((prevChats) => [...prevChats, { chatId: newChatId, messages: [] }]);
-  setSelectedChatId(newChatId); // Set the selectedChatId immediately after adding the new chat
-  console.log("bbbbbbbbbbbb");
-  selectedChatIdRef.current = newChatId;
-  navigate(`/chats/${newChatId}`);
-
-};
+  const handleAddChatWindow = () => {
+    const newChatId = chats1[chats.length];
+    setChats((prevChats) => [...prevChats, { chatId: newChatId, messages: [] }]);
+    setSelectedChatId(newChatId); // Automatically select the newly added chat window
+    console.log("bbbbbbbbbbbb");
+  };
   const code = `
   import loggingvvv
   `
@@ -83,7 +72,7 @@ const handleAddChatWindow = () => {
           : chat
       );
     });
-     const action='chat';
+      action='chat';
     const socket = action === 'chat' ? chatSocket : statusSocket;
     if (!socket) {
       console.error('Socket is not available for this action.');
@@ -91,12 +80,46 @@ const handleAddChatWindow = () => {
     }
 
     setStatusMessage(`Sending ${action} action`);
-    socket.send(JSON.stringify({ action,chatId, data: message }));
+    socket.send(JSON.stringify({ action, data: message }));
     // setMessages([...messages, newMessage]);
     console.log("rrrrr")
+// 
+    // console.log(messages)
+    fetch("http://localhost:8000/api/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message: message }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data.message);
+      const back_end_message=data.message;
+      console.log("fgfggfg");
+      console.log(data);
+        const new_message_from_backend = {
+          id: Date.now(),
+          avatar: 'https://example.com/avatar.png',
+          username: 'AI Assistant',
+          message:back_end_message,
+          timestamp: Date.now(),
+        };
+        setChats((prevChats) => {
+          return prevChats.map((chat) =>
+            chat.chatId === chatId
+              ? { ...chat, messages: [...chat.messages, new_message_from_backend] }
+              : chat
+          );
+        });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      })
+
+    console.log(chats);
+
     setSelectedChatId(chatId);
-
-
   };
   const getChatMessages = (chatId) => {
     console.log("ooooo");
@@ -105,8 +128,7 @@ const handleAddChatWindow = () => {
     // console.log(messages)
     return selectedChat ? selectedChat.messages : [];
   };
- 
-
+  
   const handleChatItemClick = (chatId) => {
     console.log(chatId);
     console.log("eeee")
@@ -127,9 +149,6 @@ const handleAddChatWindow = () => {
 
     chatSocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(selectedChatId)
-      console.log("88888")
-      console.log(data.message)
       if (data.action === 'chat') {
         const new_message_from_backend = {
           id: Date.now(),
@@ -140,7 +159,7 @@ const handleAddChatWindow = () => {
         };
         setChats((prevChats) => {
           return prevChats.map((chat) =>
-            chat.chatId === data.chatId
+            chat.chatId === chatId
               ? { ...chat, messages: [...chat.messages, new_message_from_backend] }
               : chat
           );
@@ -148,7 +167,7 @@ const handleAddChatWindow = () => {
 
     console.log(chats);
   }    };
-}, [statusSocket, chatSocket,selectedChatId]);
+}, [statusSocket, chatSocket]);
 
   return (
     <div className="app">
@@ -157,9 +176,10 @@ const handleAddChatWindow = () => {
     
   
    
+ <BrowserRouter>
  <SideNavbar
         chats={chats}
-        selectedChatId={selectedChatIdRef.current}
+        selectedChatId={selectedChatId}
         handleChatItemClick={handleChatItemClick}
         handleAddChatWindow={handleAddChatWindow}
       />
@@ -182,6 +202,7 @@ const handleAddChatWindow = () => {
         ))}
    
         </Routes>
+      </BrowserRouter>
       </div >
    
       </div >

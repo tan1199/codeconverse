@@ -98,7 +98,7 @@ const handleAddChatWindow = () => {
     const newMessage = {
       id: Date.now(),
       avatar: 'https://example.com/avatar.png',
-      username: 'John Doe',
+      username: 'User',
      message: message,
       timestamp: Date.now(),
     };
@@ -182,6 +182,7 @@ else{
     console.log("zxzxzx");
     console.log(valueList);
     console.log(checkedValues);
+    console.log("back",new_message_from_backend);
   }    };
 }, [statusSocket, chatSocket,selectedChatId,checkedValues,valueList]);
 

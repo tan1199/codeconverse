@@ -3,9 +3,8 @@ import ChatMessage from './components/ChatMessage';
 import InputBox from './components/InputBox';
 import './ChatPanel.css';
 
-function ChatPanel({selectedChatId,handleSendMessage,getChatMessages}) {
+function ChatPanel({chatsize,selectedChatId,handleSendMessage,getChatMessages}) {
 
- 
   return (
     <div>
         <div className="chat-panel">
@@ -14,13 +13,14 @@ function ChatPanel({selectedChatId,handleSendMessage,getChatMessages}) {
       <div className="chat-messages">
       {selectedChatId ? (
           <div>
-          {getChatMessages(selectedChatId).map((message) => (
+          {getChatMessages(selectedChatId).map((message, index) => (
             <ChatMessage
               key={message.id}
               avatar={message.avatar}
               username={message.username}
               message={message.message}
               timestamp={message.timestamp}
+              chatindex={index}
             />
           ))}
             

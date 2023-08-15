@@ -82,12 +82,12 @@ const len=values.length;
   <div class="progress-value"></div>
 </div> */}
         <div className="row">
-          <button className="send-button-home" onClick={() => handleButtonClick('Add Github Source')}>Add Github Source</button>
-          <button className="send-button-home" onClick={() => handleButtonClick('Add Gitlab source')}>Add Gitlab source</button>
+          <button className="send-button-home" onClick={() => handleButtonClick('Add Github Source')}>💽 Add Github Source</button>
+          <button className="send-button-home" onClick={() => handleButtonClick('Add Gitlab source')}>💽  Gitlab source</button>
         </div>
         <div className="row">
-          <button className="send-button-home" onClick={() => handleButtonClick('Add repository')}>Add repository</button>
-          <button className="send-button-home" onClick={() => handleButtonClick('Paste code')}>Paste code</button>
+          <button className="send-button-home" onClick={() => handleButtonClick('Add repository')}>📼 Add repository</button>
+          <button className="send-button-home" onClick={() => handleButtonClick('Paste code')}>📼 Paste code</button>
         </div>
       </div>
       </div>

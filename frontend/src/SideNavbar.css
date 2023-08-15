@@ -33,21 +33,36 @@
   transition: all 0.5s ease;
 }
 .sidebar .logo-details .logo_name{
+  width: 72%;
+  margin-top: 7%;
+  margin-left: -20%;
+
+  padding: 10px;
   color: #fff;
-  font-size: 15px;
+  box-shadow: 0 0 1px #6b4d65;
+  cursor: pointer;
+  /* background-color: #0c051a; */
+  /* background-color: #360f51; */
+  /* border: 5px solid #0cc2c2; */
+  font-size: 20px;
   font-weight: 600;
   opacity: 0;
   transition: all 0.5s ease;
+  border-radius: 5px;
 }
 .sidebar.open .logo-details .icon,
 .sidebar.open .logo-details .logo_name{
   opacity: 1;
 }
 .sidebar .logo-details #btn{
+  border: none;
   position: absolute;
-    background: #11101D;
-  top: 50%;
-  right: 0;
+  width: 50px;
+    background: #2f0656;
+    background: #11101d;
+    color: #FFF;
+  top: 60%;
+  right: 1px;
   transform: translateY(-50%);
   font-size: 22px;
   transition: all 0.4s ease;
@@ -55,10 +70,86 @@
   text-align: center;
   cursor: pointer;
   transition: all 0.5s ease;
+  padding: 10px;
 }
 .sidebar.open .logo-details #btn{
   text-align: right;
+  color: #FFF;
+  right: 1px;
 }
+
+.sidebar.open .logo-details #btn:hover{
+  background: #11101d;
+  color: #d3c2c2;
+  border-radius: 5px;
+}
+
+
+
+.sidebar.qq .add-chat-window-button{
+  /* border: 5px solid #0cc2c2; */
+  /* position: absolute; */
+  width: 80%;
+  height: 8%;
+  padding: 10px;
+    background: #2f0656;
+    background: #11101d;
+    border: 5px solid #6b4d65;
+    color: #FFF;
+  margin-top: 10%;
+  right: 1px;
+  transform: translateY(-50%);
+  font-size: 22px;
+  transition: all 0.4s ease;
+  font-size: 23px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.5s ease;
+  padding: 10px;
+  /* opacity: 0; */
+  display: none;
+
+}
+.sidebar.open .add-chat-window-button{
+  text-align: right;
+  color: #109d2a;
+  right: 1px;
+  /* opacity: 1; */
+  display:flex;
+
+  width: 60%;
+  height: 50px;
+  padding: 10px;
+    background: #2f0656;
+    background: #11101d;
+    /* border: 5px solid #cc7014; */
+    color: #ffffff;
+border: none;
+  /* right: 1px; */
+  transform: translateY(-50%);
+  font-size: 22px;
+  transition: all 0.4s ease;
+  font-size: 23px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.5s ease;
+  padding: 10px 10px 10px 10px;
+  margin-top: 20%;
+  margin-left: 0%;
+    font-size: 18px;
+    
+
+}
+.sidebar.open .add-chat-window-button:hover{
+  background: #d3d3d3;
+  color: #11101d;
+  font-size: 18px;
+  border-radius: 12px;
+  /* border-radius: 5px; */
+}
+
+
+
 .sidebar i{
   color: #fff;
   height: 60px;

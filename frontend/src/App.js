@@ -194,7 +194,7 @@ else{
    
  <SideNavbar
         chats={chats}
-        selectedChatId={selectedChatIdRef.current}
+        selectedChatId={selectedChatId}
         handleChatItemClick={handleChatItemClick}
         handleAddChatWindow={handleAddChatWindow}
       />

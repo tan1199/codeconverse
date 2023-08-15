@@ -3,6 +3,7 @@ import './SideNavbar.css';
 import './ChatItem.css';
 
 const ChatItem = ({ chat, selectedChatId, handleChatItemClick }) => {
+  console.log("zxcv",selectedChatId)
   return (
     <div
       key={chat.chatId}

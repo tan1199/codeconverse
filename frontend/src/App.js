@@ -26,7 +26,33 @@ const App = () => {
   const [chatMessage, setChatMessage] = useState('');
   const [statusSocket, setStatusSocket] = useState(null);
   const [chatSocket, setChatSocket] = useState(null);
-
+  const [valueList, setValueList] = useState([]);
+  const [checkedValues, setCheckedValues] = useState([]);
+  const [progressbar, setprogressbar] = useState(false);
+  function generateRandomString() {
+    // const strlength=Math.floor(Math.random() * 11) + 10;
+    const strlength=10;
+    const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    const charactersLength = characters.length;
+    
+    for (let i = 0; i < strlength; i++) {
+      const randomIndex = Math.floor(Math.random() * charactersLength);
+      result += characters.charAt(randomIndex);
+    }
+    
+    return result;
+  }
+  // Function to handle checkbox changes.
+const handleCheckboxChange = (value) => {
+  if (checkedValues.includes(value)) {
+    // If value is already checked, remove it from the checked values.
+    setCheckedValues(checkedValues.filter((item) => item !== value));
+  } else {
+    // If value is not checked, add it to the checked values.
+    setCheckedValues([...checkedValues, value]);
+  }
+};
   useEffect(() => {
     const newStatusSocket = new WebSocket('ws://localhost:8000/ws/status');
     newStatusSocket.onopen = () => {
@@ -145,10 +171,19 @@ const handleAddChatWindow = () => {
               : chat
           );
         });
-
+        if(data.progressbar){
+          setprogressbar(true);
+        }
+else{
+  setprogressbar(false);
+}
     console.log(chats);
+    setValueList([...valueList, generateRandomString()]);
+    console.log("zxzxzx");
+    console.log(valueList);
+    console.log(checkedValues);
   }    };
-}, [statusSocket, chatSocket,selectedChatId]);
+}, [statusSocket, chatSocket,selectedChatId,checkedValues,valueList]);
 
   return (
     <div className="app">
@@ -164,7 +199,10 @@ const handleAddChatWindow = () => {
         handleAddChatWindow={handleAddChatWindow}
       />
         <Routes>
-          <Route path='/' exact element={<Home />} />
+          <Route path='/' exact element={<Home values={valueList} 
+        checkedValues={checkedValues}
+        onCheckboxChange={handleCheckboxChange}
+        progressbar={progressbar}/>} />
           <Route path='/reports' element={<Reports />} />
           <Route path='/products' element={<Products />} />
           <Route path='chats' element={<ChatPanel   

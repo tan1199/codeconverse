@@ -10,13 +10,63 @@
          width: 82%;
      float: right;
   }
+  .input_and_button{
+    display: flex;
+
+    flex-direction: column;
+  }
+  .checkbox-btn {
+    display: flex;
+    /* flex-direction: column; */
+    justify-content: center;
+    width: 88%;
+    height: 450px;
+    margin-left: 5%;
+    margin-top: 3%;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #ffd2f2;
+  }
+  .checkbox-holder{
+    flex: 1;
+    padding: 10px;
+    /* border: 12px solid #ccc; */
+    box-shadow: 0 0 10px #ffd2f2;
+    border-right: none; 
+        width: 40px;
+height: 450px;
+flex-grow: 1;
+overflow-y: auto;
+  }
+  .checkbox-holder::-webkit-scrollbar {
+    height: 10px;
+  
+    width: 11px; /* Increase the scrollbar width */
+    background-color:  #0c051a; /* Set the background color of the scrollbar track */
+    border-radius: 5px;
+  
+    box-shadow: 0 0 10px #0e0a0d; /* Set the curvature of the scrollbar */}
+  .checkbox-holder::-webkit-scrollbar-track {
+    background-color:  #0c051a;
+    height: 100px;
+  
+  }
+  
+  .checkbox-holder::-webkit-scrollbar-thumb {
+    background-color: #373142; /* Set the color of the scrollbar thumb */
+    border-radius: 10px; 
+  }
+  
   
   
   .button-container {
+      
+    flex: 3;
+    padding: 10px;
+    box-shadow: 0 0 10px #ffd2f2;
+    border-radius: 0px 10px 10px 0px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-top: 10%;
 
     gap: 10px;
   }
@@ -39,16 +89,19 @@
   .input-container-home {
     background-color: #0c051a;
     padding: 40px;
-    position: sticky;
+    /* position: relative; */
+    /* border: 10px solid #c11818; */
+    margin-top:2.5%;
+    /* flex: 1; */
     bottom: 0;
     display: flex;
     flex-direction: column;
 }
 
 .input-box-home {
-margin-left: 40px;
+  flex: 1;
 margin-right: 40px;
-width: 80%;
+width: 70%;
 height: 20%;
   padding: 5px;
   border: 1px solid #ccc;
@@ -63,7 +116,7 @@ outline:none;
 box-shadow: 0 0 10px #ffd2f2;
 }
 .send-button-home {
-width:10%;
+width:250px;
 height:40px;
 background-color: #fbeee0;
 border: 2px solid #422800;
@@ -165,30 +218,135 @@ transform: translate(2px, 2px);
           opacity: 0;
         }
       }
-      
+    
+.parahome{
+  border: #422800;
+  color: #fbeee0;
+  margin-top: 41%;
 
-      .progress {
-        background: rgba(255,255,255,0.1);
-        justify-content: flex-start;
-        border-radius: 100px;
-        align-items: center;
-        position: relative;
-        padding: 0 5px;
+}
+
+      /* Checkbox.css */
+
+      /* App.css */
+      .checkbox-list {
         display: flex;
-        height: 40px;
-        width: 500px;
+        flex-direction: column;
+        /* border: 5px solid #2acd0d; */
+        margin-top: 60%;
+        /* position:fixed; */
       }
       
-      .progress-value {
-        animation: load 30s normal forwards;
-        box-shadow: 0 10px 40px -10px #fff;
-        border-radius: 100px;
-        background: #fff;
-        height: 30px;
-        width: 0;
+      .checkbox-list .checkbox-wrapper {
+        display: flex;
+        align-items:flex-start; /* Align items vertically */
+        margin: 4px 0;
+        border: #422800;
+      }
+      .checkbox-wrapper{
+        width: 180px;
+        background-color: #b66714;
+        /* border: 5px solid #e48116; */
+        background-color: #fbeee0;
+border: 2px solid #422800;
+border-radius: 10px;
+        margin: 5px 5px 5px 5px;
+        padding: 5px 5px 5px 5px;
+      }
+      .checkbox-list input[type="checkbox"] {
+        display: none;
+        visibility: hidden;
       }
       
-      @keyframes load {
-        0% { width: 0; }
-        100% { width: 68%; }
+      .checkbox-list .cbx {
+        margin-left: 8px; /* Add space between checkbox and label */
+        -webkit-user-select: none;
+        user-select: none;
+        cursor: pointer;
       }
+
+.checkbox-wrapper input[type="checkbox"] {
+  background-color: #ccc;
+  display: none;
+  visibility: hidden;
+}
+
+.checkbox-wrapper .cbx {
+  margin: auto;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+}
+.checkbox-wrapper .cbx span {
+  display: inline-block;
+  vertical-align: middle;
+  color: #1c0739;
+  font-size:larger;
+  transform: translate3d(0, 0, 0);
+}
+.checkbox-wrapper .cbx span:first-child {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  transform: scale(1);
+  vertical-align: middle;
+  border: 1px solid #9098A9;
+  transition: all 0.2s ease;
+}
+.checkbox-wrapper .cbx span:first-child svg {
+  position: absolute;
+  top: 3px;
+  left: 2px;
+  fill: none;
+  stroke: #FFFFFF;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 16px;
+  stroke-dashoffset: 16px;
+  transition: all 0.3s ease;
+  transition-delay: 0.1s;
+  transform: translate3d(0, 0, 0);
+}
+.checkbox-wrapper .cbx span:first-child:before {
+  content: "";
+  width: 100%;
+  height: 100%;
+  background: #11101D;
+  display: block;
+  transform: scale(0);
+  opacity: 1;
+  border-radius: 50%;
+}
+.checkbox-wrapper .cbx span:last-child {
+  padding-left: 8px;
+}
+.checkbox-wrapper .cbx:hover span:first-child {
+  border-color: #11101D;
+}
+
+.checkbox-wrapper .inp-cbx:checked + .cbx span:first-child {
+  background: #11101D;
+  border-color: #11101D;
+  animation: wave-46 0.4s ease;
+}
+.checkbox-wrapper .inp-cbx:checked + .cbx span:first-child svg {
+  stroke-dashoffset: 0;
+}
+.checkbox-wrapper .inp-cbx:checked + .cbx span:first-child:before {
+  transform: scale(3.5);
+  opacity: 0;
+  transition: all 0.6s ease;
+}
+
+@keyframes wave-46 {
+  50% {
+    transform: scale(0.9);
+  }
+}
+
+/* Checkbox.css */
+
+
+/* Rest of the CSS styles as provided in the original question */

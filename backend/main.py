@@ -122,6 +122,8 @@ async def chat_socket(websocket: WebSocket):
             message['action'] = 'chat'
             message['message'] = 'valid link'
             message['chatId'] = query_data["chatId"]
+            message['progressbar'] = True
+
             await websocket.send_json(message)
             await asyncio.sleep(8)
             if data:
@@ -136,6 +138,9 @@ async def chat_socket(websocket: WebSocket):
                     message['action'] = 'chat'
                     message['message'] = 'Invalid link'
                     message['chatId'] = query_data["chatId"]
+                    message['newvalue'] = "acha"
+                    message['progressbar'] = False
+
                     await websocket.send_json(message)
                 else:
                     username, repo_name = repo_parts

@@ -10,6 +10,7 @@ const ChatMessage = ({ avatar, username, message, timestamp }) => {
       <div className="message-content">
         <div className="username">{username}</div>
         <div className="message">{message}</div>
+        <div>fgdfgd</div>
       </div>
     </div>
   );

@@ -22,12 +22,43 @@
   text-shadow: 4px 4px 8px rgba(183, 0, 255, 0.5); /* Add text shadow */
   margin-bottom: 5%;
 }
-.progress-message{
-  display: flex;
 
-  flex-direction: column;
+
+.container {
+  text-align: left; /* Align the inner divs to the left */
+  margin-left: 25%;
+  margin-top: -2%;
+position: relative;
 }
 
+.inner-div {
+  display: inline-block;
+  vertical-align: top; /* Align the top edges of the divs */
+  margin-right: 10px; /* Add some spacing between the divs */
+  font-weight: 600;
+font-size: 20px;
+}
+
+
+
+
+
+.progress-message{
+  max-width:80%;
+  min-width: 20%;
+flex: 2;}
+.progress-icon{
+   /* margin: 50px -50px 50px 50px; */
+   margin-top: -25px;
+  margin-left: 10px; 
+/* flex:1; */
+}
+.progress{
+  /* position: relative; */
+  margin-left: 15%;
+  display: flex;
+  flex-direction: column;
+}
 
   .input_and_button{
     display: flex;
@@ -195,16 +226,17 @@ transform: translate(2px, 2px);
 
     .lds-ripple {
         display: inline-block;
-        position: fixed;
+        position: relative;
         width: 80px;
         height: 80px;
-        margin-left: 8%;
+        /* margin-left: 8%; */
         margin-top: -3%;
 
 
       }
       .lds-ripple div {
         position: absolute;
+        margin-top: -23px;
         border: 4px solid #fff;
         opacity: 1;
         border-radius: 50%;

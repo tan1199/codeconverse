@@ -91,7 +91,7 @@ const handleAddChatWindow = () => {
   const code = `
   import loggingvvv
   `
-  const handleAddDataSourceClick = (datasourcevalue) => {
+  const handleAddDataSourceClick = (datasourcevalue, sourcetype) => {
     // Handle the logic for sending the textbox content (e.g., display or process it)
     console.log('Sending:', datasourcevalue);
     // Reset the textbox and hide it after sending
@@ -104,8 +104,10 @@ const handleAddChatWindow = () => {
       return;
     }
 
-    setProcessMessage(`Sending ${action} action`);
-    socket.send(JSON.stringify({ action, data: datasourcevalue }));
+    setProcessMessage(`Parsing  ${datasourcevalue}`);
+  const urlMessage = JSON.stringify({ type: 'url', url_string: datasourcevalue, sourcetype:sourcetype });
+  socket.send(urlMessage);
+    // socket.send(JSON.stringify({ action, data: datasourcevalue }));
   };
 
   const handleFileUpload = (selectedFile) => {
@@ -122,7 +124,7 @@ const handleAddChatWindow = () => {
       const filenameMessage = JSON.stringify({ type: 'filename', filename: selectedFile.name });
       socket.send(filenameMessage);
       
-      setProcessMessage(`Sending ${action} action`);
+      setProcessMessage(`Uploadin ${selectedFile.name}`);
         const reader = new FileReader();
         reader.onload = (event) => {
           const chunk = event.target.result;
@@ -196,6 +198,12 @@ const handleAddChatWindow = () => {
       if (data.action === 'process') {
         setProcessMessage(data.message);
         console.log("progress_message ",data.message);
+        if ('data_source_name' in data){
+          if(valueList.length==0){
+            setCheckedValues([...checkedValues, data.data_source_name]);
+          }
+          setValueList([...valueList, data.data_source_name]);
+        }
       }
     };
 
@@ -226,7 +234,7 @@ else{
   setprogressbar(false);
 }
     console.log(chats);
-    setValueList([...valueList, generateRandomString()]);
+
     console.log("zxzxzx");
     console.log(valueList);
     console.log(checkedValues);

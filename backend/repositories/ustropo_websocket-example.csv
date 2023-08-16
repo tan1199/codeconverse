@@ -1,0 +1,515 @@
+code_chunk,file_name,file_path,path_to_code_chunk,parent,prev_sibling,next_sibling,start_point,end_point,has_error,code_node_type,code_identifier,is_chunked,num_tokens,uuid_str
+"from fastapi import FastAPI, WebSocket
+import random
+
+# Create application
+app = FastAPI(title='WebSocket Example')
+
+@app.websocket(""/ws"")
+async def websocket_endpoint(websocket: WebSocket):
+    print('a new websocket to create.')
+    await websocket.accept()
+    while True:
+        try:
+            # Wait for any message from the client
+            await websocket.receive_text()
+            # Send message to the client
+            resp = {'value': random.uniform(0, 1)}
+            await websocket.send_json(resp)
+        except Exception as e:
+            print('error:', e)
+            break
+    print('Bye..')
+",run.py,C:\Users\Tanmay Saini\Desktop\codeconverse\backend\repositories\ustropo_websocket-example\backend\run.py,,NA,Previous sibling does not exist,"from fastapi import FastAPI, WebSocket
+import random
+# Create application
+app = FastAPI(title='WebSocket Example')","(0, 0)","(21, 0)",N,module,module,,128,a10c92c2-b964-4300-a1ef-80862450052f
+"from fastapi import FastAPI, WebSocket
+import random
+# Create application
+app = FastAPI(title='WebSocket Example')",run.py,C:\Users\Tanmay Saini\Desktop\codeconverse\backend\repositories\ustropo_websocket-example\backend\run.py,module/,module,Previous sibling does not exist,"@app.websocket(""/ws"")
+async def websocket_endpoint(websocket: WebSocket):
+    print('a new websocket to create.')
+    await websocket.accept()
+    while True:
+        try:
+            # Wait for any message from the client
+            await websocket.receive_text()
+            # Send message to the client
+            resp = {'value': random.uniform(0, 1)}
+            await websocket.send_json(resp)
+        except Exception as e:
+            print('error:', e)
+            break
+    print('Bye..')","(0, 0)","(4, 40)",N,"import_from_statement,import_statement,comment,expression_statement",import_from_statement,,22,1ffabdc9-2983-4d99-bcfa-84c537ebcb49
+"@app.websocket(""/ws"")
+async def websocket_endpoint(websocket: WebSocket):
+    print('a new websocket to create.')
+    await websocket.accept()
+    while True:
+        try:
+            # Wait for any message from the client
+            await websocket.receive_text()
+            # Send message to the client
+            resp = {'value': random.uniform(0, 1)}
+            await websocket.send_json(resp)
+        except Exception as e:
+            print('error:', e)
+            break
+    print('Bye..')",run.py,C:\Users\Tanmay Saini\Desktop\codeconverse\backend\repositories\ustropo_websocket-example\backend\run.py,module/,module,"from fastapi import FastAPI, WebSocket
+import random
+# Create application
+app = FastAPI(title='WebSocket Example')",Next sibling does not exist,"(6, 0)","(20, 18)",N,function_definition,"async def websocket_endpoint(websocket: WebSocket):
+    print('a new websocket to create.')
+    await websocket.accept()
+    while True:
+        try:
+            # Wait for any message from the client
+            await websocket.receive_text()
+            # Send message to the client
+            resp = {'value': random.uniform(0, 1)}
+            await websocket.send_json(resp)
+        except Exception as e:
+            print('error:', e)
+            break
+    print('Bye..')",,103,6dfe4f27-3291-4092-93ab-ce8053b6a80e
+"import './App.css';
+import React from 'react';
+import {AreaChart, CartesianGrid, Area, XAxis, YAxis} from 'recharts'
+
+
+class App extends React.Component {
+  state = {data: [], count: 0}
+
+  componentDidMount() {
+    const ws = new WebSocket('ws://localhost:8000/ws')
+    ws.onmessage = this.onMessage
+
+    this.setState({
+      ws: ws,
+      // Create an interval to send echo messages to the server
+      interval: setInterval(() => ws.send('echo'), 1000)
+    })
+  }
+
+  componentWillUnmount() {
+    const {ws, interval} = this.state;
+    ws.close()
+    clearInterval(interval)
+  }
+
+  onMessage = (ev) => {
+    const recv = JSON.parse(ev.data)
+    const {data, count} = this.state
+    let newData = [...data]
+    // Remove first data if we received more than 20 values
+    if (count > 20) {
+      newData = newData.slice(1)
+    }
+    newData.push({value: recv.value, index: count})
+    this.setState({data: newData, count: count + 1})
+  }
+
+  render() {
+    return (
+      <div className=""App"">
+        <header className=""App-header"">
+          <h2>
+            WebSocket Example
+          </h2>
+          <AreaChart width={900} height={600} data={this.state.data}>
+            <defs>
+              <linearGradient id=""colorValue"" x1=""0"" y1=""0"" x2=""0"" y2=""1"">
+                <stop offset=""5%"" stopColor=""#33ff33"" stopOpacity={0.8}/>
+                <stop offset=""95%"" stopColor=""#33ff33"" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <XAxis dataKey=""index"" />
+            <YAxis />
+            <CartesianGrid stroke=""#666"" strokeDasharray=""5 5"" />
+            <Area type=""monotone"" dataKey=""value"" stroke=""#33ff33"" fill=""url(#colorValue)"" isAnimationActive={false}/>
+          </AreaChart>
+        </header>
+      </div>
+    )
+  }
+}
+
+export default App;
+",App.js,C:\Users\Tanmay Saini\Desktop\codeconverse\backend\repositories\ustropo_websocket-example\frontend\src\App.js,,NA,Previous sibling does not exist,"import './App.css';
+import React from 'react';
+import {AreaChart, CartesianGrid, Area, XAxis, YAxis} from 'recharts'","(0, 0)","(63, 0)",N,program,program,,467,21d1d3e5-97e3-4886-958a-6563a341674b
+"import './App.css';
+import React from 'react';
+import {AreaChart, CartesianGrid, Area, XAxis, YAxis} from 'recharts'",App.js,C:\Users\Tanmay Saini\Desktop\codeconverse\backend\repositories\ustropo_websocket-example\frontend\src\App.js,program/,program,Previous sibling does not exist,"class App extends React.Component {
+  state = {data: [], count: 0}
+
+  componentDidMount() {
+    const ws = new WebSocket('ws://localhost:8000/ws')
+    ws.onmessage = this.onMessage
+
+    this.setState({
+      ws: ws,
+      // Create an interval to send echo messages to the server
+      interval: setInterval(() => ws.send('echo'), 1000)
+    })
+  }
+
+  componentWillUnmount() {
+    const {ws, interval} = this.state;
+    ws.close()
+    clearInterval(interval)
+  }
+
+  onMessage = (ev) => {
+    const recv = JSON.parse(ev.data)
+    const {data, count} = this.state
+    let newData = [...data]
+    // Remove first data if we received more than 20 values
+    if (count > 20) {
+      newData = newData.slice(1)
+    }
+    newData.push({value: recv.value, index: count})
+    this.setState({data: newData, count: count + 1})
+  }
+
+  render() {
+    return (
+      <div className=""App"">
+        <header className=""App-header"">
+          <h2>
+            WebSocket Example
+          </h2>
+          <AreaChart width={900} height={600} data={this.state.data}>
+            <defs>
+              <linearGradient id=""colorValue"" x1=""0"" y1=""0"" x2=""0"" y2=""1"">
+                <stop offset=""5%"" stopColor=""#33ff33"" stopOpacity={0.8}/>
+                <stop offset=""95%"" stopColor=""#33ff33"" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <XAxis dataKey=""index"" />
+            <YAxis />
+            <CartesianGrid stroke=""#666"" strokeDasharray=""5 5"" />
+            <Area type=""monotone"" dataKey=""value"" stroke=""#33ff33"" fill=""url(#colorValue)"" isAnimationActive={false}/>
+          </AreaChart>
+        </header>
+      </div>
+    )
+  }
+}","(0, 0)","(2, 69)",N,"import_statement,import_statement,import_statement",import_statement,,32,47998358-cfbd-40d0-8a30-7bb8850ef79d
+"class App extends React.Component {
+  state = {data: [], count: 0}
+
+  componentDidMount() {
+    const ws = new WebSocket('ws://localhost:8000/ws')
+    ws.onmessage = this.onMessage
+
+    this.setState({
+      ws: ws,
+      // Create an interval to send echo messages to the server
+      interval: setInterval(() => ws.send('echo'), 1000)
+    })
+  }
+
+  componentWillUnmount() {
+    const {ws, interval} = this.state;
+    ws.close()
+    clearInterval(interval)
+  }
+
+  onMessage = (ev) => {
+    const recv = JSON.parse(ev.data)
+    const {data, count} = this.state
+    let newData = [...data]
+    // Remove first data if we received more than 20 values
+    if (count > 20) {
+      newData = newData.slice(1)
+    }
+    newData.push({value: recv.value, index: count})
+    this.setState({data: newData, count: count + 1})
+  }
+
+  render() {
+    return (
+      <div className=""App"">
+        <header className=""App-header"">
+          <h2>
+            WebSocket Example
+          </h2>
+          <AreaChart width={900} height={600} data={this.state.data}>
+            <defs>
+              <linearGradient id=""colorValue"" x1=""0"" y1=""0"" x2=""0"" y2=""1"">
+                <stop offset=""5%"" stopColor=""#33ff33"" stopOpacity={0.8}/>
+                <stop offset=""95%"" stopColor=""#33ff33"" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <XAxis dataKey=""index"" />
+            <YAxis />
+            <CartesianGrid stroke=""#666"" strokeDasharray=""5 5"" />
+            <Area type=""monotone"" dataKey=""value"" stroke=""#33ff33"" fill=""url(#colorValue)"" isAnimationActive={false}/>
+          </AreaChart>
+        </header>
+      </div>
+    )
+  }
+}",App.js,C:\Users\Tanmay Saini\Desktop\codeconverse\backend\repositories\ustropo_websocket-example\frontend\src\App.js,program/,program,"import './App.css';
+import React from 'react';
+import {AreaChart, CartesianGrid, Area, XAxis, YAxis} from 'recharts'",export default App;,"(5, 0)","(60, 1)",N,class_declaration,App,,431,8a188f28-20ca-4281-b3d5-252f7be81104
+"state = {data: [], count: 0}",App.js,C:\Users\Tanmay Saini\Desktop\codeconverse\backend\repositories\ustropo_websocket-example\frontend\src\App.js,program/class_declaration-App/,App,Previous sibling does not exist,"componentDidMount() {
+    const ws = new WebSocket('ws://localhost:8000/ws')
+    ws.onmessage = this.onMessage
+
+    this.setState({
+      ws: ws,
+      // Create an interval to send echo messages to the server
+      interval: setInterval(() => ws.send('echo'), 1000)
+    })
+  }","(6, 2)","(6, 30)",N,field_definition,state,,11,2b44462c-01c8-4b28-b469-83f6a21b9ba4
+"componentDidMount() {
+    const ws = new WebSocket('ws://localhost:8000/ws')
+    ws.onmessage = this.onMessage
+
+    this.setState({
+      ws: ws,
+      // Create an interval to send echo messages to the server
+      interval: setInterval(() => ws.send('echo'), 1000)
+    })
+  }",App.js,C:\Users\Tanmay Saini\Desktop\codeconverse\backend\repositories\ustropo_websocket-example\frontend\src\App.js,program/class_declaration-App/,App,"state = {data: [], count: 0}","componentWillUnmount() {
+    const {ws, interval} = this.state;
+    ws.close()
+    clearInterval(interval)
+  }","(8, 2)","(17, 3)",N,method_definition,componentDidMount,,70,6288bb1c-30b6-46df-bd50-9bec5e657273
+"componentWillUnmount() {
+    const {ws, interval} = this.state;
+    ws.close()
+    clearInterval(interval)
+  }",App.js,C:\Users\Tanmay Saini\Desktop\codeconverse\backend\repositories\ustropo_websocket-example\frontend\src\App.js,program/class_declaration-App/,App,"componentDidMount() {
+    const ws = new WebSocket('ws://localhost:8000/ws')
+    ws.onmessage = this.onMessage
+
+    this.setState({
+      ws: ws,
+      // Create an interval to send echo messages to the server
+      interval: setInterval(() => ws.send('echo'), 1000)
+    })
+  }","onMessage = (ev) => {
+    const recv = JSON.parse(ev.data)
+    const {data, count} = this.state
+    let newData = [...data]
+    // Remove first data if we received more than 20 values
+    if (count > 20) {
+      newData = newData.slice(1)
+    }
+    newData.push({value: recv.value, index: count})
+    this.setState({data: newData, count: count + 1})
+  }","(19, 2)","(23, 3)",N,method_definition,componentWillUnmount,,26,eac99255-66c8-4276-a5fc-36db76d8bed9
+"onMessage = (ev) => {
+    const recv = JSON.parse(ev.data)
+    const {data, count} = this.state
+    let newData = [...data]
+    // Remove first data if we received more than 20 values
+    if (count > 20) {
+      newData = newData.slice(1)
+    }
+    newData.push({value: recv.value, index: count})
+    this.setState({data: newData, count: count + 1})
+  }",App.js,C:\Users\Tanmay Saini\Desktop\codeconverse\backend\repositories\ustropo_websocket-example\frontend\src\App.js,program/class_declaration-App/,App,"componentWillUnmount() {
+    const {ws, interval} = this.state;
+    ws.close()
+    clearInterval(interval)
+  }","render() {
+    return (
+      <div className=""App"">
+        <header className=""App-header"">
+          <h2>
+            WebSocket Example
+          </h2>
+          <AreaChart width={900} height={600} data={this.state.data}>
+            <defs>
+              <linearGradient id=""colorValue"" x1=""0"" y1=""0"" x2=""0"" y2=""1"">
+                <stop offset=""5%"" stopColor=""#33ff33"" stopOpacity={0.8}/>
+                <stop offset=""95%"" stopColor=""#33ff33"" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <XAxis dataKey=""index"" />
+            <YAxis />
+            <CartesianGrid stroke=""#666"" strokeDasharray=""5 5"" />
+            <Area type=""monotone"" dataKey=""value"" stroke=""#33ff33"" fill=""url(#colorValue)"" isAnimationActive={false}/>
+          </AreaChart>
+        </header>
+      </div>
+    )
+  }","(25, 2)","(35, 3)",N,field_definition,onMessage,,98,54adc84c-81ba-40eb-9f05-8a0e2e024abb
+"render() {
+    return (
+      <div className=""App"">
+        <header className=""App-header"">
+          <h2>
+            WebSocket Example
+          </h2>
+          <AreaChart width={900} height={600} data={this.state.data}>
+            <defs>
+              <linearGradient id=""colorValue"" x1=""0"" y1=""0"" x2=""0"" y2=""1"">
+                <stop offset=""5%"" stopColor=""#33ff33"" stopOpacity={0.8}/>
+                <stop offset=""95%"" stopColor=""#33ff33"" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <XAxis dataKey=""index"" />
+            <YAxis />
+            <CartesianGrid stroke=""#666"" strokeDasharray=""5 5"" />
+            <Area type=""monotone"" dataKey=""value"" stroke=""#33ff33"" fill=""url(#colorValue)"" isAnimationActive={false}/>
+          </AreaChart>
+        </header>
+      </div>
+    )
+  }",App.js,C:\Users\Tanmay Saini\Desktop\codeconverse\backend\repositories\ustropo_websocket-example\frontend\src\App.js,program/class_declaration-App/,App,"onMessage = (ev) => {
+    const recv = JSON.parse(ev.data)
+    const {data, count} = this.state
+    let newData = [...data]
+    // Remove first data if we received more than 20 values
+    if (count > 20) {
+      newData = newData.slice(1)
+    }
+    newData.push({value: recv.value, index: count})
+    this.setState({data: newData, count: count + 1})
+  }",Next sibling does not exist,"(37, 2)","(59, 3)",N,method_definition,render,,218,57749acc-7c4f-419f-b2d1-2057702a4cb6
+export default App;,App.js,C:\Users\Tanmay Saini\Desktop\codeconverse\backend\repositories\ustropo_websocket-example\frontend\src\App.js,program/,program,"class App extends React.Component {
+  state = {data: [], count: 0}
+
+  componentDidMount() {
+    const ws = new WebSocket('ws://localhost:8000/ws')
+    ws.onmessage = this.onMessage
+
+    this.setState({
+      ws: ws,
+      // Create an interval to send echo messages to the server
+      interval: setInterval(() => ws.send('echo'), 1000)
+    })
+  }
+
+  componentWillUnmount() {
+    const {ws, interval} = this.state;
+    ws.close()
+    clearInterval(interval)
+  }
+
+  onMessage = (ev) => {
+    const recv = JSON.parse(ev.data)
+    const {data, count} = this.state
+    let newData = [...data]
+    // Remove first data if we received more than 20 values
+    if (count > 20) {
+      newData = newData.slice(1)
+    }
+    newData.push({value: recv.value, index: count})
+    this.setState({data: newData, count: count + 1})
+  }
+
+  render() {
+    return (
+      <div className=""App"">
+        <header className=""App-header"">
+          <h2>
+            WebSocket Example
+          </h2>
+          <AreaChart width={900} height={600} data={this.state.data}>
+            <defs>
+              <linearGradient id=""colorValue"" x1=""0"" y1=""0"" x2=""0"" y2=""1"">
+                <stop offset=""5%"" stopColor=""#33ff33"" stopOpacity={0.8}/>
+                <stop offset=""95%"" stopColor=""#33ff33"" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <XAxis dataKey=""index"" />
+            <YAxis />
+            <CartesianGrid stroke=""#666"" strokeDasharray=""5 5"" />
+            <Area type=""monotone"" dataKey=""value"" stroke=""#33ff33"" fill=""url(#colorValue)"" isAnimationActive={false}/>
+          </AreaChart>
+        </header>
+      </div>
+    )
+  }
+}",Next sibling does not exist,"(62, 0)","(62, 19)",N,export_statement,export_statement,,4,64ceecb0-3d21-48cd-9980-751f9f4fc953
+"import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();
+",index.js,C:\Users\Tanmay Saini\Desktop\codeconverse\backend\repositories\ustropo_websocket-example\frontend\src\index.js,,NA,Previous sibling does not exist,"import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();","(0, 0)","(17, 0)",N,program,program,,118,61efa522-cfaf-47c3-9864-11127d604f51
+"import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();",index.js,C:\Users\Tanmay Saini\Desktop\codeconverse\backend\repositories\ustropo_websocket-example\frontend\src\index.js,program/,program,Previous sibling does not exist,Next sibling does not exist,"(0, 0)","(16, 18)",N,"import_statement,import_statement,import_statement,import_statement,import_statement,expression_statement,comment,comment,comment,expression_statement",import_statement,,116,59b39b50-126b-4e08-88e0-d650a1d241e2
+"const reportWebVitals = onPerfEntry => {
+  if (onPerfEntry && onPerfEntry instanceof Function) {
+    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+      getCLS(onPerfEntry);
+      getFID(onPerfEntry);
+      getFCP(onPerfEntry);
+      getLCP(onPerfEntry);
+      getTTFB(onPerfEntry);
+    });
+  }
+};
+
+export default reportWebVitals;
+",reportWebVitals.js,C:\Users\Tanmay Saini\Desktop\codeconverse\backend\repositories\ustropo_websocket-example\frontend\src\reportWebVitals.js,,NA,Previous sibling does not exist,"const reportWebVitals = onPerfEntry => {
+  if (onPerfEntry && onPerfEntry instanceof Function) {
+    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+      getCLS(onPerfEntry);
+      getFID(onPerfEntry);
+      getFCP(onPerfEntry);
+      getLCP(onPerfEntry);
+      getTTFB(onPerfEntry);
+    });
+  }
+};
+export default reportWebVitals;","(0, 0)","(13, 0)",N,program,program,,116,71e7db9b-321c-4d35-be8d-dbff11d1bccb
+"const reportWebVitals = onPerfEntry => {
+  if (onPerfEntry && onPerfEntry instanceof Function) {
+    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+      getCLS(onPerfEntry);
+      getFID(onPerfEntry);
+      getFCP(onPerfEntry);
+      getLCP(onPerfEntry);
+      getTTFB(onPerfEntry);
+    });
+  }
+};
+export default reportWebVitals;",reportWebVitals.js,C:\Users\Tanmay Saini\Desktop\codeconverse\backend\repositories\ustropo_websocket-example\frontend\src\reportWebVitals.js,program/,program,Previous sibling does not exist,Next sibling does not exist,"(0, 0)","(12, 31)",N,"lexical_declaration,export_statement",reportWebVitals,,116,0f8a31c7-b843-4c6e-b6fc-a1bd5637ea74

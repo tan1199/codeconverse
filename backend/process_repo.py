@@ -11,7 +11,7 @@ def process_repo(url):
     
     # Search for the pattern in the input URL
     match = re.search(pattern, url)
-    
+    print(match)
     if match:
         # Extract the username and repo name from the matched groups
         user_name = match.group(1)
@@ -19,9 +19,9 @@ def process_repo(url):
         if user_name and repo_name:
           print("Username:", user_name)
           print("Repository:", repo_name)
-        #   extract_user_repo_github(url,user_name,repo_name)
+          extract_user_repo_github(url,user_name,repo_name)
           print("nice")
-          create_repo_ast(f"{user_name}_{repo_name}")
+          # create_repo_ast(f"{user_name}_{repo_name}")
           print("ioio")
         else:
           print("Invalid GitHub repository URL")

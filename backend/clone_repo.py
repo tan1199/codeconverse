@@ -6,7 +6,7 @@ def create_folder(folder_name):
         os.makedirs(folder_name)
 def extract_user_repo_github(url,user_name,repo_name):
     # Define a regular expression pattern to match GitHub repository URLs
-    destination = f"backend/repositories/{user_name}_{repo_name}"
+    destination = f"repositories/{user_name}_{repo_name}"
     create_folder(destination)  
     try:
         result = subprocess.run(["git", "clone", url, destination], capture_output=True, text=True, check=True)

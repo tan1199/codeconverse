@@ -127,9 +127,10 @@ const len=values.length;
             value={datasourcevalue}
             onChange={handleTextboxChange}
             className='input-box-home'
+            autoFocus 
           />
           <button onClick = {() =>  {
-          handleAddDataSourceClick(datasourcevalue);
+          handleAddDataSourceClick(datasourcevalue,sourcetype);
           setSourcetype('');
           setdatasourcevalue('')
           }} className="send-button-home">Upload</button>
@@ -138,10 +139,15 @@ const len=values.length;
       )}
       </div>
       {/* {progressbar && (<div class="lds-ripple"><div></div><div></div></div>)} */}
-      {processMessage!=='' && (<div className='progress-message'>
-        <div>{processMessage}</div>
-        <div><div class="lds-ripple"><div></div><div></div></div></div>
+      {processMessage!=='' && (<div className='container'>
+        <div className='inner-div'>{processMessage}</div>
+        {/* <div className='inner-div'>fgdg</div> */}
+        <div className='inner-div'><div class="lds-ripple"><div></div><div></div></div></div>
       </div>)}
+      {/* <div class="container">
+  <div class="inner-div">Div 1</div>
+  <div class="inner-div">Div 2</div>
+</div> */}
 
     </div>
   );

@@ -319,4 +319,4 @@ def create_repo_ast(repo_name):
       create_ast(file_path, file_extension)
     if len(df)>0:
       df['code_chunk'] = df['code_chunk'].apply(bytes_to_string)
-      df.to_csv(f"{root}/repositories/co.csv", index=False)
+      df.to_csv(f"{root}/repositories/{repo_name}.csv", index=False)

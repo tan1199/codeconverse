@@ -52,57 +52,116 @@ logging.basicConfig(
 
 
 
-from fastapi import FastAPI, WebSocket, HTTPException
+from fastapi import FastAPI, WebSocket, HTTPException, File, UploadFile
 from pydantic import BaseModel
-import os
+import os, shutil
 
+from fastapi.responses import JSONResponse
 app = FastAPI()
+async def simulate_processing_stage_1():
+    # Simulate some processing for stage 1
+    await asyncio.sleep(10)
 
-class RepoLink(BaseModel):
-    repoLink: str
+async def simulate_processing_stage_2():
+    # Simulate some processing for stage 2
+    await asyncio.sleep(5)
 
-@app.websocket("/ws/status")
+async def simulate_processing_stage_3():
+    # Simulate some processing for stage 3
+    await asyncio.sleep(1)
+@app.websocket("/ws/process")
 async def status_websocket(websocket: WebSocket):
     await websocket.accept()
-    logging.info(f"hello: ")
-    try:
-        while True:
-            data = await websocket.receive_text()
-            print("fdgdfgfdf fgfhf")
-            logging.info(f"Received new message: ")
-            message = {}
-            if data:
-                logging.info(f"Received new message: {data} ")
+    while True:
+        progress_message = {}
+        message = await websocket.receive_text()
+        message_data = json.loads(message)
+        filename = message_data.get('filename')
+        print("llll",filename)
+        data = await websocket.receive_bytes()  # Receive binary data in chunks
+        if data:
+            print("ertre")
 
-                repo_parts = "qwe"
+            # Process the received binary data as a chunk of a larger file
+            with open(f'repositories/data/{filename}', "ab") as f:
+                print("opop")
+                f.write(data)
+            await websocket.send_text(json.dumps({"type": "success"}))
+            progress_message['action'] = 'process'
+            progress_message['message'] = 'success'
+            print(progress_message)
+            await websocket.send_json(progress_message)
+            await websocket.send_text(json.dumps({"action": "process", "message": "# Simulate some processing for stage 1"}))
+            await simulate_processing_stage_1()  # Call your processing function
+            await websocket.send_text(json.dumps({"action": "process", "message": "Stage 2"}))
+            await simulate_processing_stage_2()  # Call another processing function
+            await websocket.send_text(json.dumps({"action": "process", "message": "Stage 3"}))
+            await simulate_processing_stage_3() 
+    # await websocket.accept()
+    # await websocket.send_text("WebSocket connection established.")
 
-                if len(repo_parts) != 2:
-                    logging.info(f"Received chat message: ")
+    # file_data = bytearray()
+    # while True:
+    #     message = await websocket.receive_text()
+    #     if message == "File upload complete":
+    #         break
+    #     file_data.extend(message.encode())  # Convert string message to bytes and extend bytearray
 
-                    message['action'] = 'status'
-                    message['message'] = 'Invalid link'
-                    await websocket.send_json(message)
-                else:
-                    username, repo_name = repo_parts
-                    # Perform the extraction and cloning here
-                    try:
-                        # Extract info
-                        message['action'] = 'status'
-                        message['message'] = 'Extraction complete'
-                        await websocket.send_json(message)
+    # # Save the received file data to a file
+    # file_path = os.path.join(UPLOAD_FOLDER, "data")
+    # with file_path.open("wb") as f:
+    #     f.write(file_data)
 
-                        # Clone the repository
+    # await websocket.send_text("File received and saved.")
+    # await websocket.close()
+    # await websocket.accept()
+    # logging.info(f"hello: ")
+    # try:
+    #     while True:
+    #         logging.info(f"hello1: ")
+    #         file_data = await websocket.receive_text()
+    #         logging.info(f"hello2: ")
+    #         print(file_data)
+    #         await websocket.send_text("File received and processed")
 
-                        message['action'] = 'status'
-                        message['message'] = 'Cloned successfully'
-                        await websocket.send_json(message)
+        # Process the received file data here
+        # You can save it to a file or perform any other necessary actions
 
-                    except Exception as e:
-                        message['action'] = 'status'
-                        message['message'] = f'Error: {str(e)}'
-                        await websocket.send_json(message)
-    except Exception:
-        pass
+                # # await websocket.send_text(f"Received file name: {data}")
+                # file_path = os.path.join(UPLOAD_FOLDER, "data")
+                # print(file_path)
+                # async with websocket.stream(filename=file_path) as upload_file:
+                #     await shutil.copyfileobj(upload_file, open(file_path, "wb"))
+
+                # repo_parts = "qwe"
+
+                # if len(repo_parts) != 2:
+                #     logging.info(f"Received chat message: ")
+
+                #     message['action'] = 'status'
+                #     message['message'] = 'Invalid link'
+                #     await websocket.send_json(message)
+                # else:
+                #     username, repo_name = repo_parts
+                #     # Perform the extraction and cloning here
+                #     try:
+                #         # Extract info
+                #         message['action'] = 'status'
+                #         message['message'] = 'Extraction complete'
+                #         await websocket.send_json(message)
+
+                #         # Clone the repository
+
+                #         message['action'] = 'status'
+                #         message['message'] = 'Cloned successfully'
+                #         await websocket.send_json(message)
+
+                #     except Exception as e:
+                #         message['action'] = 'status'
+                #         message['message'] = f'Error: {str(e)}'
+                #         await websocket.send_json(message)
+    # except Exception:
+    #     pass
 
 
 

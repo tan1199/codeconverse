@@ -344,12 +344,16 @@ border: none;
 }
 
 .conversationname{
-height: 325px;
+/* height: 0px; */
+min-height: 0px;
+max-height: 320px;
 flex-grow: 1;
 overflow-y: auto;
 margin: 10px 10px 10px 10px;
 padding: 10px 10px 10px 10px;
 margin-left: -15px;
+margin-top: -10%;
+/* border:5px dashed #109d2a; */
 }
 .conversationname::-webkit-scrollbar {
   height: 10px;

@@ -3,28 +3,47 @@ import './Home.css';
 import * as AiIcons from 'react-icons/ai';
 
 import '../ChatPanel.css';
-function Home({ values, checkedValues, onCheckboxChange, progressbar  }) {
+function Home({ values, processMessage, checkedValues, onCheckboxChange, handleAddDataSourceClick, handleFileUpload, progressbar  }) {
+
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+    if (event.target.files[0]){
+      console.log('Uploading file:', event.target.files[0]);
+      handleFileUpload(event.target.files[0])
+      // setSelectedFile(null);
+      // You can use fetch or any other library to upload the file to your server.
+    } else {
+      console.log('No file selected.');
+    }
+  };
+
 console.log("homey",progressbar);
 const len=values.length;
 
-  const [showTextbox, setShowTextbox] = useState(false);
+  const [sourcetype, setSourcetype] = useState('');
 
-  const handleButtonClick = () => {
-    setShowTextbox(true);
+  const handleButtonClick = (sourcetype) => {
+    if((sourcetype==='Github')||(sourcetype==='Gitlab')||(sourcetype==='Code')){
+      setSourcetype(sourcetype);
+    }
   };
 
   const handleSendClick = () => {
     // Handle the logic for sending the textbox content (e.g., display or process it)
-    console.log('Sending:', textboxValue);
+    console.log('Sending:', datasourcevalue);
     // Reset the textbox and hide it after sending
-    setTextboxValue('');
-    setShowTextbox(false);
+    setdatasourcevalue('');
+    setSourcetype('');
   };
 
-  const [textboxValue, setTextboxValue] = useState('');
+  const [datasourcevalue, setdatasourcevalue] = useState('');
 
   const handleTextboxChange = (event) => {
-    setTextboxValue(event.target.value);
+    setdatasourcevalue(event.target.value);
+    console.log('Sendingqq:', datasourcevalue);
+
   };
 
   return (
@@ -78,34 +97,52 @@ const len=values.length;
 
 
 <div className="button-container">
-{/* <div class="progress">
-  <div class="progress-value"></div>
-</div> */}
+<div class="add-data-source">Add a Data Source</div>
         <div className="row">
-          <button className="send-button-home" onClick={() => handleButtonClick('Add Github Source')}>💽 Add Github Source</button>
-          <button className="send-button-home" onClick={() => handleButtonClick('Add Gitlab source')}>💽  Gitlab source</button>
+          <button className="send-button-home" onClick={() => handleButtonClick('Github')}>💽  Github Source</button>
+          <button className="send-button-home" onClick={() => handleButtonClick('Gitlab')}>💽  Gitlab source</button>
         </div>
         <div className="row">
-          <button className="send-button-home" onClick={() => handleButtonClick('Add repository')}>📼 Add repository</button>
-          <button className="send-button-home" onClick={() => handleButtonClick('Paste code')}>📼 Paste code</button>
+        <button className="send-button-home" onClick={() => handleButtonClick('Code')}>📼 Paste code</button>
+          <button className="send-button-home" onClick={() =>  document.getElementById('fileInput').click()}>📼 Archived Repository</button>
         </div>
+        <div>
+      <input
+        id="fileInput"
+        type="file"
+        accept=".zip, .rs, .py, .java, .js, .cpp" // Specify the allowed file types
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
+      />
+
+    </div>
       </div>
       </div>
 <div className='input-container-home'>
-      {showTextbox && (
+      {sourcetype!=='' && (
         <div>
           <input
             type="text"
             placeholder="Add Repository.."
-            value={textboxValue}
+            value={datasourcevalue}
             onChange={handleTextboxChange}
             className='input-box-home'
           />
-          <button onClick={handleSendClick} className="send-button-home">Upload</button>
+          <button onClick = {() =>  {
+          handleAddDataSourceClick(datasourcevalue);
+          setSourcetype('');
+          setdatasourcevalue('')
+          }} className="send-button-home">Upload</button>
+
         </div>
       )}
       </div>
-      {progressbar && (<div class="lds-ripple"><div></div><div></div></div>)}
+      {/* {progressbar && (<div class="lds-ripple"><div></div><div></div></div>)} */}
+      {processMessage!=='' && (<div className='progress-message'>
+        <div>{processMessage}</div>
+        <div><div class="lds-ripple"><div></div><div></div></div></div>
+      </div>)}
+
     </div>
   );
 }

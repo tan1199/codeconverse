@@ -22,9 +22,9 @@ const App = () => {
   const navigate = useNavigate();
 
   // Update the route whenever chatid changes
-  const [statusMessage, setStatusMessage] = useState('');
+  const [processMessage, setProcessMessage] = useState('');
   const [chatMessage, setChatMessage] = useState('');
-  const [statusSocket, setStatusSocket] = useState(null);
+  const [processSocket, setProcessSocket] = useState(null);
   const [chatSocket, setChatSocket] = useState(null);
   const [valueList, setValueList] = useState([]);
   const [checkedValues, setCheckedValues] = useState([]);
@@ -54,9 +54,9 @@ const handleCheckboxChange = (value) => {
   }
 };
   useEffect(() => {
-    const newStatusSocket = new WebSocket('ws://localhost:8000/ws/status');
-    newStatusSocket.onopen = () => {
-      setStatusSocket(newStatusSocket);
+    const newProcessSocket = new WebSocket('ws://localhost:8000/ws/process');
+    newProcessSocket.onopen = () => {
+      setProcessSocket(newProcessSocket);
     };
 
     const newChatSocket = new WebSocket('ws://localhost:8000/ws/chat');
@@ -65,8 +65,8 @@ const handleCheckboxChange = (value) => {
     };
 
     return () => {
-      if (statusSocket) {
-        statusSocket.close();
+      if (processSocket) {
+        processSocket.close();
       }
       if (chatSocket) {
         chatSocket.close();
@@ -91,6 +91,53 @@ const handleAddChatWindow = () => {
   const code = `
   import loggingvvv
   `
+  const handleAddDataSourceClick = (datasourcevalue) => {
+    // Handle the logic for sending the textbox content (e.g., display or process it)
+    console.log('Sending:', datasourcevalue);
+    // Reset the textbox and hide it after sending
+    // setdatasourcevalue('');
+    // setShowTextbox(false);
+    const action='progress';
+    const socket = action === 'chat' ? chatSocket : processSocket;
+    if (!socket) {
+      console.error('Socket is not available for this action.');
+      return;
+    }
+
+    setProcessMessage(`Sending ${action} action`);
+    socket.send(JSON.stringify({ action, data: datasourcevalue }));
+  };
+
+  const handleFileUpload = (selectedFile) => {
+    // Here, you can handle the upload logic, e.g. send the file to a server.
+    if (selectedFile) {
+      console.log('Uploading file in APP:', selectedFile);
+      const action='progress';
+      console.log(processSocket);
+      const socket = action === 'chat' ? chatSocket : processSocket;
+      if (!socket) {
+        console.error('Socket is not available for this action.');
+        return;
+      }
+      const filenameMessage = JSON.stringify({ type: 'filename', filename: selectedFile.name });
+      socket.send(filenameMessage);
+      
+      setProcessMessage(`Sending ${action} action`);
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const chunk = event.target.result;
+          console.log("chunk ",chunk);
+          socket.send(chunk);
+        };
+        reader.readAsArrayBuffer(selectedFile);
+
+      console.log("ttttttttttttttttt")
+    } else {
+      console.log('No file selected.');
+    }
+  };
+
+
   const handleSendMessage = (message, chatId) => {
     console.log("qqqqqqqqqqqqq")
     console.log(chatId);
@@ -110,16 +157,16 @@ const handleAddChatWindow = () => {
       );
     });
      const action='chat';
-    const socket = action === 'chat' ? chatSocket : statusSocket;
+    const socket = action === 'chat' ? chatSocket : processSocket;
     if (!socket) {
       console.error('Socket is not available for this action.');
       return;
     }
 
-    setStatusMessage(`Sending ${action} action`);
+    // setChatMessage(`Sending ${action} action`);
     socket.send(JSON.stringify({ action,chatId, data: message }));
     // setMessages([...messages, newMessage]);
-    console.log("rrrrr")
+    console.log("rrrrr");
     setSelectedChatId(chatId);
 
 
@@ -142,12 +189,13 @@ const handleAddChatWindow = () => {
   };
 
   useEffect(() => {
-    if (!statusSocket || !chatSocket) return;
+    if (!processSocket || !chatSocket) return;
 
-    statusSocket.onmessage = (event) => {
+    processSocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.action === 'status') {
-        setStatusMessage(data.message);
+      if (data.action === 'process') {
+        setProcessMessage(data.message);
+        console.log("progress_message ",data.message);
       }
     };
 
@@ -184,7 +232,7 @@ else{
     console.log(checkedValues);
     console.log("back",new_message_from_backend);
   }    };
-}, [statusSocket, chatSocket,selectedChatId,checkedValues,valueList]);
+}, [processSocket, chatSocket,selectedChatId,checkedValues,valueList]);
 
   return (
     <div className="app">
@@ -201,8 +249,11 @@ else{
       />
         <Routes>
           <Route path='/' exact element={<Home values={valueList} 
+          processMessage={processMessage}
         checkedValues={checkedValues}
         onCheckboxChange={handleCheckboxChange}
+        handleAddDataSourceClick = {handleAddDataSourceClick}
+        handleFileUpload = {handleFileUpload}
         progressbar={progressbar}/>} />
           <Route path='/reports' element={<Reports />} />
           <Route path='/products' element={<Products />} />

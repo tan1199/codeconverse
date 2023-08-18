@@ -15,13 +15,20 @@ import {BrowserRouter, Route, Routes} from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 
 import Home from './pages/Home';
-import Reports from './pages/Reports';
+import Customize from './pages/Customize';
 import 'boxicons'
 import Products from './pages/Products';
 const App = () => {
   const navigate = useNavigate();
-
+    const [isToggleOn, setIsToggleOn] = useState(false);
+  
+    const handleToggleChange = () => {
+      console.log(isToggleOn);
+      setIsToggleOn(prevToggle => !prevToggle);
+    };
   // Update the route whenever chatid changes
+  const [prompt, setPrompt] = useState('');
+
   const [processMessage, setProcessMessage] = useState('');
   const [chatMessage, setChatMessage] = useState('');
   const [processSocket, setProcessSocket] = useState(null);
@@ -43,6 +50,29 @@ const App = () => {
     
     return result;
   }
+  const handleApiKeyChange = (apikey) => {
+    // if (checkedValues.includes(value)) {
+    //   // If value is already checked, remove it from the checked values.
+    //   setCheckedValues(checkedValues.filter((item) => item !== value));
+    // } else {
+    //   // If value is not checked, add it to the checked values.
+    //   setCheckedValues([...checkedValues, value]);
+    // }
+  };
+
+  const handlePromptChange = (prompt) => {
+    console.log("oiljgvdfljdfli")
+    console.log("promt",prompt);
+    setPrompt(prompt);
+    // if (checkedValues.includes(value)) {
+    //   // If value is already checked, remove it from the checked values.
+    //   setCheckedValues(checkedValues.filter((item) => item !== value));
+    // } else {
+    //   // If value is not checked, add it to the checked values.
+    //   setCheckedValues([...checkedValues, value]);
+    // }
+  };
+
   // Function to handle checkbox changes.
 const handleCheckboxChange = (value) => {
   if (checkedValues.includes(value)) {
@@ -263,7 +293,12 @@ else{
         handleAddDataSourceClick = {handleAddDataSourceClick}
         handleFileUpload = {handleFileUpload}
         progressbar={progressbar}/>} />
-          <Route path='/reports' element={<Reports />} />
+          <Route path='/customize' element={<Customize 
+          isToggleOn={isToggleOn} 
+          onToggleChange={handleToggleChange}
+          handleApiKeyChange={handleApiKeyChange}
+          handlePromptChange={handlePromptChange}/>} 
+          />
           <Route path='/products' element={<Products />} />
           <Route path='chats' element={<ChatPanel   
                   chats={chats}

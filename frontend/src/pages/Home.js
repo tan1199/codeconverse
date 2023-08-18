@@ -62,6 +62,7 @@ const len=values.length;
 <p className='parahome'>Build AI Chat Search For Product Copilots With Mendable, you can seamlessly craft Product Copilots that empower your users in navigating and unlocking the full value of your products
   Build AI Chat Search For Product Copilots With Mendable, you can seamlessly craft Product and unlocking the full value of your products</p>)}
 {len && (<div className="checkbox-list">
+      Add a Data Source
       {values.map((value, index) => (
         <div className="checkbox-wrapper" key={index}>
           <input className="inp-cbx" id={`cbx-${index}`}            
@@ -75,7 +76,7 @@ const len=values.length;
                 <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
               </svg>
             </span>
-            <span>{value}</span>
+            <span>{value.substring(0, 17)}</span>
           </label>
         </div>
       ))}

@@ -18,8 +18,8 @@
   font-family: 'Montserrat', sans-serif;
   font-weight: 600;
   font-size: 32px;
-  color: #ffffff;
-  text-shadow: 4px 4px 8px rgba(183, 0, 255, 0.5); /* Add text shadow */
+  color: #fbeee0;
+  text-shadow: 1px 1px 1px #ffd2f2; /* Add text shadow */
   margin-bottom: 5%;
 }
 
@@ -301,10 +301,10 @@ transform: translate(2px, 2px);
         border: #422800;
       }
       .checkbox-wrapper{
-        width: 180px;
+        width: 95%;
         background-color: #b66714;
         /* border: 5px solid #e48116; */
-        background-color: #fbeee0;
+        background-color: #ffffff;
 border: 2px solid #422800;
 border-radius: 10px;
         margin: 5px 5px 5px 5px;
@@ -321,7 +321,9 @@ border-radius: 10px;
         user-select: none;
         cursor: pointer;
       }
-
+      .checkbox-wrapper:hover {
+        background-color: #ebe1e9;        
+        }
 .checkbox-wrapper input[type="checkbox"] {
   background-color: #ccc;
   display: none;

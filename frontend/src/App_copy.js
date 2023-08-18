@@ -10,7 +10,7 @@ import AwesomeSidebar from './AwesomeSidebar';
 import Header from './Header';
 import SideNavbar from './SideNavbar';
 import ChatPanel from './ChatPanel';
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {BrowserRouter,HashRouter, Route, Routes} from "react-router-dom";
 import Home from './pages/Home';
 import Reports from './pages/Reports';
 import 'boxicons'
@@ -176,7 +176,7 @@ const chats1 = ['CP2OjIkU5f', '6arELI86qY', 'JSql2fp2UQ', '2n7lGWSUtW', 'U0s3FJ4
     
   
    
- <BrowserRouter>
+ <HashRouter>
  <SideNavbar
         chats={chats}
         selectedChatId={selectedChatId}
@@ -202,7 +202,7 @@ const chats1 = ['CP2OjIkU5f', '6arELI86qY', 'JSql2fp2UQ', '2n7lGWSUtW', 'U0s3FJ4
         ))}
    
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
       </div >
    
       </div >

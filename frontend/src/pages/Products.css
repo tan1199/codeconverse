@@ -155,4 +155,28 @@ border: none
     box-shadow: #422800 2px 2px 0 0;
     transform: translate(2px, 2px);
     }
-    
+    .waviy {
+        position: relative;
+      }
+      .waviy span {
+        position: relative;
+        display: inline-block;
+        font-size: 25px;
+        color: #04094c;
+        text-transform: uppercase;
+        animation: flip 2s infinite;
+        animation-delay: calc(.2s * var(--i))
+      }
+      @keyframes flip {
+        0%,80% {
+          transform: rotateY(360deg) 
+        }
+      }
+
+
+
+
+      .spaced-span{
+        margin-right: 10px; /* Adjust the value as needed */
+
+      }

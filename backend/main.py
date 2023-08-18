@@ -297,6 +297,7 @@ async def chat_socket(websocket: WebSocket):
                     message['chatId'] = query_data["chatId"]
                     message['newvalue'] = "acha"
                     message['progressbar'] = False
+                    # await asyncio.sleep(20)
 
                     await websocket.send_json(message)
                 else:

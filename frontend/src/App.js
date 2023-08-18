@@ -308,6 +308,7 @@ else{
                    />} />
           {chats.map((chat) => (
                  <Route key={selectedChatId} path={`/chats/${chat.chatId}`}  element={<ChatPanel   
+                  chatsize={chat.messages.length}
                   selectedChatId={selectedChatId}
                   handleSendMessage={handleSendMessage}
                   getChatMessages={getChatMessages}

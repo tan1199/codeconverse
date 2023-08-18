@@ -155,6 +155,8 @@ if __name__ == '__main__':
         <SyntaxHighlighter language="python"  style={prismstyle.atomDark}  wrapLines={true} className='syntax-high'>
 {codeString}
    </SyntaxHighlighter> */}
+         {/* <div class="loader">Generating...</div>  */}
+
       </div>
     </div>
   );

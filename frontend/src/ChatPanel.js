@@ -1,10 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect,useRef } from 'react';
 import ChatMessage from './components/ChatMessage';
 import InputBox from './components/InputBox';
 import './ChatPanel.css';
 
 function ChatPanel({chatsize,selectedChatId,handleSendMessage,getChatMessages}) {
 
+  const messagesEndRef = useRef(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [chatsize]);
+
+  console.log("whooo", chatsize);
+// chatsize=1;
   return (
     <div>
         <div className="chat-panel">
@@ -23,7 +35,11 @@ function ChatPanel({chatsize,selectedChatId,handleSendMessage,getChatMessages}) 
               chatindex={index}
             />
           ))}
-            
+          <div>
+             {chatsize % 2 !== 0 ? (<div class="loader">Generating...</div>
+):(<div></div>)
+      }
+      </div>
        
     
         </div>
@@ -33,6 +49,7 @@ function ChatPanel({chatsize,selectedChatId,handleSendMessage,getChatMessages}) 
           <p>Select a chat from the sidebar or add a new chat window.</p>
         </div>
       )}
+            <div ref={messagesEndRef} />
     </div>
     <InputBox
             onSendMessage={(message) => handleSendMessage(message, selectedChatId)}

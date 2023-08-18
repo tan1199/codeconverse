@@ -8,7 +8,17 @@ function Products() {
   const navigatetodatasource = () => {
     navigate(`/`);
   };
+  const colors = ['#CAF7E2', '#58B09C', '#003A3A', '#0C2D2A'];
 
+  const renderPixels = () => {
+    const pixels = [];
+
+    for (let i = 1; i <= 101; i++) {
+      pixels.push(<div key={i} className="pixels" style={{ animationDelay: `${i * 0.02}s` }} />);
+    }
+
+    return pixels;
+  };
   return (
     <div className='products'>
   <div className='home-panels'>
@@ -52,8 +62,22 @@ Edit the prompt to prevent hallucinations, maintain voice and format requirement
     </div>
       </div>
 </div>
-<button  onClick={() => navigatetodatasource()} className="get-started">Get Started</button>
-      
+<button  onClick={() => navigatetodatasource()} className="get-started">
+<div className="waviy">
+        <span style={{'--i': 1}}>G</span>
+        <span style={{'--i': 2}}>e</span>
+        <span style={{'--i': 3}} className="spaced-span">t</span>
+        <span style={{'--i': 5}}>S</span>
+        <span style={{'--i': 2}}>t</span>
+        <span style={{'--i': 2}}>a</span>
+        <span style={{'--i': 2}}>r</span>
+        <span style={{'--i': 6}}>t</span>
+        <span style={{'--i': 7}}>e</span>
+        <span style={{'--i': 8}}>d</span>
+      </div>
+      </button>
+  {/* <div class="loader">Generating...</div> */}
+
     </div>
   );
 }

@@ -27,7 +27,7 @@ const abc=selectedChatId;
       <div className="logo-details">
         <i className="bx bxl-c-plus-plus icon"></i>
 
-        <div className="logo_name">CodeConverse</div>
+        <div className="logo_name">Code Converse</div>
   <button id="btn" onClick={menuBtnChange}>
        <FaIcons.FaBars size={25}  onClick={menuBtnChange} />
       </button>      </div>

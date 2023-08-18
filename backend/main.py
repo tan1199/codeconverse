@@ -249,55 +249,55 @@ async def chat_socket(websocket: WebSocket):
                 if len(repo_parts) != 2:
                     logging.info(f"Received chat message: ")
                
-#                     backend_response = """
-# In Java, the `TypeReference` class is used to capture the generic type information at runtime. It is commonly used when working with libraries or frameworks that require generic type information, such as JSON parsing libraries like Jackson or Gson.
+                    backend_response = """
+In Java, the `TypeReference` class is used to capture the generic type information at runtime. It is commonly used when working with libraries or frameworks that require generic type information, such as JSON parsing libraries like Jackson or Gson.
 
-# Here's an example of how to use `TypeReference` in Java:
+Here's an example of how to use `TypeReference` in Java:
 
-# 1. Import the necessary classes:
-# ```java
-# import com.fasterxml.jackson.core.type.TypeReference;
-# import com.fasterxml.jackson.databind.ObjectMapper;
-# ```
+1. Import the necessary classes:
+```java
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+```
 
-# 2. Create an instance of `ObjectMapper`:
-# ```java
-# ObjectMapper objectMapper = new ObjectMapper();
-# ```
+2. Create an instance of `ObjectMapper`:
+```java
+ObjectMapper objectMapper = new ObjectMapper();
+```
 
-# 3. Define a generic type using `TypeReference`:
-# ```java
-# TypeReference<List<String>> typeReference = new TypeReference<List<String>>() {};
-# ```
-# In this example, we are defining a `TypeReference` for a `List` of `String` objects.
+3. Define a generic type using `TypeReference`:
+```java
+TypeReference<List<String>> typeReference = new TypeReference<List<String>>() {};
+```
+In this example, we are defining a `TypeReference` for a `List` of `String` objects.
 
-# 4. Use the `ObjectMapper` to read or write JSON data:
-# ```java
-# String json = "[\"apple\", \"banana\", \"orange\"]";
+4. Use the `ObjectMapper` to read or write JSON data:
+```java
+String json = "[\"apple\", \"banana\", \"orange\"]";
 
-# try {
-#     List<String> fruits = objectMapper.readValue(json, typeReference);
-#     System.out.println(fruits); // Output: [apple, banana, orange]
-# } catch (IOException e) {
-#     e.printStackTrace();
-# }
-# ```
-# In this example, we are using the `readValue()` method of `ObjectMapper` to parse the JSON string into a `List` of `String` objects, using the `TypeReference` to preserve the generic type information.
+try {
+    List<String> fruits = objectMapper.readValue(json, typeReference);
+    System.out.println(fruits); // Output: [apple, banana, orange]
+} catch (IOException e) {
+    e.printStackTrace();
+}
+```
+In this example, we are using the `readValue()` method of `ObjectMapper` to parse the JSON string into a `List` of `String` objects, using the `TypeReference` to preserve the generic type information.
 
-# Note that the `TypeReference` is an abstract class, so we need to create an anonymous subclass by using `{}` at the end of the declaration.
+Note that the `TypeReference` is an abstract class, so we need to create an anonymous subclass by using `{}` at the end of the declaration.
 
-# By using `TypeReference`, we can work with generic types at runtime without losing the type information.
-# fgdfgd
+By using `TypeReference`, we can work with generic types at runtime without losing the type information.
+fgdfgd
 
-# """     
-                    backend_response = completion_endpoint_plain(query_data["data"])
+"""     
+                    # backend_response = completion_endpoint_plain(query_data["data"])
                     print(query_data["data"],backend_response)
                     message['action'] = 'chat'
                     message['message'] = backend_response
                     message['chatId'] = query_data["chatId"]
                     message['newvalue'] = "acha"
                     message['progressbar'] = False
-                    # await asyncio.sleep(20)
+                    await asyncio.sleep(20)
 
                     await websocket.send_json(message)
                 else:

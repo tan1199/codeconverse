@@ -76,7 +76,7 @@ const len=values.length;
                 <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
               </svg>
             </span>
-            <span>{value.substring(0, 30)}</span>
+            <span>{value.length > 22 ? value.slice(0, 22) + '...' : value.substring(0, 22)}</span>
           </label>
         </div>
       ))}

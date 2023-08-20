@@ -59,10 +59,14 @@ import os, re
 import zipfile
 import pandas as pd
 from pathlib import Path
-
+from prompts import metadata_json_prompt
 from fastapi.responses import JSONResponse
+import json
+import Levenshtein
+from rapidfuzz import fuzz
+from similarity_search import calculate_levenshtein_fuzzy_distance_similarity,code_embedding_similarity_search
 app = FastAPI()
-no_Df=False
+no_Df=True
 # df = pd.DataFrame(columns=["code_chunk", "file_name", "file_path", "path_to_code_chunk","parent","prev_sibling","next_sibling","start_point","end_point","has_error","code_node_type","code_identifier","is_chunked","num_tokens","uuid_str"])
 
 async def simulate_processing_stage_1():
@@ -205,75 +209,7 @@ async def status_websocket(websocket: WebSocket):
         # simulate_processing_stage_2()  # Call another processing function
         await asyncio.sleep(5)
         await websocket.send_text(json.dumps({"action": "process", "message": ""}))    
-                          
-    # aweeeeait websocket.accept()
-    # await websocket.send_text("WebSocket connection established.")
-
-    # file_data = bytearray()
-    # while True:
-    #     message = await websocket.receive_text()
-    #     if message == "File upload complete":
-    #         break
-    #     file_data.extend(message.encode())  # Convert string message to bytes and extend bytearray
-
-    # # Save the received file data to a file
-    # file_path = os.path.join(UPLOAD_FOLDER, "data")
-    # with file_path.open("wb") as f:
-    #     f.write(file_data)
-
-    # await websocket.send_text("File received and saved.")
-    # await websocket.close()
-    # await websocket.accept()
-    # logging.info(f"hello: ")
-    # try:
-    #     while True:
-    #         logging.info(f"hello1: ")
-    #         file_data = await websocket.receive_text()
-    #         logging.info(f"hello2: ")
-    #         print(file_data)
-    #         await websocket.send_text("File received and processed")
-
-        # Process the received file data here
-        # You can save it to a file or perform any other necessary actions
-
-                # # await websocket.send_text(f"Received file name: {data}")
-                # file_path = os.path.join(UPLOAD_FOLDER, "data")
-                # print(file_path)
-                # async with websocket.stream(filename=file_path) as upload_file:
-                #     await shutil.copyfileobj(upload_file, open(file_path, "wb"))
-
-                # repo_parts = "qwe"
-
-                # if len(repo_parts) != 2:
-                #     logging.info(f"Received chat message: ")
-
-                #     message['action'] = 'status'
-                #     message['message'] = 'Invalid link'
-                #     await websocket.send_json(message)
-                # else:
-                #     username, repo_name = repo_parts
-                #     # Perform the extraction and cloning here
-                #     try:
-                #         # Extract info
-                #         message['action'] = 'status'
-                #         message['message'] = 'Extraction complete'
-                #         await websocket.send_json(message)
-
-                #         # Clone the repository
-
-                #         message['action'] = 'status'
-                #         message['message'] = 'Cloned successfully'
-                #         await websocket.send_json(message)
-
-                #     except Exception as e:
-                #         message['action'] = 'status'
-                #         message['message'] = f'Error: {str(e)}'
-                #         await websocket.send_json(message)
-    # except Exception:
-    #     pass
-
-
-
+        
 
 @app.websocket("/ws/chat")
 async def chat_socket(websocket: WebSocket):
@@ -288,6 +224,7 @@ async def chat_socket(websocket: WebSocket):
                       print(query_data["active_df"])
                       root = Path(__file__).parent
                       if len(query_data["active_df"])!=0:
+                        no_Df=False
                         data_frame=query_data["active_df"][0]
                         print("asouter")
                         print(f"{root}/repositories/{data_frame}.csv")
@@ -304,10 +241,79 @@ async def chat_socket(websocket: WebSocket):
                             print("nowu")
                             print(df1)
                         df.to_csv(f"{root}/repositories/final/qwe.csv", index=False)                      
-                      else:
-                        no_Df=True
-                      continue
                   elif query_data["type"]=="chat":
+                    print(query_data["metadata_filter"])
+                    if no_Df==False and query_data["metadata_filter"]:
+                        refined_response=""
+                        user_prompt=query_data["data"]
+                        prompt=metadata_json_prompt+f"user query :'{user_prompt}"
+                        llm_json_response = completion_endpoint_plain(prompt)
+                        print(llm_json_response)
+                        try:
+                            instruction_data = json.loads(llm_json_response)
+                            for instruction_obj in instruction_data['instructions']:
+                                instruction = instruction_obj['instruction']
+                                command = instruction_obj['command']
+                                metadata = instruction_obj['metadata']
+                                additional_info = instruction_obj['additional_info']
+                                target_function_value = instruction_obj['metadata']['function_name']
+                                target_class_value = instruction_obj['metadata']['class_name']
+                                target_file_value = instruction_obj['metadata']['file_name']
+                                print("dss",target_file_value)
+                                print("After JSON parsing (if successful)")
+                                file_name_value=class_value=funcion_value="NA"
+                                if target_file_value !="NA":
+                                    df['file_similarity_score'] = df['file_name'].apply(calculate_levenshtein_fuzzy_distance_similarity,target_value=target_file_value)
+                                    min_score=df['file_similarity_score'].min()
+                                    print(min_score)
+                                    if min_score<3:
+                                        file_name_value_row = df[df['file_similarity_score'] == min_score]
+                                        file_name_value = file_name_value_row['file_name'].values[0]
+
+
+                                if target_class_value !="NA":
+                                    mask=df['code_node_type']=='class_declaration'
+                                    df.loc[mask,'class_similarity_score'] = df['code_identifier'].apply(calculate_levenshtein_fuzzy_distance_similarity,target_value=target_class_value)
+                                    min_score=df['class_similarity_score'].min()
+                                    if min_score<3:
+                                        class_value_row = df[df['class_similarity_score'] == min_score]
+                                        class_value = class_value_row['code_identifier'].values[0]
+
+                                if target_function_value !="NA":
+                                    mask=df['code_node_type']=='function_definition'
+                                    df.loc[mask,'funcion_similarity_score'] = df['code_identifier'].apply(calculate_levenshtein_fuzzy_distance_similarity,target_value=target_function_value)
+                                    min_score=df['funcion_similarity_score'].min()
+                                    if min_score<3:
+                                        funcion_value_row = df[df['funcion_similarity_score'] == min_score]
+                                        funcion_value = funcion_value_row['code_identifier'].values[0]
+                                filtered_df=df
+                                print(file_name_value,class_value,funcion_value)
+                                print("SDFS")
+                                if file_name_value!="NA":
+                                    filtered_df = df[df['file_name']==file_name_value]
+                                    print("iop",filtered_df)
+                                if class_value!="NA" and funcion_value!="NA":
+                                    filtered_df = filtered_df[(filtered_df['code_identifier']==funcion_value) & (filtered_df['path_to_code_chunk'].str.contains(f"/class_definition-{class_value}/"))]
+                                elif class_value!="NA":
+                                    filtered_df = filtered_df[filtered_df['code_identifier']==class_value]
+                                elif funcion_value!="NA":
+                                  print("bji",filtered_df)
+                                  filtered_df = filtered_df[filtered_df['code_identifier']==funcion_value]
+                                  print("plo",filtered_df)
+                                code_context = code_embedding_similarity_search(filtered_df,instruction)
+                                print("yuiop",instruction,code_context)
+                                code_search_prompt=f"""
+Given the following code context followed by user query,please provide an answer to the best of your abilities
+Code context: {code_context}
+User Query: {instruction}
+"""
+                                print(code_search_prompt)
+                                refined_response1 =completion_endpoint_plain(code_search_prompt)
+                                print("opoppppppppppppppppppppppppppppppppppppp",refined_response1)
+                                refined_response+=refined_response1
+                        except json.JSONDecodeError as e:
+                            print("JSON Decode Error:", e)
+                            
                     logging.info(f"Received new message: ")
                     message = {}
 
@@ -317,53 +323,17 @@ async def chat_socket(websocket: WebSocket):
                     message['progressbar'] = True
                     # await websocket.send_json(message)
                     # await asyncio.sleep(8)
-                    logging.info(f"Received new message: {data} ")
+                    # logging.info(f"Received new message: {data} ")
+                    logging.info(f"Received new message w/o chtat print: {data} ")
+
                     backend_response = """
 In Java, the `TypeReference` class is used to capture the generic type information at runtime. It is commonly used when working with libraries or frameworks that require generic type information, such as JSON parsing libraries like Jackson or Gson.
-
-Here's an example of how to use `TypeReference` in Java:
-
-1. Import the necessary classes:
-```java
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-```
-
-2. Create an instance of `ObjectMapper`:
-```java
-ObjectMapper objectMapper = new ObjectMapper();
-```
-
-3. Define a generic type using `TypeReference`:
-```java
-TypeReference<List<String>> typeReference = new TypeReference<List<String>>() {};
-```
-In this example, we are defining a `TypeReference` for a `List` of `String` objects.
-
-4. Use the `ObjectMapper` to read or write JSON data:
-```java
-String json = "[\"apple\", \"banana\", \"orange\"]";
-
-try {
-    List<String> fruits = objectMapper.readValue(json, typeReference);
-    System.out.println(fruits); // Output: [apple, banana, orange]
-} catch (IOException e) {
-    e.printStackTrace();
-}
-```
-In this example, we are using the `readValue()` method of `ObjectMapper` to parse the JSON string into a `List` of `String` objects, using the `TypeReference` to preserve the generic type information.
-
-Note that the `TypeReference` is an abstract class, so we need to create an anonymous subclass by using `{}` at the end of the declaration.
-
-By using `TypeReference`, we can work with generic types at runtime without losing the type information.
-fgdfgd
-
 """     
                     # backend_response = completion_endpoint_plain(query_data["data"])
                     print(query_data["data"],backend_response)
-                    print(query_data["ch"])
+                    # print(query_data["ch"])
                     message['action'] = 'chat'
-                    message['message'] = backend_response
+                    message['message'] = refined_response
                     message['chatId'] = query_data["chatId"]
                     message['newvalue'] = "acha"
                     message['progressbar'] = False

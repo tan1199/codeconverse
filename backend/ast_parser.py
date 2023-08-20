@@ -112,7 +112,8 @@ def traverse_ast(node,file_extension,current_path,function_definition,method_def
             if child.type in ('property_identifier','variable_declarator'):
               code_identifier = child.text.decode()
     elif node_type ==decorated_definition:
-      code_identifier = node.children[child_count-1].text.decode()
+      code_identifier = node.children[child_count-1].children[1].text.decode()
+      print("7878523",node.children[child_count-1].children)
     else:
       print("uiouio")
       code_identifier = node_type
@@ -310,7 +311,7 @@ def create_repo_ast(repo_name):
   global df,file_path,file_name,concat
   df = pd.DataFrame(columns=["code_chunk", "file_name", "file_path", "path_to_code_chunk","parent","prev_sibling","next_sibling","start_point","end_point","has_error","code_node_type","code_identifier","is_chunked","num_tokens","uuid_str"])
   root = Path(__file__).parent
-  repo_path = Path(os.path.join(root, "repositories", repo_name))
+  repo_path = Path(os.path.join(root, "repositories/data", repo_name))
   print(repo_path)
   for file_path in repo_path.rglob('*.*'):
     file_extension = file_path.suffix

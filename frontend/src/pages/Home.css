@@ -310,7 +310,7 @@ transform: translate(2px, 2px);
         border: #422800;
       }
       .checkbox-wrapper{
-        width: 95%;
+        width: 100%;
         background-color: #b66714;
         /* border: 5px solid #e48116; */
         background-color: #ffffff;
@@ -349,7 +349,8 @@ border-radius: 10px;
   display: inline-block;
   vertical-align: middle;
   color: #1c0739;
-  font-size:14px;
+  font-size:16px;
+  font-weight: 500;
   transform: translate3d(0, 0, 0);
 }
 .checkbox-wrapper .cbx span:first-child {

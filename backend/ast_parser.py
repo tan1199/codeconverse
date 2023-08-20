@@ -5,6 +5,7 @@ from tree_sitter import Language, Parser
 from pathlib import Path
 from count_token import num_tokens_from_string
 from code_splitter import text_splitter
+from openai.embeddings_utils import get_embedding
 parser = Parser()
 
 # tree_splitter_prebuilts_path = os.path.join(Path(__file__).parent, "tree_sitter_grammar", "python.so")
@@ -316,7 +317,44 @@ def create_repo_ast(repo_name):
     file_name = file_path.name
     if file_extension in language_extensions:
       print("opop")
-      create_ast(file_path, file_extension)
+      if os.path.getsize(file_path) != 0:
+        create_ast(file_path, file_extension)
     if len(df)>0:
       df['code_chunk'] = df['code_chunk'].apply(bytes_to_string)
+      df['code_embedding'] = df['code_chunk'].apply(lambda x: get_embedding(x, engine='text-embedding-ada-002'))
       df.to_csv(f"{root}/repositories/{repo_name}.csv", index=False)
+
+def create_upload_ast(filename,file_location):
+  global df,file_path,file_name,concat
+  df = pd.DataFrame(columns=["code_chunk", "file_name", "file_path", "path_to_code_chunk","parent","prev_sibling","next_sibling","start_point","end_point","has_error","code_node_type","code_identifier","is_chunked","num_tokens","uuid_str"])
+  root = Path(__file__).parent
+  if file_location.endswith(".zip"):
+    repo_path = Path(os.path.join(root,"repositories/data", filename.split('.')[0]))
+    print(repo_path)
+    for file_path in repo_path.rglob('*.*'):
+      file_extension = file_path.suffix
+      file_name = file_path.name
+      if file_extension in language_extensions:
+        print("opop")
+        if os.path.getsize(file_path) != 0:
+          create_ast(file_path, file_extension)
+      if len(df)>0:
+        df['code_chunk'] = df['code_chunk'].apply(bytes_to_string)
+        df['code_embedding'] = df['code_chunk'].apply(lambda x: get_embedding(x, engine='text-embedding-ada-002'))
+        df.to_csv(f"{root}/repositories/{filename.split('.')[0]}.csv", index=False)
+  
+  else:
+    file_path=file_location
+    file_name=filename
+    repo_path = Path(os.path.join(root, file_path))
+    print(repo_path)
+    file_extension = repo_path.suffix
+    print(file_extension,file_name)
+    if file_extension in language_extensions:
+      print("opop")
+      if os.path.getsize(file_path) != 0:
+        create_ast(file_path, file_extension)
+    if len(df)>0:
+      df['code_chunk'] = df['code_chunk'].apply(bytes_to_string)
+      df['code_embedding'] = df['code_chunk'].apply(lambda x: get_embedding(x, engine='text-embedding-ada-002'))
+      df.to_csv(f"{root}/repositories/{file_name.split('.')[0]}.csv", index=False)      

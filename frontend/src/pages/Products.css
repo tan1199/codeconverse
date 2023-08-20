@@ -28,34 +28,44 @@
 .grid-containern {
     display: grid;
     grid-template-columns: repeat(2, 1fr); /* Two columns */
-    grid-gap: 20px; /* Gap between grid items */
-    margin-top: 0%;
+    grid-gap: 0px; /* Gap between grid items */
+    margin-top: -1%;
     /* border: 10px solid palegreen; */
     width: 1050PX;
 
     height: 500PX;
-    margin-left: 7%;
-
+    margin-left: 6%;
+    
   }
   
   .grid-itemn {
     border: 1px solid #ccc;
-    padding: 20px;
+    padding: 10px;
     /* width: 90%; */
     box-shadow: 0 0 10px #ffd2f2;
     box-shadow: 2px 2px 2px 2px rgba(170, 156, 210, 0.5);
-    border-radius: 5px;
-    padding: 20px;
-    height: 240px;
-    width: 500PX;
+    box-shadow: 0 0 2px 2px rgba(195, 95, 242, 0.399);
+
+    border-radius: 10px;
+    height: 220px;
+    width: 470PX;
     box-shadow: le;
 border: none
   }
   h1{
     color: #dfd3d7
+    
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Raleway', sans-serif; /* Or the font of your choice */
+    /* Additional styling properties like font-weight, text-transform, etc. */
   }
 .para-content{
-    margin-top: 30px;
+    margin-top: 20px;
+    font-weight: 500;
+    font-size: 18px;
+        font-family: 'Montserrat', sans-serif; /* Or the font of your choice */
+        /* Additional styling properties like font-weight, text-transform, etc. */
 }
  @import url('https://fonts.googleapis.com/css?family=Montserrat');
 
@@ -68,12 +78,12 @@ border: none
 
 .qwes {
   display: block;
-  font: 7.5em 'Montserrat';
+  font: 7.5em 'Ubuntu';
   width: 760px;
   height: 200px;
   /* margin: 0 auto; */
   margin-top:-10%;
-  margin-left: 25%;
+  margin-left: 20%;
     /* border: 10px solid wheat; */
 
 }
@@ -142,7 +152,7 @@ border: none
        margin-left: 42%;
         border: none;
         border-radius: 5px;
-        margin-top: 2%;
+        margin-top: 2.2%;
     
         box-shadow: 0 0 10px #ffd2f2;
       }
@@ -180,3 +190,86 @@ border: none
         margin-right: 10px; /* Adjust the value as needed */
 
       }
+
+
+      @import url("https://fonts.googleapis.com/css?family=Raleway:400");
+
+* {
+  box-sizing: border-box;
+}
+
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 90deg;
+  inherits: true;
+}
+
+@property --gradX {
+  syntax: '<percentage>';
+  initial-value: 50%;
+  inherits: true;
+}
+
+@property --gradY {
+  syntax: '<percentage>';
+  initial-value: 0%;
+  inherits: true;
+}
+
+
+:root {
+  --d:3500ms;
+  --angle: 90deg;
+  --gradX: 100%;
+  --gradY: 50%;
+  --c1: rgb(87, 28, 134);
+  --c2: rgba(168, 239, 255, 0.1);
+}
+
+/* .wrapper {
+  min-width: min(40rem, 100%);
+} */
+
+.box {
+  font-size: 1vw;
+  margin: max(1rem, 1.2vw);
+  border: 0.25rem solid;
+  padding: 1vw;
+  border-radius: 10px;
+  border-image: conic-gradient(from var(--angle), var(--c2), var(--c1) 0.1turn, var(--c1) 0.15turn, var(--c2) 0.25turn) 30;
+  animation: borderRotate var(--d) linear infinite forwards;
+}
+
+/* .box:nth-child(2) {
+  border-image: radial-gradient(ellipse at var(--gradX) var(--gradY), var(--c1), var(--c1) 10%, var(--c2) 40%) 30;
+  animation: borderRadial var(--d) linear infinite forwards;
+} */
+
+@keyframes borderRotate {
+  100% {
+    --angle: 420deg;
+  }
+}
+
+@keyframes borderRadial {
+  20% {
+    --gradX: 100%;
+    --gradY: 50%;
+  }
+  40% {
+    --gradX: 100%;
+    --gradY: 100%;
+  }
+  60% {
+    --gradX: 50%;
+    --gradY: 100%;
+  }
+  80% {
+    --gradX: 0%;
+    --gradY: 50%;
+  }
+  100% {
+    --gradX: 50%;
+    --gradY: 0%;
+  }
+}

@@ -7,7 +7,7 @@ frontend/.pnp.js
 frontend/package.json
 frontend/package-lock.json
 backend/__pycache__
-
+backend/repositories
 .idea/
 
 # testing

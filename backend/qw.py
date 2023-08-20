@@ -52,7 +52,7 @@ logging.basicConfig(
 
 
 from clone_repo import extract_user_repo_github
-from ast_parser import create_repo_ast,create_upload_ast
+from ast_parser import create_repo_ast
 from fastapi import FastAPI, WebSocket, HTTPException, File, UploadFile
 from pydantic import BaseModel
 import os, re
@@ -86,21 +86,22 @@ async def initiate_websocket(websocket: WebSocket):
     # await asyncio.sleep(1)
     # await websocket.send_text("Hello  now from FastAPI!")
 
-    file_list = []
+    await websocket.send_text(json.dumps({"chat_data":conversation_data1,"action": "initiate", "message": "ploaded Successfully"}))
+    
+    csv_files = []
     root1 = Path(__file__).parent
-    input_directory_path = f"{root1}/repositories/data"  # Replace with the actual path to your directory
-    file_list = [f for f in os.listdir(input_directory_path)]
-    # for filename in os.listdir(csv_directory_path):
-    #     if filename.endswith(".csv"):
-    #         csv_files.append(os.path.splitext(filename)[0])
-    print(file_list)       
-    await websocket.send_text(json.dumps({"chat_data":conversation_data1,"saved_data_source":file_list,"action": "initiate", "message": "ploaded Successfully"}))
+    csv_directory_path = f"{root1}/repositories"  # Replace with the actual path to your directory
 
+    for filename in os.listdir(csv_directory_path):
+        if filename.endswith(".csv"):
+            csv_files.append(os.path.splitext(filename)[0])
+    print(csv_files)       
+    await websocket.send_text(json.dumps({"chat_data":csv_files,"action": "cvalue", "message": "ploaded Successfully"}))
 
-    # while True:
-    # # progress_message = {}
-    #     message = await websocket.receive_text()
-    #     print(message)
+    while True:
+    # progress_message = {}
+        message = await websocket.receive_text()
+        print(message)
 
 @app.websocket("/ws/process")
 async def status_websocket(websocket: WebSocket):
@@ -117,14 +118,6 @@ async def status_websocket(websocket: WebSocket):
             if data:
                 print("ertre")
                 file_path=f'repositories/data/{filename}'
-                print("wwwwww")
-                if os.path.exists(file_path) or os.path.exists(file_path.split('.')[0]):
-                    print("qqqqqqqqqqq")
-                    await asyncio.sleep(4)
-                    await websocket.send_text(json.dumps({"action": "process", "message":f"{filename} Exists"}))
-                    await asyncio.sleep(4)
-                    await websocket.send_text(json.dumps({"action": "process", "message":""}))
-                    continue
                 # Process the received binary data as a chunk of a larger file
                 with open(file_path, "ab") as f:
                     print("opop")
@@ -137,20 +130,15 @@ async def status_websocket(websocket: WebSocket):
                         print("Zip file extracted successfully.")
                     os.remove(file_path)
                     await asyncio.sleep(4)
-                    await websocket.send_text(json.dumps({"action": "process", "message": f"{filename} Extracted Successfully"}))
+                    await websocket.send_text(json.dumps({"action": "process", "message": "{filename} Extracted Successfully"}))
                 await websocket.send_text(json.dumps({"type": "success"}))
                 progress_message['action'] = 'process'
                 progress_message['message'] = 'success'
                 print(progress_message)
                 await websocket.send_json(progress_message)
                 await websocket.send_text(json.dumps({"action": "process", "message": "# Simulate some processing for stage 1"}))
-                await websocket.send_text(json.dumps({"action": "process", "message": f"Parsing source code of {filename}"}))
-
-                create_upload_ast(filename,file_path)
-                await asyncio.sleep(4)
-                await websocket.send_text(json.dumps({"action": "process", "message": f" Source code of {filename} Parsed Successfully"}))
-                await asyncio.sleep(5)
-                await websocket.send_text(json.dumps({"data_source_name": f"{filename}","action": "process", "message": f" Data Source {filename} Successfully"}))
+                await simulate_processing_stage_1()  # Call your processing function
+                await websocket.send_text(json.dumps({"action": "process", "message": "Stage 2              "}))
         elif message_data['type'] == 'url':
             source_url=message_data['url_string']
             if message_data['sourcetype'] == 'Github':
@@ -172,16 +160,7 @@ async def status_websocket(websocket: WebSocket):
                         print(source_url)
                         await asyncio.sleep(1)
                         await websocket.send_text(json.dumps({"action": "process", "message": "Username and Repo name extracted Successfully"}))
-                        print("wwwwww")
-                        root1 = Path(__file__).parent
-                        file_path1=f'{root1}/repositories/{user_name}_{repo_name}'
-                        if os.path.exists(file_path1):
-                            print("qqqqqqqqqqq")
-                            await asyncio.sleep(4)
-                            await websocket.send_text(json.dumps({"action": "process", "message":f"{user_name}_{repo_name} Exists"}))
-                            await asyncio.sleep(4)
-                            await websocket.send_text(json.dumps({"action": "process", "message":""}))
-                            continue
+
                         extract_user_repo_github(source_url,user_name,repo_name)
                         await asyncio.sleep(2)
                         await websocket.send_text(json.dumps({"action": "process", "message": "GitHub Repository cloned Successfully"}))
@@ -202,8 +181,7 @@ async def status_websocket(websocket: WebSocket):
                         print("Invalid GitHub repository URL")
                         await asyncio.sleep(6)
                         await websocket.send_text(json.dumps({"action": "process", "message": "Invalid GitHub Repository URL"}))
-        # simulate_processing_stage_2()  # Call another processing function
-        await asyncio.sleep(5)
+        simulate_processing_stage_2()  # Call another processing function
         await websocket.send_text(json.dumps({"action": "process", "message": ""}))    
                           
     # aweeeeait websocket.accept()
@@ -289,35 +267,43 @@ async def chat_socket(websocket: WebSocket):
                       root = Path(__file__).parent
                       if len(query_data["active_df"])!=0:
                         data_frame=query_data["active_df"][0]
-                        print("asouter")
-                        print(f"{root}/repositories/{data_frame}.csv")
-                        df=pd.read_csv(f"{root}/repositories/{data_frame.split('.')[0]}.csv")
+                        df=pd.read_csv(f"{root}/repositories/{data_frame}.csv")
                         print("outer")
                         for i in range(1, len(query_data["active_df"])):
                             print("Inner")
                             data_frame = query_data["active_df"][i]
                             print("olko",data_frame)
-                            print(f"{root}/repositories/{data_frame.split('.')[0]}.csv")
-                            df1=pd.read_csv(f"{root}/repositories/{data_frame.split('.')[0]}.csv")
+                            print(f"{root}/repositories/{data_frame}.csv")
+                            df1=pd.read_csv(f"{root}/repositories/{data_frame}.csv")
                             df = pd.concat([df, df1], ignore_index=True)
                             print(df)
                             print("nowu")
                             print(df1)
-                        df.to_csv(f"{root}/repositories/final/qwe.csv", index=False)                      
+                        df.to_csv(f"{root}/repositories/qwe.csv", index=False)                      
                       else:
                         no_Df=True
                       continue
-                  elif query_data["type"]=="chat":
-                    logging.info(f"Received new message: ")
-                    message = {}
+            print("fdgdfgfdf fgfhf")
+            logging.info(f"Received new message: ")
+            query_data = json.loads(data)
+            message = {}
 
-                    message['action'] = 'chat'
-                    message['message'] = 'valid link'
-                    message['chatId'] = query_data["chatId"]
-                    message['progressbar'] = True
-                    # await websocket.send_json(message)
-                    # await asyncio.sleep(8)
-                    logging.info(f"Received new message: {data} ")
+            message['action'] = 'chat'
+            message['message'] = 'valid link'
+            message['chatId'] = query_data["chatId"]
+            message['progressbar'] = True
+
+            # await websocket.send_json(message)
+            # await asyncio.sleep(8)
+            if data:
+
+                logging.info(f"Received new message: {data} ")
+
+                repo_parts = "qwe"
+
+                if len(repo_parts) != 2:
+                    logging.info(f"Received chat message: ")
+               
                     backend_response = """
 In Java, the `TypeReference` class is used to capture the generic type information at runtime. It is commonly used when working with libraries or frameworks that require generic type information, such as JSON parsing libraries like Jackson or Gson.
 
@@ -368,6 +354,26 @@ fgdfgd
                     message['newvalue'] = "acha"
                     message['progressbar'] = False
                     await asyncio.sleep(5)
-                    await websocket.send_json(message)        
+
+                    await websocket.send_json(message)
+                else:
+                    username, repo_name = repo_parts
+                    # Perform the extraction and cloning here
+                    try:
+                        # Extract info
+                        message['action'] = 'status'
+                        message['message'] = 'Extraction complete'
+                        await websocket.send_json(message)
+
+                        # Clone the repository
+
+                        message['action'] = 'status'
+                        message['message'] = 'Cloned successfully'
+                        await websocket.send_json(message)
+
+                    except Exception as e:
+                        message['action'] = 'status'
+                        message['message'] = f'Error: {str(e)}'
+                        await websocket.send_json(message)
     except Exception:
         pass

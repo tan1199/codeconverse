@@ -28,7 +28,17 @@ class BaseUtility():
 print(x)
 import code_splitter
 import os
+from pathlib import Path
 # List the contents of the module
 print(dir(code_splitter))
 repo_path = os.path.join("root", "repositories", "repo_name")
 print(type(repo_path))
+root1 = Path(__file__).parent
+def is_empty_file(filepath):
+    return os.path.exists(filepath) and os.path.getsize(filepath) == 0
+
+file_path = Path(os.path.join(root1,"repositories/data/Chat-with-Github-Repo-main/src/__init__.py"))
+if is_empty_file(file_path):
+    print("The file is empty.")
+else:
+    print("The file is not empty.")

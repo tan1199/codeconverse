@@ -110,7 +110,7 @@ overflow-y: auto;
   
   .button-container {
       
-    flex: 3;
+    flex: 2.5;
     padding: 10px;
     box-shadow: 0 0 10px #ffd2f2;
     border-radius: 0px 10px 10px 0px;
@@ -282,7 +282,16 @@ transform: translate(2px, 2px);
   margin-top: 41%;
 
 }
+.checkbox-heading{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  color: #fbeee0;
+  margin-bottom:55px;
+  margin-top: -65px;
 
+
+}
       /* Checkbox.css */
 
       /* App.css */
@@ -331,7 +340,7 @@ border-radius: 10px;
 }
 
 .checkbox-wrapper .cbx {
-  margin: auto;
+  /* margin: auto; */
   -webkit-user-select: none;
   user-select: none;
   cursor: pointer;
@@ -340,7 +349,7 @@ border-radius: 10px;
   display: inline-block;
   vertical-align: middle;
   color: #1c0739;
-  font-size:larger;
+  font-size:14px;
   transform: translate3d(0, 0, 0);
 }
 .checkbox-wrapper .cbx span:first-child {

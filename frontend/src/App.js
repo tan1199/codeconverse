@@ -75,12 +75,23 @@ const App = () => {
 
   // Function to handle checkbox changes.
 const handleCheckboxChange = (value) => {
+  const action='chat';
+  const socket = action === 'chat' ? chatSocket : processSocket;
   if (checkedValues.includes(value)) {
     // If value is already checked, remove it from the checked values.
+
+   
+    const activedf = JSON.stringify({ type: 'activate', active_df:checkedValues.filter((item) => item !== value)  });
+    console.log("hnhnhnj",activedf)
+    socket.send(activedf);
     setCheckedValues(checkedValues.filter((item) => item !== value));
   } else {
     // If value is not checked, add it to the checked values.
-    setCheckedValues([...checkedValues, value]);
+    setCheckedValues([...checkedValues, value]);    
+    const activedf = JSON.stringify({ type: 'activate', active_df:[...checkedValues, value] });
+    console.log("olhnhnj",activedf)
+
+    socket.send(activedf);
   }
 };
   useEffect(() => {
@@ -93,13 +104,44 @@ const handleCheckboxChange = (value) => {
     newChatSocket.onopen = () => {
       setChatSocket(newChatSocket);
     };
+    const initiatesocket = new WebSocket("ws://localhost:8000/ws/initiate");
 
+    initiatesocket.onopen = () => {
+      console.log("WebSocket connection opened");
+    };
+
+    initiatesocket.onmessage = (event) => {
+      console.log("Received message:", event.data);
+      const data = JSON.parse(event.data);
+      console.log("ertre message:",data.chat_data);
+      setChats(data.chat_data)
+      setValueList(data.saved_data_source)
+      // Handle the received message in your React component
+    };
+
+    // initiatesocket.onclose = () => {
+    //   console.log("WebSocket connection closed");
+    // };
+    console.log("lkmnj");
+    window.addEventListener("beforeunload", () => {
+      // Send a message to the backend before the session ends
+      if (initiatesocket.readyState === WebSocket.OPEN) {
+        initiatesocket.send("Session is ending2");
+        const filenameMessage1 = JSON.stringify({ type: 'filename', filename: chats });
+
+        initiatesocket.send(filenameMessage1);
+        
+      }
+    });
     return () => {
       if (processSocket) {
         processSocket.close();
       }
       if (chatSocket) {
         chatSocket.close();
+      }
+      if ( initiatesocket) {
+        initiatesocket.close();
       }
     };
   }, []);
@@ -196,7 +238,7 @@ const handleAddChatWindow = () => {
     }
 
     // setChatMessage(`Sending ${action} action`);
-    socket.send(JSON.stringify({ action,chatId, data: message }));
+    socket.send(JSON.stringify({ type: 'chat', action,chatId, data: message ,ch:chats,metadata_filter:isToggleOn}));
     // setMessages([...messages, newMessage]);
     console.log("rrrrr");
     setSelectedChatId(chatId);
@@ -222,7 +264,7 @@ const handleAddChatWindow = () => {
 
   useEffect(() => {
     if (!processSocket || !chatSocket) return;
-
+      
     processSocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.action === 'process') {
@@ -230,7 +272,8 @@ const handleAddChatWindow = () => {
         console.log("progress_message ",data.message);
         if ('data_source_name' in data){
           if(valueList.length==0){
-            setCheckedValues([...checkedValues, data.data_source_name]);
+            handleCheckboxChange(data.data_source_name)
+            // setCheckedValues([...checkedValues, data.data_source_name]);
           }
           setValueList([...valueList, data.data_source_name]);
         }
@@ -270,7 +313,7 @@ else{
     console.log(checkedValues);
     console.log("back",new_message_from_backend);
   }    };
-}, [processSocket, chatSocket,selectedChatId,checkedValues,valueList]);
+}, [processSocket, chatSocket, selectedChatId,checkedValues,valueList]);
 
   return (
     <div className="app">

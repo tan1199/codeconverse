@@ -8,17 +8,6 @@ function Products() {
   const navigatetodatasource = () => {
     navigate(`/`);
   };
-  const colors = ['#CAF7E2', '#58B09C', '#003A3A', '#0C2D2A'];
-
-  const renderPixels = () => {
-    const pixels = [];
-
-    for (let i = 1; i <= 101; i++) {
-      pixels.push(<div key={i} className="pixels" style={{ animationDelay: `${i * 0.02}s` }} />);
-    }
-
-    return pixels;
-  };
   return (
     <div className='products'>
   <div className='home-panels'>
@@ -39,23 +28,23 @@ function Products() {
       </div>
 
       <div className="grid-containern">
-        <div className="grid-itemn">
+        <div className="grid-itemn box">
     <h1>Code Discovery</h1>     
     <div className="para-content"> 
     Natural language search surfaces internal libraries and existing patterns and returns accurate results in less time, making it a powerful alternative to slow keyword searches.</div> 
     </div>
-    <div className="grid-itemn">
+    <div className="grid-itemn box">
     <h1>Human Explanation</h1>      
    <div className="para-content"> Powered by static analysis, vector search, and AI, it understands your codebase in 5+ languages helps you move quickly through refs and defs.  </div>
    </div>
-        <div className="grid-itemn">
+        <div className="grid-itemn box">
     <h1>Customization</h1>      
     <div className="para-content">
     GPT-3.5-Turbo and GPT-4 are supported with a variety of base models coming soon
 Edit the prompt to prevent hallucinations, maintain voice and format requirements
     .  </div>
     </div>
-     <div className="grid-itemn">
+     <div className="grid-itemn box">
     <h1>Lightning Fast Regex</h1>     
     <div className="para-content">
  The fastest way to precisely navigate to specific code, identifiers, paths and repos with regex..</div> 
@@ -77,7 +66,6 @@ Edit the prompt to prevent hallucinations, maintain voice and format requirement
       </div>
       </button>
   {/* <div class="loader">Generating...</div> */}
-
     </div>
   );
 }

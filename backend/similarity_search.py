@@ -4,9 +4,14 @@ from openai.embeddings_utils import cosine_similarity
 from openai.embeddings_utils import get_embedding
 import ast
 def calculate_levenshtein_fuzzy_distance_similarity(word_atribute,target_value):
-    levenshtein_dist = Levenshtein.distance(word_atribute, target_value)
-    fuzz_ratio = fuzz.WRatio(target_value, word_atribute)
+    levenshtein_dist = Levenshtein.distance(word_atribute.lower(), target_value.lower())
+    fuzz_ratio = fuzz.WRatio(target_value.lower(), word_atribute.lower())
     similarity_score = levenshtein_dist + 1 - (fuzz_ratio / 100)
+    # print(similarity_score)
+    levenshtein_dist1 = Levenshtein.distance(word_atribute.lower().split('.')[0], target_value.lower())
+    fuzz_ratio1 = fuzz.WRatio(target_value.lower(), word_atribute.lower().split('.')[0])
+    similarity_score1 = levenshtein_dist1 + 1 - (fuzz_ratio1 / 100)
+    similarity_score=min(similarity_score,similarity_score1)
     return similarity_score
 
 

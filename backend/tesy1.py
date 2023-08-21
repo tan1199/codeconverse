@@ -86,3 +86,14 @@ for lang in language:
 #     subprocess.run(["git", "clone", "https://github.com/tree-sitter/tree-sitter-python", local_path])
 
 # clone_repository(current_directory)
+
+
+
+x={}
+def ac():
+   if "qwer" in x:
+      print("oho")
+   x["qwer"]=1
+   
+   if "qwer" in x:
+      print("noikl")

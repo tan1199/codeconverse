@@ -50,9 +50,9 @@ logging.basicConfig(
 #     # return {"message": backend_response}
 
 
-
+import time
 from clone_repo import extract_user_repo_github
-from ast_parser import create_repo_ast,create_upload_ast
+from ast_parser import create_repo_ast,create_upload_ast,language_extensions_to_class_attribute,language_extensions_to_function_attribute,class_attributes,function_attributes
 from fastapi import FastAPI, WebSocket, HTTPException, File, UploadFile
 from pydantic import BaseModel
 import os, re
@@ -241,17 +241,23 @@ async def chat_socket(websocket: WebSocket):
                             print("nowu")
                             print(df1)
                         df.to_csv(f"{root}/repositories/final/qwe.csv", index=False)                      
+                      else :
+                          no_Df=True
                   elif query_data["type"]=="chat":
+                    start_time = time.time()  # Record the start time
                     print(query_data["metadata_filter"])
+                    refined_response=""
+                    user_prompt=query_data["data"]
+                    code_search_prompt=""
                     if no_Df==False and query_data["metadata_filter"]:
-                        refined_response=""
-                        user_prompt=query_data["data"]
                         prompt=metadata_json_prompt+f"user query :'{user_prompt}"
                         llm_json_response = completion_endpoint_plain(prompt)
                         print(llm_json_response)
                         try:
                             instruction_data = json.loads(llm_json_response)
+                            i=0
                             for instruction_obj in instruction_data['instructions']:
+                                code_context=""
                                 instruction = instruction_obj['instruction']
                                 command = instruction_obj['command']
                                 metadata = instruction_obj['metadata']
@@ -262,58 +268,97 @@ async def chat_socket(websocket: WebSocket):
                                 print("dss",target_file_value)
                                 print("After JSON parsing (if successful)")
                                 file_name_value=class_value=funcion_value="NA"
+                                filtered_df=df
                                 if target_file_value !="NA":
-                                    df['file_similarity_score'] = df['file_name'].apply(calculate_levenshtein_fuzzy_distance_similarity,target_value=target_file_value)
-                                    min_score=df['file_similarity_score'].min()
-                                    print(min_score)
+                                    filtered_df['file_similarity_score'] = filtered_df['file_name'].apply(calculate_levenshtein_fuzzy_distance_similarity,target_value=target_file_value)
+                                    min_score=filtered_df['file_similarity_score'].min()
+                                    print("file",min_score)
                                     if min_score<3:
-                                        file_name_value_row = df[df['file_similarity_score'] == min_score]
+                                        file_name_value_row = filtered_df[filtered_df['file_similarity_score'] == min_score]
                                         file_name_value = file_name_value_row['file_name'].values[0]
 
 
                                 if target_class_value !="NA":
-                                    mask=df['code_node_type']=='class_declaration'
-                                    df.loc[mask,'class_similarity_score'] = df['code_identifier'].apply(calculate_levenshtein_fuzzy_distance_similarity,target_value=target_class_value)
-                                    min_score=df['class_similarity_score'].min()
+                                    mask=filtered_df['code_node_type'].isin(class_attributes)
+                                    if file_name_value!="NA":
+                                        mask=filtered_df['code_node_type'].isin(language_extensions_to_class_attribute[file_name_value.split('.')[1]])
+                                    filtered_df.loc[mask,'class_similarity_score'] = filtered_df['code_identifier'].apply(calculate_levenshtein_fuzzy_distance_similarity,target_value=target_class_value)
+                                    min_score=filtered_df['class_similarity_score'].min()
+                                    print("class",min_score)
+
                                     if min_score<3:
-                                        class_value_row = df[df['class_similarity_score'] == min_score]
+                                        class_value_row = filtered_df[filtered_df['class_similarity_score'] == min_score]
                                         class_value = class_value_row['code_identifier'].values[0]
 
                                 if target_function_value !="NA":
-                                    mask=df['code_node_type']=='function_definition'
-                                    df.loc[mask,'funcion_similarity_score'] = df['code_identifier'].apply(calculate_levenshtein_fuzzy_distance_similarity,target_value=target_function_value)
-                                    min_score=df['funcion_similarity_score'].min()
+                                    mask=filtered_df['code_node_type'].isin(function_attributes)
+                                    if file_name_value!="NA":
+                                        mask=filtered_df['code_node_type'].isin(language_extensions_to_function_attribute[file_name_value.split('.')[1]])
+                                   
+                                    filtered_df.loc[mask,'funcion_similarity_score'] = filtered_df['code_identifier'].apply(calculate_levenshtein_fuzzy_distance_similarity,target_value=target_function_value)
+                                    min_score=filtered_df['funcion_similarity_score'].min()
+                                    print("func",min_score)
                                     if min_score<3:
-                                        funcion_value_row = df[df['funcion_similarity_score'] == min_score]
+                                        funcion_value_row = filtered_df[filtered_df['funcion_similarity_score'] == min_score]
                                         funcion_value = funcion_value_row['code_identifier'].values[0]
-                                filtered_df=df
                                 print(file_name_value,class_value,funcion_value)
                                 print("SDFS")
                                 if file_name_value!="NA":
-                                    filtered_df = df[df['file_name']==file_name_value]
+                                    filtered_df = filtered_df[filtered_df['file_name']==file_name_value]
                                     print("iop",filtered_df)
                                 if class_value!="NA" and funcion_value!="NA":
-                                    filtered_df = filtered_df[(filtered_df['code_identifier']==funcion_value) & (filtered_df['path_to_code_chunk'].str.contains(f"/class_definition-{class_value}/"))]
+                                    filtered_df = filtered_df[(filtered_df['code_identifier'] == funcion_value) &
+    (
+        filtered_df['path_to_code_chunk'].str.contains(f"/class_definition-{class_value}/") |
+        filtered_df['path_to_code_chunk'].str.contains(f"/decorated_definition-{class_value}/") |
+        filtered_df['path_to_code_chunk'].str.contains(f"/class_declaration-{class_value}/") |
+        filtered_df['path_to_code_chunk'].str.contains(f"/class_specifier-{class_value}/") |
+        filtered_df['path_to_code_chunk'].str.contains(f"/impl_item-{class_value}/")
+    )
+]                                   
+                                    print("cls",filtered_df)                                
                                 elif class_value!="NA":
                                     filtered_df = filtered_df[filtered_df['code_identifier']==class_value]
                                 elif funcion_value!="NA":
                                   print("bji",filtered_df)
                                   filtered_df = filtered_df[filtered_df['code_identifier']==funcion_value]
                                   print("plo",filtered_df)
-                                code_context = code_embedding_similarity_search(filtered_df,instruction)
-                                print("yuiop",instruction,code_context)
+                                code_context += f"Code Context {i} : \n"+ code_embedding_similarity_search(filtered_df,instruction)+"\n"
+                                # print("yuiop",instruction,code_context)
                                 code_search_prompt=f"""
-Given the following code context followed by user query,please provide an answer to the best of your abilities
+Given the following code context followed by user query, user query can contain multiple intructions please provide an answer to each of them by utilizing the corresponding code context to the best of your abilities
 Code context: {code_context}
-User Query: {instruction}
+User Query: {user_prompt}
 """
-                                print(code_search_prompt)
-                                refined_response1 =completion_endpoint_plain(code_search_prompt)
-                                print("opoppppppppppppppppppppppppppppppppppppp",refined_response1)
-                                refined_response+=refined_response1
+                                # print(code_search_prompt)
+                                refined_response =completion_endpoint_plain(code_search_prompt)
+                                # refined_response+="""```java
+                                # ```"""
                         except json.JSONDecodeError as e:
                             print("JSON Decode Error:", e)
                             
+                    elif no_Df==False:
+                        print("lainla")
+                        code_context = code_embedding_similarity_search(df,user_prompt)
+                        # print("yuiop",instruction,code_context)
+                        code_search_prompt=f"""
+Given the following code context followed by user query, please provide an answer by utilizing the corresponding code context to the best of your abilities
+Code context: {code_context}
+User Query: {user_prompt}
+"""
+                        # print(code_search_prompt)
+                        refined_response =completion_endpoint_plain(code_search_prompt)
+                    elif no_Df == True:
+                        code_search_prompt=f"""
+You are an helpful AI Assistant please provide an elaborate answer to the user query to the best of your abilities
+User Query: {user_prompt}
+"""
+                    # backend_response = """
+# In Java, the `TypeReference` class is used to capture the generic type information at runtime. It is commonly used when working with libraries or frameworks that require generic type information, such as JSON parsing libraries like Jackson or Gson.
+# """     
+                        refined_response = completion_endpoint_plain(code_search_prompt)
+                        # print(query_data["data"],refined_response)
+                    # print(query_data["ch"])
                     logging.info(f"Received new message: ")
                     message = {}
 
@@ -325,19 +370,16 @@ User Query: {instruction}
                     # await asyncio.sleep(8)
                     # logging.info(f"Received new message: {data} ")
                     logging.info(f"Received new message w/o chtat print: {data} ")
-
-                    backend_response = """
-In Java, the `TypeReference` class is used to capture the generic type information at runtime. It is commonly used when working with libraries or frameworks that require generic type information, such as JSON parsing libraries like Jackson or Gson.
-"""     
-                    # backend_response = completion_endpoint_plain(query_data["data"])
-                    print(query_data["data"],backend_response)
-                    # print(query_data["ch"])
+                    print(no_Df,code_search_prompt)
                     message['action'] = 'chat'
                     message['message'] = refined_response
                     message['chatId'] = query_data["chatId"]
                     message['newvalue'] = "acha"
                     message['progressbar'] = False
-                    await asyncio.sleep(5)
+                    # await asyncio.sleep(5)
+                    end_time = time.time()
+                    elapsed_time = end_time - start_time
+                    print(f"Elapsed Time: {elapsed_time:.2f} seconds")
                     await websocket.send_json(message)        
     except Exception:
         pass

@@ -5,5 +5,5 @@ text_splitter=RecursiveCharacterTextSplitter(chunk_size=1250, separators=["\n\n"
                                              chunk_overlap=0)
 texts = text_splitter.split_text("state_of_the_union")
 python_splitter = RecursiveCharacterTextSplitter.from_language(
-    language=Language.PYTHON, chunk_size=500, chunk_overlap=0
+    language=Language.PYTHON, chunk_size=4000, chunk_overlap=0
 )

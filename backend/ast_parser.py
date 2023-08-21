@@ -6,6 +6,17 @@ from pathlib import Path
 from count_token import num_tokens_from_string
 from code_splitter import text_splitter
 from openai.embeddings_utils import get_embedding
+import threading
+import requests
+import time
+embeddings = {}
+# Function to fetch embedding for a row
+def fetch_embedding(index, row_data):
+    embedding =  get_embedding(row_data, engine='text-embedding-ada-002')
+    embeddings[index] = embedding
+
+
+
 parser = Parser()
 
 # tree_splitter_prebuilts_path = os.path.join(Path(__file__).parent, "tree_sitter_grammar", "python.so")
@@ -150,7 +161,7 @@ def traverse_ast(node,file_extension,current_path,function_definition,method_def
                       'code_identifier':code_identifier,'is_chunked':"",'num_tokens':num_tokens_in_chunk,'uuid_str':str(uuid.uuid4())}])
       df = pd.concat([df, df_to_append], ignore_index=True)
     else:
-      if num_tokens_in_chunk>500:
+      if num_tokens_in_chunk>1500:
         print("lllll")
         texts = text_splitter.split_text(node.text.decode())
         print(type(texts))
@@ -186,7 +197,7 @@ def traverse_ast(node,file_extension,current_path,function_definition,method_def
           print("tyty")
           num_of_token_at_last_row = df.at[df.index[-1], "num_tokens"]
           path_to_code_chunk_of_last_row = df.at[df.index[-1], "path_to_code_chunk"]
-          if (num_tokens_in_chunk+num_of_token_at_last_row<500) and (path_to_code_chunk_of_last_row == current_path) and (df.at[df.index[-1], "code_node_type"] not in (function_definition,method_definition,class_definition,field_definition)):
+          if (num_tokens_in_chunk+num_of_token_at_last_row<1500) and (path_to_code_chunk_of_last_row == current_path) and (df.at[df.index[-1], "code_node_type"] not in (function_definition,method_definition,class_definition,field_definition)):
 
 
             df.at[df.index[-1], "code_chunk"]+=b'\n'+node.text
@@ -230,7 +241,7 @@ def traverse_ast(node,file_extension,current_path,function_definition,method_def
         lex_child=False
         if child.type=='lexical_declaration' and child.children[1].children[2].type=='arrow_function':
           lex_child=True
-        if (num_tokens_in_chunk>500) or (child.type  in (function_definition,method_definition,class_definition,method_definition,decorated_definition)) or lex_child:
+        if (num_tokens_in_chunk>1500) or (child.type  in (function_definition,method_definition,class_definition,method_definition,decorated_definition)) or lex_child:
           traverse_ast(child,file_extension,current_path + node_type + "-"+ code_identifier+"/",function_definition,method_definition,class_definition,field_definition_arg,decorated_definition,root_node_type,block_child_list,identifier_index)
 
     if node_type in(function_definition,method_definition,class_definition,field_definition,decorated_definition):
@@ -243,14 +254,14 @@ def traverse_ast(node,file_extension,current_path,function_definition,method_def
             lex_child=False
             if child.type=='lexical_declaration' and child.children[1].children[2].type=='arrow_function':
               lex_child=True
-            if (num_tokens_in_chunk>500) or (block_child.type  in (function_definition,method_definition,class_definition,field_definition,decorated_definition)) or lex_child:
+            if (num_tokens_in_chunk>1500) or (block_child.type  in (function_definition,method_definition,class_definition,field_definition,decorated_definition)) or lex_child:
               traverse_ast(block_child,file_extension,current_path + node_type + "-"+ code_identifier+"/",function_definition,method_definition,class_definition,field_definition_arg,decorated_definition,root_node_type,block_child_list,identifier_index)
         if child.type in (function_definition,method_definition,class_definition):
           print("bnp")
           for grand_child in child.children:
             if grand_child.type in block_child_list:
               for block_grand_child in grand_child.children:
-                if (num_tokens_in_chunk>500) or (block_grand_child.type  in (function_definition,method_definition,class_definition,field_definition,decorated_definition)):
+                if (num_tokens_in_chunk>1500) or (block_grand_child.type  in (function_definition,method_definition,class_definition,field_definition,decorated_definition)):
                   traverse_ast(block_grand_child,file_extension,current_path + node.children[child_count-1].type + "-"+ node.children[child_count-1].children[1].text.decode()+"/",function_definition,method_definition,class_definition,field_definition_arg,decorated_definition,root_node_type,block_child_list,identifier_index)
 
 
@@ -307,6 +318,26 @@ language_extensions = {
     '.rs': 'rust',
     # Add more extensions and languages as needed
 }
+language_extensions_to_class_attribute = {
+    'py': ['class_definition','decorated_definition'],
+    'java': ['class_declaration'],
+    'js': ['class_declaration'],
+    'cpp': ['class_specifier'],
+    'rs': ['impl_item'],
+    # Add more extensions and languages as needed
+}
+language_extensions_to_function_attribute = {
+    'py': ['function_definition','decorated_definition'],
+    'java': ['method_declaration','constructor_declaration'],
+    'js': ['function_declaration','method_definition','field_definition'],
+    'cpp': ['function_definition','method_definition'],
+    'rs': ['function_item','trait_item'],
+    # Add more extensions and languages as needed
+}
+class_attributes=['class_definition','decorated_definition','class_declaration','class_specifier','impl_item']
+function_attributes=['function_definition','decorated_definition','method_declaration','constructor_declaration','method_definition','field_definition','function_declaration','function_item','trait_item'],
+
+
 def create_repo_ast(repo_name):
   global df,file_path,file_name,concat
   df = pd.DataFrame(columns=["code_chunk", "file_name", "file_path", "path_to_code_chunk","parent","prev_sibling","next_sibling","start_point","end_point","has_error","code_node_type","code_identifier","is_chunked","num_tokens","uuid_str"])
@@ -320,10 +351,30 @@ def create_repo_ast(repo_name):
       print("opop")
       if os.path.getsize(file_path) != 0:
         create_ast(file_path, file_extension)
-    if len(df)>0:
-      df['code_chunk'] = df['code_chunk'].apply(bytes_to_string)
-      df['code_embedding'] = df['code_chunk'].apply(lambda x: get_embedding(x, engine='text-embedding-ada-002'))
-      df.to_csv(f"{root}/repositories/{repo_name}.csv", index=False)
+  if len(df)>0:
+    df['code_chunk'] = df['code_chunk'].apply(bytes_to_string)
+    threads = []
+    # embeddings = {}
+    start_time = time.time()  # Record the start time
+    for index, row in df.iterrows():
+      row_data = row['code_chunk']
+      thread = threading.Thread(target=fetch_embedding, args=(index, row_data))
+      threads.append(thread)
+      thread.start()
+    # Wait for all threads to complete
+    for thread in threads:
+      thread.join()
+    end_time = time.time()  # Record the end time
+    # Calculate elapsed time
+    elapsed_time = end_time - start_time
+    # Add embeddings as a new column to the DataFrame
+    df['code_embedding'] = df.index.map(embeddings)
+
+    # Print the modified DataFrame and elapsed time
+    # print(data_frame)
+    print(f"Elapsed Time: {elapsed_time:.2f} seconds")
+    # df['code_embedding'] = df['code_chunk'].apply(lambda x: get_embedding(x, engine='text-embedding-ada-002'))
+    df.to_csv(f"{root}/repositories/{repo_name}.csv", index=False)
 
 def create_upload_ast(filename,file_location):
   global df,file_path,file_name,concat
@@ -339,10 +390,31 @@ def create_upload_ast(filename,file_location):
         print("opop")
         if os.path.getsize(file_path) != 0:
           create_ast(file_path, file_extension)
-      if len(df)>0:
-        df['code_chunk'] = df['code_chunk'].apply(bytes_to_string)
-        df['code_embedding'] = df['code_chunk'].apply(lambda x: get_embedding(x, engine='text-embedding-ada-002'))
-        df.to_csv(f"{root}/repositories/{filename.split('.')[0]}.csv", index=False)
+    if len(df)>0:
+      df['code_chunk'] = df['code_chunk'].apply(bytes_to_string)
+      threads = []
+      # embeddings = {}
+      start_time = time.time()  # Record the start time
+      for index, row in df.iterrows():
+        row_data = row['code_chunk']
+        thread = threading.Thread(target=fetch_embedding, args=(index, row_data))
+        threads.append(thread)
+        thread.start()
+    # Wait for all threads to complete
+      for thread in threads:
+        thread.join()
+      end_time = time.time()  # Record the end time
+    # Calculate elapsed time
+      elapsed_time = end_time - start_time
+    # Add embeddings as a new column to the DataFrame
+      df['code_embedding'] = df.index.map(embeddings)
+
+    # Print the modified DataFrame and elapsed time
+    # print(data_frame)
+      print(f"Elapsed Time: {elapsed_time:.2f} seconds")
+    # df['code_embedding'] = df['code_chunk'].apply(lambda x: get_embedding(x, engine='text-embedding-ada-002'))
+      df.to_csv(f"{root}/repositories/{filename.split('.')[0]}.csv", index=False)
+    
   
   else:
     file_path=file_location
@@ -357,5 +429,39 @@ def create_upload_ast(filename,file_location):
         create_ast(file_path, file_extension)
     if len(df)>0:
       df['code_chunk'] = df['code_chunk'].apply(bytes_to_string)
-      df['code_embedding'] = df['code_chunk'].apply(lambda x: get_embedding(x, engine='text-embedding-ada-002'))
-      df.to_csv(f"{root}/repositories/{file_name.split('.')[0]}.csv", index=False)      
+      threads = []
+      # embeddings = {}
+      start_time = time.time()  # Record the start time
+      for index, row in df.iterrows():
+        row_data = row['code_chunk']
+        thread = threading.Thread(target=fetch_embedding, args=(index, row_data))
+        threads.append(thread)
+        thread.start()
+    # Wait for all threads to complete
+      for thread in threads:
+        thread.join()
+      end_time = time.time()  # Record the end time
+    # Calculate elapsed time
+      elapsed_time = end_time - start_time
+    # Add embeddings as a new column to the DataFrame
+      df['code_embedding'] = df.index.map(embeddings)
+
+    # Print the modified DataFrame and elapsed time
+    # print(data_frame)
+      print(f"Elapsed Time: {elapsed_time:.2f} seconds")
+    # df['code_embedding'] = df['code_chunk'].apply(lambda x: get_embedding(x, engine='text-embedding-ada-002'))
+      df.to_csv(f"{root}/repositories/{file_name.split('.')[0]}.csv", index=False)
+
+
+
+
+
+
+
+
+
+
+
+
+
+          

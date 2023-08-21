@@ -1,4 +1,5 @@
 from count_token import num_tokens_from_string
+from tesy1 import ac
 x=num_tokens_from_string("""
 from .ast_parser import ASTParser
 import pyparsing
@@ -42,3 +43,15 @@ if is_empty_file(file_path):
     print("The file is empty.")
 else:
     print("The file is not empty.")
+
+ac()
+import re 
+class_value="qwe"
+erty="classf gfhgf qwe"
+pattern1 = rf"class.*{re.escape(class_value)}"
+pattern2 = rf"decorated.*{re.escape(class_value)}"
+pattern3 = rf"impl.*{re.escape(class_value)}"
+print(True and re.search(pattern1,erty))
+print(True and re.search(pattern2,erty))
+print(True and re.search(pattern3,erty))
+print("dfsd\ngfdg")

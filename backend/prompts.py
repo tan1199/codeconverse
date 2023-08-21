@@ -9,7 +9,7 @@ if the instruction contains fetch and explain or compare and explain then comman
 Now extract metadata present in the instruction,
 metadata can be in the form of function name/ method name, class name and file name, only populate te metadata value if u are certain, analyze the instruction and then if you can conclusively decide
 that a certain value of metadata is present than use that value otherwise assume 'NA', if you want to decide for function_name then look for the keyword function or method, function_name will generally
-precede or follow the key word funcion/method, similarlay for class_name look for words coming just before or after class. for filename look for words ending with extension or words coming before /after the word file;
+precede or follow the key word funcion/method, similarlay for class_name look for words coming just before or after class. for filename look for words ending with extension or words coming before and after the word file;
 If you do not find these influencing keywords please populate the value as 'NA'
 Just extract the instructions,command and metadata from the following user query and output only in ```json```,each instruction will have its own json.
 the metadata will be dictionary of key value pairs, the keys being function_name, class_name and file_name.
@@ -48,6 +48,6 @@ Sample json output
 }
 	
 Think step by step and reason yourself to the right decisions to make sure we only split into multiple instructions if we have conclusive evidence to do so and when we do each instruction should make sense on its own, we derive relevant information from previous instructions if required,
-and also make sure you extract the metadata efficiently in the format explained above. The metadata values will not contain any space.
+and also make sure you extract the metadata efficiently and correctly that is if you do not find keywords associated with them as explained earlier then report 'NA' in the format explained above. The metadata values will not contain any space.
 
 """

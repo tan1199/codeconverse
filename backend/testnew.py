@@ -1,6 +1,6 @@
 import sqlite3
 # # Connect to the database (a new database file named 'conversation.db' will be created if it doesn't exist)
-conn = sqlite3.connect('conversation.db')
+conn = sqlite3.connect('conversation1.db')
 
 # # Create a cursor object to interact with the database
 cursor = conn.cursor()
@@ -38,15 +38,19 @@ conversation_data1 = [{'chatId': '1692436170698', 'messages': [{'id': 1692436175
 #         message_content = message['message']
 #         timestamp = message['timestamp']
         
-#         insert_query = '''
-#         INSERT INTO messages (id, chat_id, avatar, username, message, timestamp)
-#         VALUES (?, ?, ?, ?, ?, ?)
-#         '''
-        
-#         cursor.execute(insert_query, (message_id, chat_id, avatar, username, message_content, timestamp))
 
+def insert_query(cursor,message_id, chat_id, avatar, username, message_content, timestamp):      
+    print("ppppppppp")  
+    # global cursor
+    insert_query = '''
+    INSERT INTO messagesh (id, chat_id, avatar, username, message, timestamp)
+        VALUES (?, ?, ?, ?, ?, ?)
+        '''
+    print(message_id, chat_id, avatar, username, message_content, timestamp)
+    cursor.execute(insert_query, (message_id, chat_id, avatar, username, message_content, timestamp))
 # # Commit the changes to the database
-# conn.commit()
+    conn.commit()
+# insert_query(86207,"sdi","io","lp","yt",869)
 select_query = 'SELECT * FROM messages'
 
 cursor.execute(select_query)
@@ -58,6 +62,7 @@ cursor.close()
 conn.close()
 
 # Convert retrieved data into the original structure
+
 conversation_data = []
 
 for row in result:

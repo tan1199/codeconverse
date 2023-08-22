@@ -49,8 +49,8 @@ logging.basicConfig(
 #     return {"message": "\nimport sys\nsys.path.append('/path/to/folder')\nfrom my_module import my_function"}
 #     # return {"message": backend_response}
 
-
-import time
+from connect_db import insert_message,select_all_chats
+import time,sqlite3
 from clone_repo import extract_user_repo_github
 from ast_parser import create_repo_ast,create_upload_ast,language_extensions_to_class_attribute,language_extensions_to_function_attribute,class_attributes,function_attributes
 from fastapi import FastAPI, WebSocket, HTTPException, File, UploadFile
@@ -85,6 +85,8 @@ async def simulate_processing_stage_3():
 @app.websocket("/ws/initiate")
 async def initiate_websocket(websocket: WebSocket):
     conversation_data1 = [{'chatId': '1692436170698', 'messages': [{'id': 1692436175759, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'hello', 'timestamp': 1692436175759}, {'id': 1692436181744, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'Hello! How can I assist you today?', 'timestamp': 1692436181744}, {'id': 1692436191162, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'how are you', 'timestamp': 1692436191162}, {'id': 1692436198048, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': "As an AI, I don't have feelings, but I'm here to help you with any questions or tasks you have. How can I assist you today?", 'timestamp': 1692436198048}, {'id': 1692436211157, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'what is the capital of denmark', 'timestamp': 1692436211157}, {'id': 1692436216969, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'The capital of Denmark is Copenhagen.', 'timestamp': 1692436216969}, {'id': 1692436225940, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'best cricker of world', 'timestamp': 1692436225940}, {'id': 1692436233668, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'There have been many great cricketers throughout history, and it is subjective to determine the best cricketer of all time. However, some of the most highly regarded cricketers include Sir Donald Bradman, Sachin Tendulkar, Sir Vivian Richards, Sir Garfield Sobers, and Sir Jack Hobbs. These players have achieved remarkable records and have left a lasting impact on the game of cricket.', 'timestamp': 1692436233668}]}, {'chatId': '1692436239709', 'messages': []}, {'chatId': '1692436243005', 'messages': [{'id': 1692436251519, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'some icream flovors', 'timestamp': 1692436251519}, {'id': 1692436259952, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': '1. Vanilla\n2. Chocolate\n3. Strawberry\n4. Mint chocolate chip\n5. Cookies and cream\n6. Butter pecan\n7. Rocky road\n8. Coffee\n9. Pistachio\n10. Salted caramel\n11. Neapolitan\n12. Cherry Garcia (cherry ice cream with chocolate chunks and cherries)\n13. Peanut butter cup\n14. Coconut\n15. Birthday cake\n16. Matcha green tea\n17. Black raspberry\n18. Dulce de leche\n19. Red velvet\n20. Lemon sorbet', 'timestamp': 1692436259952}, {'id': 1692436267399, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'different color of apple', 'timestamp': 1692436267399}, {'id': 1692436279132, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'There are several different colors of apples, including:\n\n1. Red: This is the most common color for apples, with varieties such as Red Delicious, Gala, and Fuji.\n\n2. Green: Green apples, such as Granny Smith and Golden Delicious, have a tart flavor and are often used in baking or for making apple cider.\n\n3. Yellow: Yellow apples, like Yellow Transparent and Yellow Newtown Pippin, have a sweet and tangy taste.\n\n4. Pink: Pink Lady apples have a distinctive pinkish-red skin and a crisp, sweet-tart flavor.\n\n5. Bi-colored: Some apples have a combination of colors, such as the popular Honeycrisp apple, which has a red and yellow skin.\n\n6. Striped: Certain apple varieties, like the McIntosh apple, have a striped pattern on their skin, with a mix of red and green.\n\n7. Purple: There are a few varieties of purple apples, such as the Black Diamond apple, which have a deep purple or almost black skin.\n\nThese are just a few examples of the different colors of apples available. The specific color and appearance of an apple can vary depending on the variety and ripeness.', 'timestamp': 1692436279132}, {'id': 1692436280326, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'japan to india distance', 'timestamp': 1692436280326}, {'id': 1692436286987, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'The distance between Japan and India is approximately 4,500 kilometers (2,800 miles) when measured in a straight line. However, the actual distance may vary depending on the route taken for travel.', 'timestamp': 1692436286987}, {'id': 1692436288296, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'bye bye', 'timestamp': 1692436288296}, {'id': 1692436294137, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'Goodbye! Have a great day!', 'timestamp': 1692436294137}]}]
+    conversation_data = select_all_chats()
+    print(conversation_data)
 
     await websocket.accept()
     # await asyncio.sleep(1)
@@ -98,7 +100,7 @@ async def initiate_websocket(websocket: WebSocket):
     #     if filename.endswith(".csv"):
     #         csv_files.append(os.path.splitext(filename)[0])
     print(file_list)       
-    await websocket.send_text(json.dumps({"chat_data":conversation_data1,"saved_data_source":file_list,"action": "initiate", "message": "ploaded Successfully"}))
+    await websocket.send_text(json.dumps({"chat_data":conversation_data,"saved_data_source":file_list,"action": "initiate", "message": "ploaded Successfully"}))
 
 
     # while True:
@@ -213,6 +215,7 @@ async def status_websocket(websocket: WebSocket):
 
 @app.websocket("/ws/chat")
 async def chat_socket(websocket: WebSocket):
+    global no_Df
     await websocket.accept()
     logging.info(f"hello: ")
     try:
@@ -256,8 +259,8 @@ async def chat_socket(websocket: WebSocket):
                         try:
                             instruction_data = json.loads(llm_json_response)
                             i=0
+                            code_context=""
                             for instruction_obj in instruction_data['instructions']:
-                                code_context=""
                                 instruction = instruction_obj['instruction']
                                 command = instruction_obj['command']
                                 metadata = instruction_obj['metadata']
@@ -323,22 +326,22 @@ async def chat_socket(websocket: WebSocket):
                                   print("bji",filtered_df)
                                   filtered_df = filtered_df[filtered_df['code_identifier']==funcion_value]
                                   print("plo",filtered_df)
-                                code_context += f"Code Context {i} : \n"+ code_embedding_similarity_search(filtered_df,instruction)+"\n"
-                                # print("yuiop",instruction,code_context)
-                                code_search_prompt=f"""
+                                code_context += f"Code Context for {instruction} : \n"+ code_embedding_similarity_search(filtered_df,instruction)+"\n"
+                                print("yuiop",instruction,code_context)
+                            code_search_prompt=f"""
 Given the following code context followed by user query, user query can contain multiple intructions please provide an answer to each of them by utilizing the corresponding code context to the best of your abilities
 Code context: {code_context}
 User Query: {user_prompt}
 """
                                 # print(code_search_prompt)
-                                refined_response =completion_endpoint_plain(code_search_prompt)
+                            refined_response =completion_endpoint_plain(code_search_prompt)
                                 # refined_response+="""```java
                                 # ```"""
                         except json.JSONDecodeError as e:
                             print("JSON Decode Error:", e)
                             
                     elif no_Df==False:
-                        print("lainla")
+                        print("lainla",len(df))
                         code_context = code_embedding_similarity_search(df,user_prompt)
                         # print("yuiop",instruction,code_context)
                         code_search_prompt=f"""
@@ -376,10 +379,16 @@ User Query: {user_prompt}
                     message['chatId'] = query_data["chatId"]
                     message['newvalue'] = "acha"
                     message['progressbar'] = False
+                    response_timestamp =  int(time.time() * 1000)
+                    message['response_timestamp']= response_timestamp
+                    print(response_timestamp)
                     # await asyncio.sleep(5)
                     end_time = time.time()
                     elapsed_time = end_time - start_time
                     print(f"Elapsed Time: {elapsed_time:.2f} seconds")
-                    await websocket.send_json(message)        
+                    await websocket.send_json(message)       
+                    insert_message(query_data["query_timestamp"], query_data["chatId"], 'https://example.com/avatar.png', "User", user_prompt, query_data["query_timestamp"]) 
+                    insert_message(response_timestamp, query_data["chatId"], 'https://example.com/avatar.png', "AI Assistant", refined_response,response_timestamp)
+                    
     except Exception:
         pass

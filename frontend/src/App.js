@@ -215,13 +215,13 @@ const handleAddChatWindow = () => {
   const handleSendMessage = (message, chatId) => {
     console.log("qqqqqqqqqqqqq")
     console.log(chatId);
-
+    const query_timestamp=Date.now()
     const newMessage = {
-      id: Date.now(),
+      id: query_timestamp,
       avatar: 'https://example.com/avatar.png',
       username: 'User',
      message: message,
-      timestamp: Date.now(),
+      timestamp: query_timestamp,
     };
     setChats((prevChats) => {
       return prevChats.map((chat) =>
@@ -238,7 +238,7 @@ const handleAddChatWindow = () => {
     }
 
     // setChatMessage(`Sending ${action} action`);
-    socket.send(JSON.stringify({ type: 'chat', action,chatId, data: message ,ch:chats,metadata_filter:isToggleOn}));
+    socket.send(JSON.stringify({ type: 'chat', action,chatId, data: message ,ch:chats,metadata_filter:isToggleOn,query_timestamp:query_timestamp}));
     // setMessages([...messages, newMessage]);
     console.log("rrrrr");
     setSelectedChatId(chatId);
@@ -287,11 +287,11 @@ const handleAddChatWindow = () => {
       console.log(data.message)
       if (data.action === 'chat') {
         const new_message_from_backend = {
-          id: Date.now(),
+          id: data.response_timestamp,
           avatar: 'https://example.com/avatar.png',
           username: 'AI Assistant',
           message:data.message,
-          timestamp: Date.now(),
+          timestamp: data.response_timestamp,
         };
         setChats((prevChats) => {
           return prevChats.map((chat) =>

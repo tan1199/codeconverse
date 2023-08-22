@@ -12,6 +12,7 @@ import time
 embeddings = {}
 # Function to fetch embedding for a row
 def fetch_embedding(index, row_data):
+    global embeddings
     embedding =  get_embedding(row_data, engine='text-embedding-ada-002')
     embeddings[index] = embedding
 
@@ -335,7 +336,7 @@ language_extensions_to_function_attribute = {
     # Add more extensions and languages as needed
 }
 class_attributes=['class_definition','decorated_definition','class_declaration','class_specifier','impl_item']
-function_attributes=['function_definition','decorated_definition','method_declaration','constructor_declaration','method_definition','field_definition','function_declaration','function_item','trait_item'],
+function_attributes=['function_definition','decorated_definition','method_declaration','constructor_declaration','method_definition','field_definition','function_declaration','function_item','trait_item']
 
 
 def create_repo_ast(repo_name):
@@ -353,6 +354,7 @@ def create_repo_ast(repo_name):
         create_ast(file_path, file_extension)
   if len(df)>0:
     df['code_chunk'] = df['code_chunk'].apply(bytes_to_string)
+    df = df.loc[df['num_tokens'] < 5000]
     threads = []
     # embeddings = {}
     start_time = time.time()  # Record the start time
@@ -392,6 +394,7 @@ def create_upload_ast(filename,file_location):
           create_ast(file_path, file_extension)
     if len(df)>0:
       df['code_chunk'] = df['code_chunk'].apply(bytes_to_string)
+      df = df.loc[df['num_tokens'] < 5000]
       threads = []
       # embeddings = {}
       start_time = time.time()  # Record the start time
@@ -429,6 +432,7 @@ def create_upload_ast(filename,file_location):
         create_ast(file_path, file_extension)
     if len(df)>0:
       df['code_chunk'] = df['code_chunk'].apply(bytes_to_string)
+      df = df.loc[df['num_tokens'] < 5000]
       threads = []
       # embeddings = {}
       start_time = time.time()  # Record the start time
@@ -451,17 +455,3 @@ def create_upload_ast(filename,file_location):
       print(f"Elapsed Time: {elapsed_time:.2f} seconds")
     # df['code_embedding'] = df['code_chunk'].apply(lambda x: get_embedding(x, engine='text-embedding-ada-002'))
       df.to_csv(f"{root}/repositories/{file_name.split('.')[0]}.csv", index=False)
-
-
-
-
-
-
-
-
-
-
-
-
-
-          

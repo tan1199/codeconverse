@@ -79,3 +79,22 @@ def select_all_chats():
     finally:
         conn.close()
     return conversation_data
+
+
+
+
+def deletechatId(chatId):
+    print("del") 
+    try:
+        conn = sqlite3.connect('chats.db')
+        cursor = conn.cursor()
+        strchatid=str(chatId)
+        delete_query = 'delete from chistory  where chat_id =?'
+        cursor.execute(delete_query, (strchatid,))
+        conn.commit() 
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+        conn.rollback()  # Roll back the transaction in case of an error
+    finally:
+        conn.close()
+

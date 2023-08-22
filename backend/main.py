@@ -49,13 +49,13 @@ logging.basicConfig(
 #     return {"message": "\nimport sys\nsys.path.append('/path/to/folder')\nfrom my_module import my_function"}
 #     # return {"message": backend_response}
 
-from connect_db import insert_message,select_all_chats
+from connect_db import insert_message,select_all_chats,deletechatId
 import time,sqlite3
 from clone_repo import extract_user_repo_github
 from ast_parser import create_repo_ast,create_upload_ast,language_extensions_to_class_attribute,language_extensions_to_function_attribute,class_attributes,function_attributes
 from fastapi import FastAPI, WebSocket, HTTPException, File, UploadFile
 from pydantic import BaseModel
-import os, re
+import os, re,shutil
 import zipfile
 import pandas as pd
 from pathlib import Path
@@ -94,8 +94,8 @@ async def initiate_websocket(websocket: WebSocket):
 
     file_list = []
     root1 = Path(__file__).parent
-    input_directory_path = f"{root1}/repositories/data"  # Replace with the actual path to your directory
-    file_list = [f for f in os.listdir(input_directory_path)]
+    input_directory_path = f"{root1}/repositories"  # Replace with the actual path to your directory
+    file_list = [f.split('.')[0] for f in os.listdir(input_directory_path) if f not in ['data','final']] 
     # for filename in os.listdir(csv_directory_path):
     #     if filename.endswith(".csv"):
     #         csv_files.append(os.path.splitext(filename)[0])
@@ -108,6 +108,19 @@ async def initiate_websocket(websocket: WebSocket):
     #     message = await websocket.receive_text()
     #     print(message)
 
+def delete_files_with_string(root_dir, target_string):
+    for item in os.listdir(root_dir):
+        item_path = os.path.join(root_dir, item)
+        if os.path.isfile(item_path) and target_string in item:
+            os.remove(item_path)
+            print(f"Deleted file: {item_path}")
+        elif os.path.isdir(item_path) and target_string in item:
+            try:
+                shutil.rmtree(item_path)
+                print(f"Deleted directory and its contents: {item_path}")
+            except Exception as e:
+                 print(f"Error while deleting directory: {e}")
+
 @app.websocket("/ws/process")
 async def status_websocket(websocket: WebSocket):
     await websocket.accept()
@@ -117,7 +130,24 @@ async def status_websocket(websocket: WebSocket):
         message_data = json.loads(message)
         filename = message_data.get('filename')
         print("llll",filename)
-        if message_data['type'] == 'filename':
+        if message_data['type'] == 'deletedatasource':
+            if "." in filename:
+                filename=filename.split('.')[0]
+            root2 = Path(__file__).parent
+            root_directory=f'{root2}/repositories/{filename}.csv'
+            if os.path.exists(root_directory):
+                os.remove(root_directory)   
+            print("olhg")
+            root_directory=f'{root2}/repositories/data'   
+            delete_files_with_string(root_directory, filename)
+            print("rtyvj")
+
+        elif message_data['type'] == 'deletechatId':
+            print("del begin")
+            print("ttyyp",type(filename))
+            deletechatId(filename)
+            print("delte end")
+        elif message_data['type'] == 'filename':
             data = await websocket.receive_bytes()  # Receive binary data in chunks
             await websocket.send_text(json.dumps({"action": "process", "message": f"{filename} Uploaded Successfully"}))
             if data:
@@ -126,23 +156,23 @@ async def status_websocket(websocket: WebSocket):
                 print("wwwwww")
                 if os.path.exists(file_path) or os.path.exists(file_path.split('.')[0]):
                     print("qqqqqqqqqqq")
-                    await asyncio.sleep(4)
+                    await asyncio.sleep(2)
                     await websocket.send_text(json.dumps({"action": "process", "message":f"{filename} Exists"}))
-                    await asyncio.sleep(4)
+                    await asyncio.sleep(2)
                     await websocket.send_text(json.dumps({"action": "process", "message":""}))
                     continue
                 # Process the received binary data as a chunk of a larger file
                 with open(file_path, "ab") as f:
                     print("opop")
                     f.write(data)
-                await asyncio.sleep(4)
+                await asyncio.sleep(2)
                 await websocket.send_text(json.dumps({"action": "process", "message":f"{filename} Processed Successfully"}))
                 if filename.endswith('.zip'):
                     with zipfile.ZipFile(f'repositories/data/{filename}', 'r') as zip_ref:
                         zip_ref.extractall(f'repositories/data/')
                         print("Zip file extracted successfully.")
                     os.remove(file_path)
-                    await asyncio.sleep(4)
+                    await asyncio.sleep(2)
                     await websocket.send_text(json.dumps({"action": "process", "message": f"{filename} Extracted Successfully"}))
                 await websocket.send_text(json.dumps({"type": "success"}))
                 progress_message['action'] = 'process'
@@ -153,9 +183,9 @@ async def status_websocket(websocket: WebSocket):
                 await websocket.send_text(json.dumps({"action": "process", "message": f"Parsing source code of {filename}"}))
 
                 create_upload_ast(filename,file_path)
-                await asyncio.sleep(4)
+                await asyncio.sleep(2)
                 await websocket.send_text(json.dumps({"action": "process", "message": f" Source code of {filename} Parsed Successfully"}))
-                await asyncio.sleep(5)
+                await asyncio.sleep(2)
                 await websocket.send_text(json.dumps({"data_source_name": f"{filename}","action": "process", "message": f" Data Source {filename} Successfully"}))
         elif message_data['type'] == 'url':
             source_url=message_data['url_string']
@@ -163,7 +193,7 @@ async def status_websocket(websocket: WebSocket):
                 pattern = r'https://github.com/([^/]+)/([^/]+)'
     
                     # Search for the pattern in the input URL
-                await asyncio.sleep(4)
+                await asyncio.sleep(2)
                 await websocket.send_text(json.dumps({"action": "process", "message": "Search for the pattern in the input URL"}))
                 
                 match = re.search(pattern, source_url)
@@ -183,7 +213,7 @@ async def status_websocket(websocket: WebSocket):
                         file_path1=f'{root1}/repositories/{user_name}_{repo_name}'
                         if os.path.exists(file_path1):
                             print("qqqqqqqqqqq")
-                            await asyncio.sleep(4)
+                            await asyncio.sleep(2)
                             await websocket.send_text(json.dumps({"action": "process", "message":f"{user_name}_{repo_name} Exists"}))
                             await asyncio.sleep(4)
                             await websocket.send_text(json.dumps({"action": "process", "message":""}))
@@ -193,20 +223,20 @@ async def status_websocket(websocket: WebSocket):
                         await websocket.send_text(json.dumps({"action": "process", "message": "GitHub Repository cloned Successfully"}))
 
                         print("nice")
-                        await asyncio.sleep(3)
+                        await asyncio.sleep(2)
                         await websocket.send_text(json.dumps({"action": "process", "message": f"Parsing source code of {user_name}/{repo_name}"}))
 
                         create_repo_ast(f"{user_name}_{repo_name}")
-                        await asyncio.sleep(4)
+                        await asyncio.sleep(2)
                         await websocket.send_text(json.dumps({"action": "process", "message": f" Source code of {user_name}/{repo_name} Parsed Successfully"}))
-                        await asyncio.sleep(5)
+                        await asyncio.sleep(2)
                         await websocket.send_text(json.dumps({"data_source_name": f"{user_name}_{repo_name}","action": "process", "message": f" Data Source {user_name}/{repo_name} Successfully"}))
 
 
                         print("ioio")
                     else:
                         print("Invalid GitHub repository URL")
-                        await asyncio.sleep(6)
+                        await asyncio.sleep(2)
                         await websocket.send_text(json.dumps({"action": "process", "message": "Invalid GitHub Repository URL"}))
         # simulate_processing_stage_2()  # Call another processing function
         await asyncio.sleep(5)

@@ -184,6 +184,24 @@ const handleAddChatWindow = () => {
   const deletedatasource = (datasource) => {
     // Handle the logic for sending the textbox content (e.g., display or process it)
     console.log('deleting:', datasource);
+    const action='progress';
+    console.log(processSocket);
+    const socket = action === 'chat' ? chatSocket : processSocket;
+    if (!socket) {
+      console.error('Socket is not available for this action.');
+      return;
+    }
+
+ 
+    const deletefilenameMessage = JSON.stringify({ type: 'deletedatasource', filename: datasource });
+    socket.send(deletefilenameMessage);
+    setValueList((prevValueList) => {
+      return prevValueList.filter((datasourcename) => datasourcename !== datasource);
+    });
+    
+    setValueList((prevCheckedValues) => {
+      return prevCheckedValues.filter((checkedvalue) => checkedvalue !== datasource);
+    });
     }
 
   const handleFileUpload = (selectedFile) => {
@@ -256,20 +274,25 @@ const handleAddChatWindow = () => {
     // console.log(messages)
     return selectedChat ? selectedChat.messages : [];
   };
-  const deletechat = (x) => {
-    console.log("deletechat",x);
+  const deletechat = (ChatId) => {
+    console.log("deletechat",ChatId);
     handleAddChatWindow();
-        console.log("nowathome",x);
+        console.log("nowathome",ChatId);
     setChats((prevChats) => {
-      return prevChats.filter((chat) => chat.chatId !== x);
+      return prevChats.filter((chat) => chat.chatId !== ChatId);
     });
-    // 
-    // const selectedChat = chats.find((chat) => chat.chatId === chatId);
-    // console.log(selectedChat)
-    // // console.log(messages)
-    // return selectedChat ? selectedChat.messages : [];
-  };
- 
+    const action='progress';
+    console.log(processSocket);
+    const socket = action === 'chat' ? chatSocket : processSocket;
+    if (!socket) {
+      console.error('Socket is not available for this action.');
+      return;
+    }
+
+    const deletechatIdMessage = JSON.stringify({ type: 'deletechatId', filename: ChatId });
+    socket.send(deletechatIdMessage);
+    
+    }
   
   const handleChatItemClick = (chatId) => {
     console.log(chatId);

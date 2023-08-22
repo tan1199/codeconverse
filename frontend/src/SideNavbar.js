@@ -4,6 +4,7 @@ import * as AiIcons from 'react-icons/ai';
 import * as BsIcons from 'react-icons/bs';
 import * as BiIcons from 'react-icons/bi';
 import * as IoIcons from 'react-icons/io';
+import * as MdIcons from 'react-icons/md'; 
 import { Link } from 'react-router-dom';
 import './SideNavbar.css';
 import ChatItem from './ChatItem';
@@ -12,7 +13,7 @@ import { SidebarData } from './SidebarData';
 import { IconContext } from 'react-icons';
 
 
-function SideNavbar({ chats, selectedChatId, handleChatItemClick, handleAddChatWindow }) {
+function SideNavbar({ chats, selectedChatId, handleChatItemClick, handleAddChatWindow, deletechat }) {
   const reversedChats = chats.slice().reverse();
 console.log("dfdgfgd")
 console.log(selectedChatId)
@@ -41,10 +42,13 @@ const abc=selectedChatId;
 
 <div className='conversationname'>
 {reversedChats.map((chat)=> {
+
                                      return (
+                                      <div className='qsdfi'>
+
                                       <li>
                                         <Link to={`/chats/${chat.chatId}`} >
-                                      <i className="bx bx-cog"><BiIcons.BiSolidChat /></i>
+                                      {/* <i className="bx bx-cog"><BiIcons.BiSolidChat /></i> */}
 
           <span className="links_name">
   <ChatItem
@@ -52,7 +56,9 @@ const abc=selectedChatId;
     chat={chat}
     selectedChatId={selectedChatId}
     handleChatItemClick={handleChatItemClick}
+    deletechat={deletechat}
   />
+  {/* <div className='del'><MdIcons.MdDelete size={20} /></div> */}
   </span>
   </Link>
   <span className="tooltip">
@@ -64,6 +70,9 @@ const abc=selectedChatId;
   />
     </span>
   </li>
+  <div className='desl' onClick={() => deletechat(chat.chatId)}><MdIcons.MdOutlineDeleteOutline color='white' size={20} /></div> 
+  </div>
+
   );
 })}
 </div>

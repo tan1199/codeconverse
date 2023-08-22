@@ -158,7 +158,7 @@ const handleAddChatWindow = () => {
   console.log("bbbbbbbbbbbb");
   selectedChatIdRef.current = newChatId;
   navigate(`/chats/${newChatId}`);
-
+  console.log("fgb",newChatId)
 };
   const code = `
   import loggingvvv
@@ -181,6 +181,10 @@ const handleAddChatWindow = () => {
   socket.send(urlMessage);
     // socket.send(JSON.stringify({ action, data: datasourcevalue }));
   };
+  const deletedatasource = (datasource) => {
+    // Handle the logic for sending the textbox content (e.g., display or process it)
+    console.log('deleting:', datasource);
+    }
 
   const handleFileUpload = (selectedFile) => {
     // Here, you can handle the upload logic, e.g. send the file to a server.
@@ -252,8 +256,21 @@ const handleAddChatWindow = () => {
     // console.log(messages)
     return selectedChat ? selectedChat.messages : [];
   };
+  const deletechat = (x) => {
+    console.log("deletechat",x);
+    handleAddChatWindow();
+        console.log("nowathome",x);
+    setChats((prevChats) => {
+      return prevChats.filter((chat) => chat.chatId !== x);
+    });
+    // 
+    // const selectedChat = chats.find((chat) => chat.chatId === chatId);
+    // console.log(selectedChat)
+    // // console.log(messages)
+    // return selectedChat ? selectedChat.messages : [];
+  };
  
-
+  
   const handleChatItemClick = (chatId) => {
     console.log(chatId);
     console.log("eeee")
@@ -327,6 +344,7 @@ else{
         selectedChatId={selectedChatId}
         handleChatItemClick={handleChatItemClick}
         handleAddChatWindow={handleAddChatWindow}
+        deletechat={deletechat}
       />
         <Routes>
           <Route path='/' exact element={<Home values={valueList} 
@@ -335,7 +353,9 @@ else{
         onCheckboxChange={handleCheckboxChange}
         handleAddDataSourceClick = {handleAddDataSourceClick}
         handleFileUpload = {handleFileUpload}
-        progressbar={progressbar}/>} />
+        progressbar={progressbar}
+        deletedatasource={deletedatasource}
+        />} />
           <Route path='/customize' element={<Customize 
           isToggleOn={isToggleOn} 
           onToggleChange={handleToggleChange}

@@ -1,19 +1,18 @@
 /* ChatItem.css */
 
 .chat-item {
-    width: 150px;
-    padding: 10px;
-    margin: 10px;
-    font-size: 16px;
+    width: 160px;
+    padding:8px;
+    margin: 8px;
+    font-size: 12px;
     cursor: pointer;
     color: rgb(255, 255, 255); /* Default font color is white */
     transition: background-color 0.2s ease-in-out;
     border-radius: 10px;
-    background-color: rgba(255, 255, 255, 0.2); /* Example background color for active chat item */
+    background-color: rgba(189, 171, 217, 0.2); /* Example background color for active chat item */
     flex-grow: 1;
     overflow-y: auto;
     box-shadow: 0 0 5px #0b1d5e;
-
   }
   
   .chat-item.active {

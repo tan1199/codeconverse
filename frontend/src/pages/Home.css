@@ -110,7 +110,7 @@ overflow-y: auto;
   
   .button-container {
       
-    flex: 2.5;
+    flex: 2;
     padding: 10px;
     box-shadow: 0 0 10px #ffd2f2;
     border-radius: 0px 10px 10px 0px;
@@ -288,7 +288,7 @@ transform: translate(2px, 2px);
   font-size: 22px;
   color: #fbeee0;
   margin-bottom:55px;
-  margin-top: -65px;
+  margin-top: -90px;
 
 
 }
@@ -310,7 +310,7 @@ transform: translate(2px, 2px);
         border: #422800;
       }
       .checkbox-wrapper{
-        width: 100%;
+        width: 95%;
         background-color: #b66714;
         /* border: 5px solid #e48116; */
         background-color: #ffffff;
@@ -417,5 +417,16 @@ border-radius: 10px;
 
 /* Checkbox.css */
 
-
+.fl-wrap{
+  display: flex;
+  flex-direction: row;
+}
 /* Rest of the CSS styles as provided in the original question */
+.del{
+  margin-top: 10px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+  /* margin-right: -300px; */
+/* position: relative; */
+/* margin-right: -220px;} */

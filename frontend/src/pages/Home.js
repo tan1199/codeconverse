@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import './Home.css';
 import * as AiIcons from 'react-icons/ai';
+import * as MdIcons from 'react-icons/md'; 
 
 import '../ChatPanel.css';
-function Home({ values, processMessage, checkedValues, onCheckboxChange, handleAddDataSourceClick, handleFileUpload, progressbar  }) {
+function Home({ values, processMessage, checkedValues, onCheckboxChange, handleAddDataSourceClick, handleFileUpload, progressbar,deletedatasource  }) {
 
   const [selectedFile, setSelectedFile] = useState(null);
 
@@ -58,12 +59,10 @@ const len=values.length;
 </div>
 <div className="checkbox-btn">
 <div className="checkbox-holder">
-{!len && (
-<p className='parahome'>Build AI Chat Search For Product Copilots With Mendable, you can seamlessly craft Product Copilots that empower your users in navigating and unlocking the full value of your products
-  Build AI Chat Search For Product Copilots With Mendable, you can seamlessly craft Product and unlocking the full value of your products</p>)}
-{len && (<div className="checkbox-list">
+{len ? (<div className="checkbox-list">
       <div className='checkbox-heading'>Saved Data Sources</div>
       {values.map((value, index) => (
+        <div className='fl-wrap'>
         <div className="checkbox-wrapper" key={index}>
           <input className="inp-cbx" id={`cbx-${index}`}            
            type="checkbox"
@@ -79,21 +78,12 @@ const len=values.length;
             <span>{value.length > 22 ? value.slice(0, 22) + '...' : value.substring(0, 22)}</span>
           </label>
         </div>
+        <div className='del' onClick={() => deletedatasource(value)}><MdIcons.MdOutlineDeleteOutline color='beige' size={25} /></div> 
+
+        </div>
       ))}
-      {/* <div className="checkbox-wrapper" key={len}>
-          <input className="inp-cbx" id={`cbx-${len}`}            
-           type="checkbox"
-          />
-          <label className="cbx" htmlFor={`cbx-${len}`}>
-            <span>
-              <svg width="12px" height="10px" viewBox="0 0 12 10">
-                <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-              </svg>
-            </span>
-            <span>metadata filter</span>
-          </label>
-        </div> */}
-    </div>)}
+
+    </div>):(<p className='parahome'>Your Data sources will appear here</p>)}
     </div>
 
 

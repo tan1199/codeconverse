@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import * as AiIcons from 'react-icons/ai';
 
 const InputBox = ({ onSendMessage }) => {
   const [message, setMessage] = useState('');
@@ -31,7 +32,7 @@ const InputBox = ({ onSendMessage }) => {
         style={{ height: `${(message.split('\n').length + 1) * 30}px` }}
     
       />
-      <button onClick={() => onSendMessage(message)}  className="send-button">Ask</button>
+      <button onClick={() => onSendMessage(message)}  className="send-button-chat"><AiIcons.AiOutlineSend color='white' size={30} /> </button>
 
     </div>
   );

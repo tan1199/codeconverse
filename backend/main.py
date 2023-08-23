@@ -301,7 +301,8 @@ async def chat_socket(websocket: WebSocket):
 [User : {last_4_message_texts[2]}]
 [You : {last_4_message_texts[3]}]     
         """        
-                    print(chat_history)
+                    print(chat_history,no_Df)
+                    code_context=""
                     code_search_prompt=chat_history
                     if no_Df==False and query_data["metadata_filter"]:
                         prompt=metadata_json_prompt+f"user query :'{user_prompt}"
@@ -463,7 +464,7 @@ User Query: {user_prompt}
                     # backend_response = """
 # In Java, the `TypeReference` class is used to capture the generic type information at runtime. It is commonly used when working with libraries or frameworks that require generic type information, such as JSON parsing libraries like Jackson or Gson.
 # """     
-                        refined_response = completion_endpoint_plain(code_search_prompt)+"The provided code context was not utilized in formulating this response"
+                        refined_response = completion_endpoint_plain(code_search_prompt)
                         # print(query_data["data"],refined_response)
                     # print(query_data["ch"])
                     logging.info(f"Received new message: ")

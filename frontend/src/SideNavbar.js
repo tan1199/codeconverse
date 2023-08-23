@@ -11,9 +11,17 @@ import ChatItem from './ChatItem';
 import { SidebarData } from './SidebarData';
 
 import { IconContext } from 'react-icons';
+import { useNavigate } from 'react-router-dom';
+
 
 
 function SideNavbar({ chats, selectedChatId, handleChatItemClick, handleAddChatWindow, deletechat }) {
+  const navigate = useNavigate();
+  
+  const navigatetohome = () => {
+    navigate(`/`);
+  };
+  
   const reversedChats = chats.slice().reverse();
 console.log("dfdgfgd")
 console.log(selectedChatId)
@@ -28,7 +36,7 @@ const abc=selectedChatId;
       <div className="logo-details">
         <i className="bx bxl-c-plus-plus icon"></i>
 
-        <div className="logo_name">Code Converse</div>
+        <div className="logo_name" onClick={() => navigatetohome()} >Code Converse</div>
   <button id="btn" onClick={menuBtnChange}>
        <FaIcons.FaBars size={25}  onClick={menuBtnChange} />
       </button>      </div>

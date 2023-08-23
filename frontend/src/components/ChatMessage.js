@@ -49,6 +49,7 @@ while ((match = pattern.exec(str)) !== null) {
   
   const word = match[1];
   const content1 = match[2];
+    console.log("lanannnn",word)
   matches.push({ type: 'match', word, content });
   renderedSections.push(
     <SyntaxHighlighter key={renderedSections.length} language={word} style={prismstyle.dracula}  wrapLines={true} className='syntax-high'>

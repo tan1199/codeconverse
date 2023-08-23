@@ -17,7 +17,7 @@ If the instruction is compare then there will be multiple values of function_nam
 the first enitity for comparision and second instruction refers to the second enitiy of comparision and extract the relevant metadata and other keys for respective entities ib the both instructions.
 remember that method name is interchangeably used for the function name
 Finally populate the last key called additional_info, if you think intruction is to fetch or explain entire content or complete file, instead of a specific functionality or part then the value is 'Y' otherwise the default value is 'N' 
-else if you think instruction is to fetch or explain all the functions present in a class or file then then the value is 'function_all'
+else if you think instruction is to fetch or explain all the functions present in a class or file then the value is 'function_all'
 else if you think instruction is to fetch or explain all the classes present in a file then then the value is 'class_all'
 else if you think instruction is to fetch or explain all the imports or dependencies present in a specific file then then the value is 'import_all'
 Sample json output

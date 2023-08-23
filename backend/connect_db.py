@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS chistory (
         INSERT INTO chistory (id, chat_id, avatar, username, message, timestamp)
         VALUES (?, ?, ?, ?, ?, ?)
         '''
-        print(message_id, chat_id, avatar, username, message_content, timestamp)
+        # print(message_id, chat_id, avatar, username, message_content, timestamp)
         cursor.execute(insert_query, (message_id, chat_id, avatar, username, message_content, timestamp))
         print("klklkl")
         conn.commit()    
@@ -89,7 +89,7 @@ def deletechatId(chatId):
         conn = sqlite3.connect('chats.db')
         cursor = conn.cursor()
         strchatid=str(chatId)
-        delete_query = 'delete from chistory  where chat_id =?'
+        delete_query = 'delete from chistory  where chat_id is NULL or chat_id =?'
         cursor.execute(delete_query, (strchatid,))
         conn.commit() 
     except sqlite3.Error as e:

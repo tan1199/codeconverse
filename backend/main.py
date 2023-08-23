@@ -86,7 +86,7 @@ async def simulate_processing_stage_3():
 async def initiate_websocket(websocket: WebSocket):
     conversation_data1 = [{'chatId': '1692436170698', 'messages': [{'id': 1692436175759, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'hello', 'timestamp': 1692436175759}, {'id': 1692436181744, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'Hello! How can I assist you today?', 'timestamp': 1692436181744}, {'id': 1692436191162, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'how are you', 'timestamp': 1692436191162}, {'id': 1692436198048, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': "As an AI, I don't have feelings, but I'm here to help you with any questions or tasks you have. How can I assist you today?", 'timestamp': 1692436198048}, {'id': 1692436211157, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'what is the capital of denmark', 'timestamp': 1692436211157}, {'id': 1692436216969, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'The capital of Denmark is Copenhagen.', 'timestamp': 1692436216969}, {'id': 1692436225940, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'best cricker of world', 'timestamp': 1692436225940}, {'id': 1692436233668, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'There have been many great cricketers throughout history, and it is subjective to determine the best cricketer of all time. However, some of the most highly regarded cricketers include Sir Donald Bradman, Sachin Tendulkar, Sir Vivian Richards, Sir Garfield Sobers, and Sir Jack Hobbs. These players have achieved remarkable records and have left a lasting impact on the game of cricket.', 'timestamp': 1692436233668}]}, {'chatId': '1692436239709', 'messages': []}, {'chatId': '1692436243005', 'messages': [{'id': 1692436251519, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'some icream flovors', 'timestamp': 1692436251519}, {'id': 1692436259952, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': '1. Vanilla\n2. Chocolate\n3. Strawberry\n4. Mint chocolate chip\n5. Cookies and cream\n6. Butter pecan\n7. Rocky road\n8. Coffee\n9. Pistachio\n10. Salted caramel\n11. Neapolitan\n12. Cherry Garcia (cherry ice cream with chocolate chunks and cherries)\n13. Peanut butter cup\n14. Coconut\n15. Birthday cake\n16. Matcha green tea\n17. Black raspberry\n18. Dulce de leche\n19. Red velvet\n20. Lemon sorbet', 'timestamp': 1692436259952}, {'id': 1692436267399, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'different color of apple', 'timestamp': 1692436267399}, {'id': 1692436279132, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'There are several different colors of apples, including:\n\n1. Red: This is the most common color for apples, with varieties such as Red Delicious, Gala, and Fuji.\n\n2. Green: Green apples, such as Granny Smith and Golden Delicious, have a tart flavor and are often used in baking or for making apple cider.\n\n3. Yellow: Yellow apples, like Yellow Transparent and Yellow Newtown Pippin, have a sweet and tangy taste.\n\n4. Pink: Pink Lady apples have a distinctive pinkish-red skin and a crisp, sweet-tart flavor.\n\n5. Bi-colored: Some apples have a combination of colors, such as the popular Honeycrisp apple, which has a red and yellow skin.\n\n6. Striped: Certain apple varieties, like the McIntosh apple, have a striped pattern on their skin, with a mix of red and green.\n\n7. Purple: There are a few varieties of purple apples, such as the Black Diamond apple, which have a deep purple or almost black skin.\n\nThese are just a few examples of the different colors of apples available. The specific color and appearance of an apple can vary depending on the variety and ripeness.', 'timestamp': 1692436279132}, {'id': 1692436280326, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'japan to india distance', 'timestamp': 1692436280326}, {'id': 1692436286987, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'The distance between Japan and India is approximately 4,500 kilometers (2,800 miles) when measured in a straight line. However, the actual distance may vary depending on the route taken for travel.', 'timestamp': 1692436286987}, {'id': 1692436288296, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'bye bye', 'timestamp': 1692436288296}, {'id': 1692436294137, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'Goodbye! Have a great day!', 'timestamp': 1692436294137}]}]
     conversation_data = select_all_chats()
-    print(conversation_data)
+    # print(conversation_data)
 
     await websocket.accept()
     # await asyncio.sleep(1)
@@ -281,7 +281,28 @@ async def chat_socket(websocket: WebSocket):
                     print(query_data["metadata_filter"])
                     refined_response=""
                     user_prompt=query_data["data"]
-                    code_search_prompt=""
+                    conversation_data1 = query_data["ch"]
+                    selectedid = query_data["chatId"]
+                    chat_history="Chat History: []"
+                    filtered_conversations = [conversation for conversation in conversation_data1 if conversation['chatId'] == selectedid]
+                    if filtered_conversations:
+                        last_conversation = filtered_conversations[-1]
+                        last_4_messages = last_conversation['messages'][-4:]
+                        last_4_message_texts = [message['message'] for message in last_4_messages]
+                        if len(last_4_message_texts)==2:
+                            chat_history=f"""Chat History:
+[User : {last_4_message_texts[0]}]
+[You : {last_4_message_texts[1]}]     
+        """
+                        elif len(last_4_message_texts)==4:
+                            chat_history=f"""Chat History:
+[User : {last_4_message_texts[0]}]
+[You : {last_4_message_texts[1]}]     
+[User : {last_4_message_texts[2]}]
+[You : {last_4_message_texts[3]}]     
+        """        
+                    print(chat_history)
+                    code_search_prompt=chat_history
                     if no_Df==False and query_data["metadata_filter"]:
                         prompt=metadata_json_prompt+f"user query :'{user_prompt}"
                         llm_json_response = completion_endpoint_plain(prompt)
@@ -356,40 +377,93 @@ async def chat_socket(websocket: WebSocket):
                                   print("bji",filtered_df)
                                   filtered_df = filtered_df[filtered_df['code_identifier']==funcion_value]
                                   print("plo",filtered_df)
-                                code_context += f"Code Context for {instruction} : \n"+ code_embedding_similarity_search(filtered_df,instruction)+"\n"
+
+                                context_result,similarity,file_ext=code_embedding_similarity_search(filtered_df,instruction)
+                                code_context += f"Code Context for {instruction} : \n\n"+context_result+"\n"
                                 print("yuiop",instruction,code_context)
-                            code_search_prompt=f"""
-Given the following code context followed by user query, user query can contain multiple intructions please provide an answer to each of them by utilizing the corresponding code context to the best of your abilities
-Code context: {code_context}
+                            code_search_prompt+=f"""
+{code_context}
+
 User Query: {user_prompt}
+
+Response:
+[Begin your response here. Avoid repeating the user query in your response. Strive for a comprehensive and insightful answer that addresses the user query, and incorporates information from the code context, the chat history, or both, to address the user query effectively. Consider the following factors to determine the relevance of each source:
+
+1. Relevance to User Query: Consider whether the query directly pertains to the code context or refers to a previous conversation in the chat history.
+
+2. Sequential Flow: If the conversation has progressed sequentially, with the user query building on previous messages, the chat history might be more relevant. If the query pertains to a specific code snippet, the code context could be crucial.
+
+3. Code Complexity: If the code snippet is complex and requires detailed explanations, it might be better to focus on the code context. However, if the query is about high-level concepts or general understanding, the chat history could provide context.
+
+4. User Intent: Gauge the user's intent. If they seek clarifications on an explanation you provided earlier in the chat history, referencing that history could be beneficial.
+
+Strive to strike a balance between the sources, prioritizing the one most relevant to the user's query. If the available information is insufficient, acknowledge that and provide guidance on seeking further information.]
+Additionally at the very end, include a dictionary explicitly indicating whether the `code context:` was used in formulating the response. For example: 
+(code_context_utilized:"YES/NO")
 """
                                 # print(code_search_prompt)
                             refined_response =completion_endpoint_plain(code_search_prompt)
-                                # refined_response+="""```java
-                                # ```"""
+                            lines = refined_response.split('\n')
+                            last_line = lines[-1].strip()
+                            print("nmnmnm",last_line,file_ext)
+                            if ("YES" in last_line and similarity>0.741) or ( ( file_name_value!="NA" ) or ( class_value !="NA" ) or ( funcion_value!= "NA" ) ):
+                                lines[-1] = f"Code Context for {instruction} : \n\n```{file_ext}\n{context_result}``` \n"      
+                                refined_response= '\n'.join(lines)
+                            else:
+                                lines.pop()  
+                                refined_response= '\n'.join(lines)
+                                       
+
                         except json.JSONDecodeError as e:
                             print("JSON Decode Error:", e)
                             
                     elif no_Df==False:
-                        print("lainla",len(df))
-                        code_context = code_embedding_similarity_search(df,user_prompt)
+                        print("lainla",len(df),code_context,"nknkk",chat_history)
+                        context_result,similarity,file_ext = code_embedding_similarity_search(df,user_prompt)
+                        code_context += f"\nCode Context for {user_prompt} : \n\n"+context_result+"\n"
+
                         # print("yuiop",instruction,code_context)
-                        code_search_prompt=f"""
-Given the following code context followed by user query, please provide an answer by utilizing the corresponding code context to the best of your abilities
-Code context: {code_context}
+                        code_search_prompt+=f"""
+{code_context}
+
 User Query: {user_prompt}
-"""
-                        # print(code_search_prompt)
+
+Response:
+[Begin your response here. Avoid repeating the user query in your response. Strive for a comprehensive and insightful answer that addresses the user query, and incorporates information from the code context, the chat history, or both, to address the user query effectively. Consider the following factors to determine the relevance of each source:
+
+1. Relevance to User Query: Consider whether the query directly pertains to the code context or refers to a previous conversation in the chat history.
+
+2. Sequential Flow: If the conversation has progressed sequentially, with the user query building on previous messages, the chat history might be more relevant. If the query pertains to a specific code snippet, the code context could be crucial.
+
+3. Code Complexity: If the code snippet is complex and requires detailed explanations, it might be better to focus on the code context. However, if the query is about high-level concepts or general understanding, the chat history could provide context.
+
+4. User Intent: Gauge the user's intent. If they seek clarifications on an explanation you provided earlier in the chat history, referencing that history could be beneficial.
+
+Strive to strike a balance between the sources, prioritizing the one most relevant to the user's query. If the available information is insufficient, acknowledge that and provide guidance on seeking further information.]
+Additionally at the very end, include a dictionary explicitly indicating whether the `code context:` was used in formulating the response. For example: 
+(code_context_utilized:"YES/NO")
+
+"""             # print(code_search_prompt)
                         refined_response =completion_endpoint_plain(code_search_prompt)
+                        lines = refined_response.split('\n')
+                        last_line = lines[-1].strip()
+                        if ("YES" in last_line and similarity>0.741):
+                            lines[-1] = f"\nCode Context for {user_prompt} \n\n```{file_ext}\n{context_result}``` \n"      
+                            refined_response= '\n'.join(lines)
+                        else:
+                            lines.pop()
+                            refined_response= '\n'.join(lines)
+                      
                     elif no_Df == True:
-                        code_search_prompt=f"""
+                        print("khali")
+                        code_search_prompt+=f"""
 You are an helpful AI Assistant please provide an elaborate answer to the user query to the best of your abilities
 User Query: {user_prompt}
 """
                     # backend_response = """
 # In Java, the `TypeReference` class is used to capture the generic type information at runtime. It is commonly used when working with libraries or frameworks that require generic type information, such as JSON parsing libraries like Jackson or Gson.
 # """     
-                        refined_response = completion_endpoint_plain(code_search_prompt)
+                        refined_response = completion_endpoint_plain(code_search_prompt)+"The provided code context was not utilized in formulating this response"
                         # print(query_data["data"],refined_response)
                     # print(query_data["ch"])
                     logging.info(f"Received new message: ")
@@ -402,7 +476,7 @@ User Query: {user_prompt}
                     # await websocket.send_json(message)
                     # await asyncio.sleep(8)
                     # logging.info(f"Received new message: {data} ")
-                    logging.info(f"Received new message w/o chtat print: {data} ")
+                    # logging.info(f"Received new message w/o chtat print: {data} ")
                     print(no_Df,code_search_prompt)
                     message['action'] = 'chat'
                     message['message'] = refined_response

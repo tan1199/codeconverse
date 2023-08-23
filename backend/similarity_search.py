@@ -3,6 +3,14 @@ from rapidfuzz import fuzz
 from openai.embeddings_utils import cosine_similarity
 from openai.embeddings_utils import get_embedding
 import ast
+extension_to_language={
+"py":"python",
+"rs":"rust",
+"js":"javascript",
+"java":"java",
+"cpp":"cpp",
+
+}
 def calculate_levenshtein_fuzzy_distance_similarity(word_atribute,target_value):
     levenshtein_dist = Levenshtein.distance(word_atribute.lower(), target_value.lower())
     fuzz_ratio = fuzz.WRatio(target_value.lower(), word_atribute.lower())
@@ -43,4 +51,4 @@ def code_embedding_similarity_search(df, code_query, n=5, pprint=True, n_lines=2
     #         print("\n".join(r[1].code_chunk.split("\n")[:n_lines]))
     #         print('-' * 70)
     # return res
-    return res.loc[res.index[0], "code_chunk"]
+    return res.loc[res.index[0], "code_chunk"],res.loc[res.index[0], "similarities"],extension_to_language[res.loc[res.index[0], "file_name"].split(".")[1]]

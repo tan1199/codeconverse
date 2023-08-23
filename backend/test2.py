@@ -73,38 +73,3 @@ timestamp_datetime = datetime.datetime.fromtimestamp(timestamp_seconds)
 
 print(timestamp_datetime)
 
-import sqlite3
-
-conn = sqlite3.connect('conversation1.db')
-cursor = conn.cursor()
-
-create_table_query = '''
-CREATE TABLE IF NOT EXISTS messagesh2 (
-    id INTEGER ,
-    chat_id INTEGER,
-    avatar TEXT,
-    username TEXT,
-    message TEXT,
-    timestamp INTEGER
-)
-'''
-
-# cursor.execute(create_table_query)
-# insert_query = '''
-    # INSERT INTO messagesh1 (id, chat_id, avatar, username, message, timestamp)
-        # VALUES (?, ?, ?, ?, ?, ?)
-        # '''
-print("dsdsfs")
-from dbb import inqerl
-inqerl(5345, 1692647055034,'https://example.com/avatar.png','User', 'ytuytuytu', 1692647058255)
-# cursor.execute(insert_query, (21903, 786, "avatar", "username", "message_content", 6756))
-# select_query = 'SELECT * FROM messagesh1'
-
-# cursor.execute(select_query)
-# result = cursor.fetchall()
-
-# for row in result:
-#     print(row)
-#        # # i
-conn.commit()
-conn.close()

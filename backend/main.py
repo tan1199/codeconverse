@@ -291,15 +291,18 @@ async def chat_socket(websocket: WebSocket):
                         last_4_message_texts = [message['message'] for message in last_4_messages]
                         if len(last_4_message_texts)==2:
                             chat_history=f"""Chat History:
-[User : {last_4_message_texts[0]}]
-[You : {last_4_message_texts[1]}]     
+User: {last_4_message_texts[0]}
+Assistant: {last_4_message_texts[1]} 
+
         """
                         elif len(last_4_message_texts)==4:
                             chat_history=f"""Chat History:
-[User : {last_4_message_texts[0]}]
-[You : {last_4_message_texts[1]}]     
-[User : {last_4_message_texts[2]}]
-[You : {last_4_message_texts[3]}]     
+User  {last_4_message_texts[0]}]
+Assistant: {last_4_message_texts[1]}]   
+
+User: {last_4_message_texts[2]}]
+Assistant: {last_4_message_texts[3]}]    
+
         """        
                     print(chat_history,no_Df)
                     code_context=""
@@ -380,39 +383,36 @@ async def chat_socket(websocket: WebSocket):
                                   print("plo",filtered_df)
 
                                 context_result,similarity,file_ext=code_embedding_similarity_search(filtered_df,instruction)
-                                code_context += f"Code Context for {instruction} : \n\n"+context_result+"\n"
+                                code_context += f"Code Snippet for {instruction} : \n"+context_result+"\n"
                                 print("yuiop",instruction,code_context)
                             code_search_prompt+=f"""
 {code_context}
 
 User Query: {user_prompt}
 
-Response:
-[Begin your response here. Avoid repeating the user query in your response. Strive for a comprehensive and insightful answer that addresses the user query, and incorporates information from the code context, the chat history, or both, to address the user query effectively. Consider the following factors to determine the relevance of each source:
+Assistant Response:
+[Begin your response here. Craft a comprehensive and insightful answer that addresses the user query by integrating relevant information from the code context, chat history, or both, provide the entire code context block at the end of your response. Prioritize the most pertinent source based on factors such as user query relevance, sequential flow of conversation, code complexity, and user intent. Refrain from duplicating the user query in your response. Tailor your answer to the user's needs while maintaining a coherent and informative narrative.
 
-1. Relevance to User Query: Consider whether the query directly pertains to the code context or refers to a previous conversation in the chat history.
+Utilize code context when it directly pertains to the user query or if the query concerns a specific code snippet. If the user query builds upon prior conversation, incorporating relevant parts of the chat history might be more suitable.
 
-2. Sequential Flow: If the conversation has progressed sequentially, with the user query building on previous messages, the chat history might be more relevant. If the query pertains to a specific code snippet, the code context could be crucial.
+Strive to strike a balance between code context and chat history, focusing on the source that offers the most clarity for the user's query.
 
-3. Code Complexity: If the code snippet is complex and requires detailed explanations, it might be better to focus on the code context. However, if the query is about high-level concepts or general understanding, the chat history could provide context.
+If the available information is inadequate, kindly acknowledge it and guide the user on seeking further information.
 
-4. User Intent: Gauge the user's intent. If they seek clarifications on an explanation you provided earlier in the chat history, referencing that history could be beneficial.
+(code_context_utilized: "YES/NO")]
 
-Strive to strike a balance between the sources, prioritizing the one most relevant to the user's query. If the available information is insufficient, acknowledge that and provide guidance on seeking further information.]
-Additionally at the very end, include a dictionary explicitly indicating whether the `code context:` was used in formulating the response. For example: 
-(code_context_utilized:"YES/NO")
 """
                                 # print(code_search_prompt)
                             refined_response =completion_endpoint_plain(code_search_prompt)
-                            lines = refined_response.split('\n')
-                            last_line = lines[-1].strip()
-                            print("nmnmnm",last_line,file_ext)
-                            if ("YES" in last_line and similarity>0.741) or ( ( file_name_value!="NA" ) or ( class_value !="NA" ) or ( funcion_value!= "NA" ) ):
-                                lines[-1] = f"Code Context for {instruction} : \n\n```{file_ext}\n{context_result}``` \n"      
-                                refined_response= '\n'.join(lines)
-                            else:
-                                lines.pop()  
-                                refined_response= '\n'.join(lines)
+                            # lines = refined_response.split('\n')
+                            # last_line = lines[-1].strip()
+                            # print("nmnmnm",last_line,file_ext)
+                            # if ("YES" in last_line and similarity>0.741) or ( ( file_name_value!="NA" ) or ( class_value !="NA" ) or ( funcion_value!= "NA" ) ):
+                            #     lines[-1] = f"{code_context}```{file_ext}\n{context_result}``` \n"      
+                            #     refined_response= '\n'.join(lines)
+                            # else:
+                            #     lines.pop()  
+                            #     refined_response= '\n'.join(lines)
                                        
 
                         except json.JSONDecodeError as e:
@@ -440,7 +440,8 @@ Response:
 
 4. User Intent: Gauge the user's intent. If they seek clarifications on an explanation you provided earlier in the chat history, referencing that history could be beneficial.
 
-Strive to strike a balance between the sources, prioritizing the one most relevant to the user's query. If the available information is insufficient, acknowledge that and provide guidance on seeking further information.]
+Strive to strike a balance between the sources, prioritizing the one most relevant to the user's query. If the available information is insufficient, acknowledge that and provide guidance on seeking further information.
+ AND DO NOT include provide the whole code context block in your response, that will be managed separately]
 Additionally at the very end, include a dictionary explicitly indicating whether the `code context:` was used in formulating the response. For example: 
 (code_context_utilized:"YES/NO")
 
@@ -478,7 +479,7 @@ User Query: {user_prompt}
                     # await asyncio.sleep(8)
                     # logging.info(f"Received new message: {data} ")
                     # logging.info(f"Received new message w/o chtat print: {data} ")
-                    print(no_Df,code_search_prompt)
+                    print(no_Df,"ccccccmj",code_search_prompt)
                     message['action'] = 'chat'
                     message['message'] = refined_response
                     message['chatId'] = query_data["chatId"]

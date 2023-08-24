@@ -20,8 +20,6 @@ function ChatPanel({chatsize,selectedChatId,handleSendMessage,getChatMessages}) 
   return (
     <div>
         <div className="chat-panel">
-        <div className="chat-message">gfhgfvfdgfghghfgh
-        dgfdg</div>
       <div className="chat-messages">
       {selectedChatId ? (
           <div>

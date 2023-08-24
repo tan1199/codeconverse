@@ -139,7 +139,7 @@ margin-right: 40px;
   padding: 12px 20px;
   box-shadow: 0 0 5px #b571da;
   overflow: auto;
-  background-color: #1c072e;
+  background-color: #0c051a;
   color: #e2c1eb;
   margin-left: 10.5%;
   border: none;
@@ -204,7 +204,10 @@ white-space: pre-wrap; /* This property preserves newlines and wraps the text */
 
   font-family: 'Abril Fatface', cursive;
   color: #ecd9f6;
-  font-size: 18px;
+  font-size: 16px;
+  /* font-family: Arial, sans-serif; */
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .username {

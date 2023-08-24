@@ -16,6 +16,18 @@ const ChatMessage = ({ avatar, username, message, timestamp,chatindex }) => {
   const imageSource = chatindex % 2 === 0 ? Userimg : AIimg;
 
   const renderContent = (content) => {
+    const splitText = (inputText) => {
+      const parts = inputText.split(/(`[^`]+`)/); // Include the backticks in the capturing group
+      return parts.map((part, index) =>
+        part.startsWith('`') ? (
+          <span key={index} className="highlighted-text">
+            {part.slice(1, -1)} {/* Remove backticks */}
+          </span>
+        ) : (
+          <span key={index} className='plain-text '>{part}</span>
+        )
+      );
+    };
     console.log("mkop",content);
     const lang = ['java','cpp','pyhthon','rust','json','sh' ,'javascript','go','kotlin','swift','php','csharp','ruby'];
     // const str = "```word\nThis is the first line.\nThis is the second line.\n``` Some other text ```another\nContent here.\n```";
@@ -42,14 +54,13 @@ while ((match = pattern.exec(str)) !== null) {
   const beforeMatch = str.substring(lastIndex, match.index);
   renderedSections.push(
     <div key={renderedSections.length} className="explanation">
-      {beforeMatch}
+      {splitText(beforeMatch)}
     </div>
   );
   matches.push({ type: 'text', content: beforeMatch });
   
   const word = match[1];
   const content1 = match[2];
-    console.log("lanannnn",word)
   matches.push({ type: 'match', word, content });
   renderedSections.push(
     <SyntaxHighlighter key={renderedSections.length} language={word} style={prismstyle.dracula}  wrapLines={true} className='syntax-high'>
@@ -64,7 +75,7 @@ if (remainingText) {
   matches.push({ type: 'text', content: remainingText });
   renderedSections.push(
     <div key={renderedSections.length} className="explanation">
-      {remainingText}
+      {splitText(remainingText)}
     </div>
   );
 }

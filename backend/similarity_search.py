@@ -51,4 +51,4 @@ def code_embedding_similarity_search(df, code_query, n=5, pprint=True, n_lines=2
     #         print("\n".join(r[1].code_chunk.split("\n")[:n_lines]))
     #         print('-' * 70)
     # return res
-    return res.loc[res.index[0], "code_chunk"],res.loc[res.index[0], "similarities"],extension_to_language[res.loc[res.index[0], "file_name"].split(".")[1]]
+    return f"```{extension_to_language[res.loc[res.index[0], 'file_name'].split('.')[1]]}\n{res.loc[res.index[0], 'code_chunk']}```",res.loc[res.index[0], "similarities"],extension_to_language[res.loc[res.index[0], "file_name"].split(".")[1]]

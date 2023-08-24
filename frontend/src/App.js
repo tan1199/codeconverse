@@ -370,7 +370,7 @@ else{
         deletechat={deletechat}
       />
         <Routes>
-          <Route path='/' exact element={<Home values={valueList} 
+          <Route path='/data' exact element={<Home values={valueList} 
           processMessage={processMessage}
         checkedValues={checkedValues}
         onCheckboxChange={handleCheckboxChange}
@@ -385,13 +385,7 @@ else{
           handleApiKeyChange={handleApiKeyChange}
           handlePromptChange={handlePromptChange}/>} 
           />
-          <Route path='/products' element={<Products />} />
-          <Route path='chats' element={<ChatPanel   
-                  chats={chats}
-                  selectedChatId={selectedChatId}
-                  handleSendMessage={handleSendMessage}
-                  getChatMessages={getChatMessages}
-                   />} />
+          <Route path='/' element={<Products />} />
           {chats.map((chat) => (
                  <Route key={selectedChatId} path={`/chats/${chat.chatId}`}  element={<ChatPanel   
                   chatsize={chat.messages.length}

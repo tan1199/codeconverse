@@ -6,7 +6,7 @@ function Products() {
   const navigate = useNavigate();
   
   const navigatetodatasource = () => {
-    navigate(`/`);
+    navigate(`/data`);
   };
   return (
     <div className='products'>

@@ -302,3 +302,14 @@ font-size: 16px;
 /* height: min-content; */
 margin-right: 4px; /* Adjust the margin as needed */
 }
+
+.parapanel{
+  font-size: 25px;
+  color: rgb(250, 253, 234) ;
+  margin-top: 40px;
+}
+.headingpanel{
+  font-size: 30px;
+  color: rgb(221, 188, 249) ;
+  margin-bottom: 80px;
+}

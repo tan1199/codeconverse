@@ -17,10 +17,15 @@
 .add-data-source{
   font-family: 'Montserrat', sans-serif;
   font-weight: 600;
-  font-size: 32px;
+  font-size: 22px;
   color: #fbeee0;
-  text-shadow: 1px 1px 1px #ffd2f2; /* Add text shadow */
   margin-bottom: 5%;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  color: #fbeee0;
+  margin-bottom:40px;
+  margin-top: 10px;
 }
 
 

@@ -2,6 +2,8 @@ import React from 'react';
 import * as FaIcons from 'react-icons/fa';
 import * as AiIcons from 'react-icons/ai';
 import * as IoIcons from 'react-icons/io';
+import * as BsIcons from 'react-icons/bs';
+import * as SiIcons from 'react-icons/si';
 
 export const SidebarData = [
   {
@@ -11,27 +13,28 @@ export const SidebarData = [
     cName: 'nav-text'
   },
   {
+    title: 'Manage Data Sources',
+    path: '/data',
+    icon: <BsIcons.BsFillDatabaseFill />,
+    cName: 'nav-text'
+  },
+  {
     title: 'Customize',
     path: '/customize',
     icon: <IoIcons.IoIosPaper />,
     cName: 'nav-text'
   },
+
   {
-    title: 'Products',
-    path: '/products',
-    icon: <FaIcons.FaCartPlus />,
-    cName: 'nav-text'
-  },
-  {
-    title: 'Team',
-    path: '/team',
+    title: 'About',
+    path: '/about',
     icon: <IoIcons.IoMdPeople />,
     cName: 'nav-text'
   },
   {
-    title: 'Messages',
-    path: '/messages',
-    icon: <FaIcons.FaEnvelopeOpenText />,
+    title: 'Analytics',
+    path: '/analytics',
+    icon: <SiIcons.SiGoogleanalytics />,
     cName: 'nav-text'
   },
   {

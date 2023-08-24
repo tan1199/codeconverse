@@ -4,10 +4,14 @@
 frontend/node_modules
 frontend/.pnp
 frontend/.pnp.js
-frontend/package.json
-frontend/package-lock.json
+# frontend/package.json
+# frontend/package-lock.json
 backend/__pycache__
 backend/repositories
+# .gitignore in the same directory as your backend folder
+
+backend/venv/
+
 .idea/
 
 # testing

@@ -23,8 +23,6 @@ function SideNavbar({ chats, selectedChatId, handleChatItemClick, handleAddChatW
   };
   
   const reversedChats = chats.slice().reverse();
-console.log("dfdgfgd")
-console.log(selectedChatId)
   const [isOpen, setIsOpen] = useState(true);
 const abc=selectedChatId;
   function menuBtnChange() {
@@ -49,10 +47,10 @@ const abc=selectedChatId;
       {isOpen ? (
 
 <div className='conversationname'>
-{reversedChats.map((chat)=> {
+{reversedChats.map((chat, index)=> {
 
                                      return (
-                                      <div className='qsdfi'>
+                                      <div className='qsdfi' key={index}>
 
                                       <li>
                                         <Link to={`/chats/${chat.chatId}`} >
@@ -94,7 +92,7 @@ const abc=selectedChatId;
 
         {SidebarData.map((item, index) => {
                                      return (
-                              <li>
+                              <li key={index}>
                                     <Link to={item.path}>
 
 

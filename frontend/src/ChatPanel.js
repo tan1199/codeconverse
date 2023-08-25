@@ -47,7 +47,7 @@ function ChatPanel({handlesetSelectedChatId,selectedChatId,handleSendMessage,get
             />
           ))}
           <div>
-             {lengthofchat % 2 !== 0 ? (<div class="loader">Generating...</div>
+             {lengthofchat % 2 !== 0 ? (<div className="loader">Generating...</div>
 ):(<div></div>)
       }
       </div>

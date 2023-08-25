@@ -1,22 +1,12 @@
 import React, { useState, useEffect,useRef } from 'react';
-import axios from 'axios';
-import ChatMessage from './components/ChatMessage';
-import UserList from './components/UserList';
-import InputBox from './components/InputBox';
 import './App.css';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import AwesomeSidebar from './AwesomeSidebar';
-import Header from './Header';
 import SideNavbar from './SideNavbar';
 import ChatPanel from './ChatPanel';
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {Route, Routes} from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 
 import Home from './pages/Home';
 import Customize from './pages/Customize';
-import 'boxicons'
 import Products from './pages/Products';
 const App = () => {
   const navigate = useNavigate();
@@ -150,7 +140,7 @@ const handleCheckboxChange = (value) => {
 
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [chats, setChats] = useState([]);
-const chats1 = ['CP2OjIkU5f', '6arELI86qY', 'JSql2fp2UQ', '2n7lGWSUtW', 'U0s3FJ4jj6', 'gV022AfgJi', 'g3wbgZ6BzG', 'AJgUp71Hly', 'ZwLiazPGSD', 'V0Qp2QIVnt'];
+// const chats1 = ['CP2OjIkU5f', '6arELI86qY', 'JSql2fp2UQ', '2n7lGWSUtW', 'U0s3FJ4jj6', 'gV022AfgJi', 'g3wbgZ6BzG', 'AJgUp71Hly', 'ZwLiazPGSD', 'V0Qp2QIVnt'];
 const handleAddChatWindow = () => {
   const newChatId = Date.now().toString();
   setChats((prevChats) => [...prevChats, { chatId: newChatId, messages: [] }]);
@@ -160,9 +150,7 @@ const handleAddChatWindow = () => {
   navigate(`/chats/${newChatId}`);
   console.log("fgb",newChatId)
 };
-  const code = `
-  import loggingvvv
-  `
+  
   const handleAddDataSourceClick = (datasourcevalue, sourcetype) => {
     // Handle the logic for sending the textbox content (e.g., display or process it)
     console.log('Sending:', datasourcevalue);
@@ -275,8 +263,11 @@ const handleAddChatWindow = () => {
 
   const getChatMessages = (chatId) => {
     console.log("ooooo");
-    console.log("na",chatId,":lk",chats)
-    const selectedChat = chats.find((chat) => chat.chatId == chatId);
+    // console.log("na",chatId,":lk",chats)
+    // console.log(typeof chats[0].chatId);  // Output: "function"
+    // console.log(typeof chatId);  // Output: "function"
+
+    const selectedChat = chats.find((chat) => chat.chatId.toString() === chatId);
     console.log(selectedChat)
     // console.log(messages)
     return selectedChat ? selectedChat.messages : [];
@@ -318,7 +309,7 @@ const handleAddChatWindow = () => {
         setProcessMessage(data.message);
         console.log("progress_message ",data.message);
         if ('data_source_name' in data){
-          if(valueList.length==0){
+          if(valueList.length===0){
             handleCheckboxChange(data.data_source_name)
             // setCheckedValues([...checkedValues, data.data_source_name]);
           }

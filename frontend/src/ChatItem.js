@@ -6,7 +6,6 @@ import * as BiIcons from 'react-icons/bi';
 
 
 const ChatItem = ({ chat, selectedChatId, handleChatItemClick, deletechat }) => {
-  console.log("zxcv",selectedChatId)
   return (
     <div
       key={chat.chatId}

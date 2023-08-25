@@ -80,15 +80,15 @@ if (remainingText) {
   );
 }
 
-matches.forEach(item => {
-  if (item.type === 'text') {
-    console.log(`Text:\n${item.content}`);
-  } else if (item.type === 'match') {
-    console.log(`Word: ${item.word}`);
-    console.log(`Content:\n${item.content}`);
-  }
-  console.log('----------');
-});
+// matches.forEach(item => {
+//   if (item.type === 'text') {
+//     console.log(`Text:\n${item.content}`);
+//   } else if (item.type === 'match') {
+//     console.log(`Word: ${item.word}`);
+//     console.log(`Content:\n${item.content}`);
+//   }
+//   console.log('----------');
+// });
   //   const sections = content.split(/```(\w+)\n([\s\S]*?)```/g);
   //   const renderedSections = [];
   

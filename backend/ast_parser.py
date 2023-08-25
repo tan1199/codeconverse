@@ -7,7 +7,7 @@ from count_token import num_tokens_from_string
 from code_splitter import text_splitter
 from openai.embeddings_utils import get_embedding
 import threading
-import requests
+import platform
 import time
 embeddings = {}
 # Function to fetch embedding for a row
@@ -19,13 +19,21 @@ def fetch_embedding(index, row_data):
 
 
 parser = Parser()
-
+system_platform = platform.system()     
+if system_platform=="Windows":
 # tree_splitter_prebuilts_path = os.path.join(Path(__file__).parent, "tree_sitter_grammar", "python.so")
-PY_LANGUAGE = Language(os.path.join(Path(__file__).parent, "tree_sitter_grammar", "python.so"), 'python')
-JS_LANGUAGE = Language(os.path.join(Path(__file__).parent, "tree_sitter_grammar", "javascript.so"), 'javascript')
-CP_LANGUAGE = Language(os.path.join(Path(__file__).parent, "tree_sitter_grammar", "cpp.so"), 'cpp')
-RS_LANGUAGE = Language(os.path.join(Path(__file__).parent, "tree_sitter_grammar", "rust.so"), 'rust')
-JA_LANGUAGE = Language(os.path.join(Path(__file__).parent, "tree_sitter_grammar", "java.so"), 'java')
+  PY_LANGUAGE = Language(os.path.join(Path(__file__).parent, "tree_sitter_grammar", "python.so"), 'python')
+  JS_LANGUAGE = Language(os.path.join(Path(__file__).parent, "tree_sitter_grammar", "javascript.so"), 'javascript')
+  CP_LANGUAGE = Language(os.path.join(Path(__file__).parent, "tree_sitter_grammar", "cpp.so"), 'cpp')
+  RS_LANGUAGE = Language(os.path.join(Path(__file__).parent, "tree_sitter_grammar", "rust.so"), 'rust')
+  JA_LANGUAGE = Language(os.path.join(Path(__file__).parent, "tree_sitter_grammar", "java.so"), 'java')
+else:
+  PY_LANGUAGE = Language(os.path.join(Path(__file__).parent, "tree_sitter_grammar", "python_linux.so"), 'python')
+  JS_LANGUAGE = Language(os.path.join(Path(__file__).parent, "tree_sitter_grammar", "javascript_linux.so"), 'javascript')
+  CP_LANGUAGE = Language(os.path.join(Path(__file__).parent, "tree_sitter_grammar", "cpp_linux.so"), 'cpp')
+  RS_LANGUAGE = Language(os.path.join(Path(__file__).parent, "tree_sitter_grammar", "rust_linux.so"), 'rust')
+  JA_LANGUAGE = Language(os.path.join(Path(__file__).parent, "tree_sitter_grammar", "java_linux.so"), 'java')
+
 
 
 def traverse_ast(node,file_extension,current_path,function_definition,method_definition,class_definition,field_definition,decorated_definition,root_node_type,block_child_list,identifier_index):

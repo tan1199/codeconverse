@@ -263,11 +263,11 @@ const handleAddChatWindow = () => {
 
   const getChatMessages = (chatId) => {
     console.log("ooooo");
-    // console.log("na",chatId,":lk",chats)
-    // console.log(typeof chats[0].chatId);  // Output: "function"
-    // console.log(typeof chatId);  // Output: "function"
+    console.log("na",chatId,":lk",chats)
+    console.log(typeof chats[0].chatId);  // Output: "function"
+    console.log(typeof chatId);  // Output: "function"
 
-    const selectedChat = chats.find((chat) => chat.chatId.toString() === chatId);
+    const selectedChat = chats.find((chat) => chat.chatId === chatId);
     console.log(selectedChat)
     // console.log(messages)
     return selectedChat ? selectedChat.messages : [];

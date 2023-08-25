@@ -50,12 +50,11 @@ const handleApiKeyDown = (e) => {
   
   return (
     <div className='ModelConfig'>
-      <h1>Customize</h1>
     <div className="App">
       <div className="grid-container">
         <div className="grid-item1">
           
-Select a Model
+<h2>Select a Model</h2>
           <div className="cool-dropdown">
       <div className="selected-option" onClick={toggleDropdown}>
         {selectedOption ? selectedOption.label : 'GPT-3-16K'}
@@ -78,7 +77,7 @@ Select a Model
     </div>
 
         <div className="grid-item2">  
-        <h> Open AI API Key </h>
+        <h2> Open AI API Key </h2>
         <textarea
         type="text"
         placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxx👁️‍🗨️"
@@ -93,7 +92,7 @@ Select a Model
       />
   </div>
   <div className="grid-item3">  
-        <h> Custom Prompt</h>
+        <h2> Custom Prompt</h2>
         {/* <input type="text"  className="custom-prompts" value='dsgsgfsdfsfds v dsgds' 
         onChange={handlePrompt}
         onKeyDown={handlePromptKeyDown}/> */}
@@ -110,7 +109,8 @@ Select a Model
       />
         </div>
 
-        <div className="grid-item4">Metadata Filtering
+        <div className="grid-item4">
+          <h2>Metadata Filtering</h2>
         <div className="checkbox-wrapper-44">
       <label className="toggleButton">
       <input type="checkbox" checked={isToggleOn} onChange={onToggleChange} />

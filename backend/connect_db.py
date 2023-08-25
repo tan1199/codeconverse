@@ -72,7 +72,6 @@ def select_all_chats():
                     'chatId': row[1],       # Assuming chatId is in the seventh column
                     'messages': [message]
                  })
-                print("oklm")
     except sqlite3.Error as e:
         print("SQLite error:", e)
         conn.rollback()  # Roll back the transaction in case of an error

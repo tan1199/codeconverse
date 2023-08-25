@@ -32,7 +32,10 @@ const InputBox = ({ onSendMessage }) => {
         style={{ height: `${(message.split('\n').length + 1) * 30}px` }}
     
       />
-      <button onClick={() => onSendMessage(message)}  className="send-button-chat"><AiIcons.AiOutlineSend color='white' size={30} /> </button>
+      <button onClick={() => {onSendMessage(message);
+          setMessage(''); // Clear the message after sending
+        }
+        }  className="send-button-chat"><AiIcons.AiOutlineSend color='white' size={30} /> </button>
 
     </div>
   );

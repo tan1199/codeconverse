@@ -10,7 +10,7 @@ function ChatPanel({handlesetSelectedChatId,selectedChatId,handleSendMessage,get
         // Check if selectedChatId is null and pathname includes "/chats/"
         if (selectedChatId === null && location.includes("/chats/")) {
           console.log("alaaa")
-          selectedChatId=location.substring(7);
+          selectedChatId=parseInt(location.substring(7));
           handlesetSelectedChatId(selectedChatId);
         }
       }, [selectedChatId, location, handlesetSelectedChatId]);    

@@ -47,6 +47,16 @@ const len=values.length;
 
   };
 
+  const handleKeyDowndatasource = (e) => {
+    if (e.keyCode === 13) {
+      e.preventDefault();
+    }
+    if (e.key === 'Enter' && datasourcevalue.trim() !== '') {
+      handleAddDataSourceClick(datasourcevalue,sourcetype);
+      setSourcetype('');
+      setdatasourcevalue('')
+    }
+  };
   return (
     <div className="home">
       <div>
@@ -62,7 +72,7 @@ const len=values.length;
 {len ? (<div className="checkbox-list">
       <div className='checkbox-heading'>Saved Data Sources</div>
       {values.map((value, index) => (
-        <div className='fl-wrap'>
+        <div className='fl-wrap' key={index}>
         <div className="checkbox-wrapper" key={index}>
           <input className="inp-cbx" id={`cbx-${index}`}            
            type="checkbox"
@@ -88,7 +98,7 @@ const len=values.length;
 
 
 <div className="button-container">
-<div class="add-data-source">Add a Data Source</div>
+<div className="add-data-source">Add a Data Source</div>
         <div className="row">
           <button className="send-button-home" onClick={() => handleButtonClick('Github')}>💽  Github Source</button>
           <button className="send-button-home" onClick={() => handleButtonClick('Gitlab')}>💽  Gitlab source</button>
@@ -117,6 +127,7 @@ const len=values.length;
             placeholder="Add Repository.."
             value={datasourcevalue}
             onChange={handleTextboxChange}
+            onKeyDown={handleKeyDowndatasource}
             className='input-box-home'
             autoFocus 
           />

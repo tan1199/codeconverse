@@ -2,9 +2,18 @@ import React, { useEffect,useRef } from 'react';
 import ChatMessage from './components/ChatMessage';
 import InputBox from './components/InputBox';
 import './ChatPanel.css';
+import { useLocation } from 'react-router-dom';
 
-function ChatPanel({chatsize,selectedChatId,handleSendMessage,getChatMessages}) {
-
+function ChatPanel({handlesetSelectedChatId,selectedChatId,handleSendMessage,getChatMessages}) {
+  const location = (useLocation()).pathname;
+      useEffect(() => {
+        // Check if selectedChatId is null and pathname includes "/chats/"
+        if (selectedChatId === null && location.includes("/chats/")) {
+          console.log("alaaa")
+          selectedChatId=location.substring(7);
+          handlesetSelectedChatId(selectedChatId);
+        }
+      }, [selectedChatId, location, handlesetSelectedChatId]);    
   const messagesEndRef = useRef(null)
   const selectedChatmeaages=getChatMessages(selectedChatId)
   const lengthofchat = selectedChatmeaages.length
@@ -14,9 +23,9 @@ function ChatPanel({chatsize,selectedChatId,handleSendMessage,getChatMessages}) 
 
   useEffect(() => {
     scrollToBottom()
-  }, [chatsize]);
+  }, [lengthofchat]);
 
-  console.log("whooo", chatsize);
+  console.log("whooo", lengthofchat);
 // chatsize=1;
   return (
     <div>
@@ -38,7 +47,7 @@ function ChatPanel({chatsize,selectedChatId,handleSendMessage,getChatMessages}) 
             />
           ))}
           <div>
-             {chatsize % 2 !== 0 ? (<div class="loader">Generating...</div>
+             {lengthofchat % 2 !== 0 ? (<div class="loader">Generating...</div>
 ):(<div></div>)
       }
       </div>
@@ -61,6 +70,7 @@ function ChatPanel({chatsize,selectedChatId,handleSendMessage,getChatMessages}) 
       ) : (
         <div>
           <h2>No chat selected</h2>
+        <div>Current Route: {location.pathname}</div>
           <p>Select a chat from the sidebar or add a new chat window.</p>
         </div>
       )}
@@ -74,4 +84,4 @@ function ChatPanel({chatsize,selectedChatId,handleSendMessage,getChatMessages}) 
   )
 }
 
-export default ChatPanel
+export default ChatPanel;

@@ -267,9 +267,16 @@ const handleAddChatWindow = () => {
 
 
   };
+  const handlesetSelectedChatId = (newValue) => {
+    console.log("napa",newValue)
+
+    setSelectedChatId(newValue);
+  };
+
   const getChatMessages = (chatId) => {
     console.log("ooooo");
-    const selectedChat = chats.find((chat) => chat.chatId === chatId);
+    console.log("na",chatId,":lk",chats)
+    const selectedChat = chats.find((chat) => chat.chatId == chatId);
     console.log(selectedChat)
     // console.log(messages)
     return selectedChat ? selectedChat.messages : [];
@@ -388,7 +395,7 @@ else{
           <Route path='/' element={<Products />} />
           {chats.map((chat) => (
                  <Route key={selectedChatId} path={`/chats/${chat.chatId}`}  element={<ChatPanel   
-                  chatsize={chat.messages.length}
+                  handlesetSelectedChatId={handlesetSelectedChatId}
                   selectedChatId={selectedChatId}
                   handleSendMessage={handleSendMessage}
                   getChatMessages={getChatMessages}

@@ -1,0 +1,126 @@
+.userdetail{
+    text-align: center;
+    padding: 40px;
+    background-color: #0c051a;
+    color:#6926dc;
+    min-height: 100vh;
+       position: relative;
+       display: flex;
+       flex-direction: column;
+         width: 82%;
+     float: right;
+}
+.user-panel {
+    margin: 40px 20px 30px 80px;
+    padding: 40px 20px 30px 40px;
+    flex-grow: 1;
+    overflow-y: auto;
+    width: 1100px;
+    height: 150px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #ffd2f2;
+    background-color: #0c051a;
+    display: flex;
+    position: relative;
+    flex-direction: column;
+}
+.auth-container{
+    height: 20px;
+            width: 30%;
+        margin-left: 70%;
+        margin-top: -48%;
+}
+
+.horizontal-line {
+    height: 20px;
+    border-top: 2.5px solid #6926dc;
+    margin-top: 5%;
+    margin-bottom: 2%;
+    width: 37%;
+    margin-left: 62%;
+}
+.login-container {
+  width: 35%;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  text-align: center;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    margin-left: 63%;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  text-align: left;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  outline: none;
+}
+
+.signbtn {
+  width: 100%;
+  padding: 10px;
+  background-color: #6926dc;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.signbtn:hover {
+  background-color: #4e15b1;
+}
+
+.punder{
+    text-decoration: underline;
+    margin-top: 2%;
+}
+.punder:hover {
+    color: #1c074d;
+    cursor: pointer;
+}
+.loginimg{
+    height: 100%;
+    width: 40%;
+    margin-left: -5%;
+}
+img {
+margin-left: -5%;
+margin-top: -2%;
+/* width: 55%; */
+    height:90%;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-right: 10px;
+}
+
+
+.account-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+.odiv{
+position: relative;
+display: flex;
+flex-direction: column;
+font-size: 25px;
+font-weight: 500;
+/* font-style: italic; */
+font-family: monospace;
+margin-left: -35%;
+margin-bottom: 6%;
+}

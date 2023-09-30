@@ -3,21 +3,14 @@ import asyncio
 import logging
 import json
 # from fastapi import FastAPI
-# from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 from openaiManager import completion_endpoint_plain
 # app = FastAPI()
 
 # # Configure CORS
 # app = FastAPI()
 
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["http://localhost:3000"],  # Replace with your frontend origin
-#     allow_credentials=True,
-#     allow_methods=["GET", "POST", "OPTIONS"],
-#     allow_headers=["*"],
-# )
-# # Configure CORS
+
 
 # messages = []
 
@@ -49,11 +42,13 @@ logging.basicConfig(
 #     return {"message": "\nimport sys\nsys.path.append('/path/to/folder')\nfrom my_module import my_function"}
 #     # return {"message": backend_response}
 
-from connect_db import insert_message,select_all_chats,deletechatId
+from connect_db import insert_message,select_all_chats,deletechatId,insert_user,select_user
 import time,sqlite3
 from clone_repo import extract_user_repo_github
 from ast_parser import create_repo_ast,create_upload_ast,language_extensions_to_class_attribute,language_extensions_to_function_attribute,class_attributes,function_attributes
-from fastapi import FastAPI, WebSocket, HTTPException, File, UploadFile
+from fastapi import FastAPI, WebSocket, HTTPException, File, UploadFile, Depends, status,WebSocketDisconnect
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from datetime import datetime, timedelta
 from pydantic import BaseModel
 import os, re,shutil
 import zipfile
@@ -61,11 +56,22 @@ import pandas as pd
 from pathlib import Path
 from prompts import metadata_json_prompt
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 import json
+import jwt
 import Levenshtein
 from rapidfuzz import fuzz
 from similarity_search import calculate_levenshtein_fuzzy_distance_similarity,code_embedding_similarity_search
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Replace with your frontend origin
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
+# Configure CORS
+
 no_Df=True
 # df = pd.DataFrame(columns=["code_chunk", "file_name", "file_path", "path_to_code_chunk","parent","prev_sibling","next_sibling","start_point","end_point","has_error","code_node_type","code_identifier","is_chunked","num_tokens","uuid_str"])
 
@@ -82,32 +88,175 @@ async def simulate_processing_stage_3():
     await asyncio.sleep(1)
 
 
+# Define your JWT secret key (replace with a strong, random key)
+SECRET_KEY = "your-secret-key354354gfbgc@354gfbkhjyiyuWREF#56TcdsERD7vxc"
+
+# Define the algorithm used for JWT (HS256 is a common choice)
+ALGORITHM = "HS256"
+
+# Define the access token expiration time (in minutes)
+ACCESS_TOKEN_EXPIRE_MINUTES = 10
+
+# Mock user database for demonstration
+fake_users_db = {
+    "user1": {
+        "username": "user1",
+        "password": "password1",
+    }
+}
+
+# OAuth2 Bearer Token scheme
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+class UserInfo(BaseModel):
+    username: str
+    password: str
+    email_id: str
+    isSignup: bool
+    google_auth: bool
+# Function to create an access token
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+# Function to verify and decode a JWT token
+def verify_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+        if username is None:
+            return None
+        return username
+    except Exception as e:
+        return None
+
+# Function to verify user credentials and return user details
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    # Verify the token
+    print("ojo",token)
+    username = verify_token(token)
+    print("lala",username)
+    if username is None:
+        return username
+        # raise HTTPException(
+        #     status_code=status.HTTP_401_UNAUTHORIZED,
+        #     detail="Invalid token",
+        #     headers={"WWW-Authenticate": "Bearer"},
+        # )
+    
+    # Retrieve user details from the mock database
+    user = select_user(username)
+    print(user)
+    # if user is None:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_401_UNAUTHORIZED,
+    #         detail="User not found",
+    #         headers={"WWW-Authenticate": "Bearer"},
+    #     )
+
+    return user
+
+# Route to obtain an access token
+@app.post("/token", response_model=dict)
+async def login_for_access_token(form_data: dict):
+    username = form_data["username"]
+    password = form_data["password"]
+    email_id = form_data["email_id"]
+    isSignup = form_data["isSignup"]
+    google_auth = form_data["google_auth"]
+    insert_status="user_registered"
+    if isSignup == False:
+        user = select_user(username)
+        print("HHJK",user)
+        if user is None or user["password"] != password:
+            if google_auth:
+                insert_status=insert_user(username,password, email_id, 'https://example.com/avatar.png', int(time.time() * 1000)) 
+
+            else:
+                raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+                )
+    else:
+        insert_status=insert_user(username,password, email_id, 'https://example.com/avatar.png', int(time.time() * 1000)) 
+        print("ellls",insert_status)
+    # Generate an access token
+    if insert_status=="user_registered":
+        access_token = create_access_token(data={"sub": username})
+    else:
+        access_token=None
+
+    return {"access_token": access_token, "token_type": "bearer","insert_status":insert_status}
+# Protected route that requires authentication
+@app.get("/protected")
+async def protected_route(user: dict = Depends(get_current_user)):
+    return {"message": "This is a protected route", "user": user}
+
+
+@app.websocket("/ws/user")
+async def userdetail_websocket(websocket: WebSocket):
+    user = get_current_user(websocket.query_params.get("token"))
+    print("nanan",user)
+    await websocket.accept()
+    print("rdytj")
+    if not user:
+            # Token has expired or is invalid, handle reauthentication
+            # You can send a message to the client to trigger reauthentication
+            # await websocket.send_text("Your token has expired. Please reauthenticate.")
+            print("loal")
+            # Close the WebSocket connection
+            await websocket.close()
+
+    # await websocket.send_text(json.dumps({"user_data":user}))
+
+
 @app.websocket("/ws/initiate")
 async def initiate_websocket(websocket: WebSocket):
-    conversation_data1 = [{'chatId': '1692436170698', 'messages': [{'id': 1692436175759, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'hello', 'timestamp': 1692436175759}, {'id': 1692436181744, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'Hello! How can I assist you today?', 'timestamp': 1692436181744}, {'id': 1692436191162, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'how are you', 'timestamp': 1692436191162}, {'id': 1692436198048, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': "As an AI, I don't have feelings, but I'm here to help you with any questions or tasks you have. How can I assist you today?", 'timestamp': 1692436198048}, {'id': 1692436211157, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'what is the capital of denmark', 'timestamp': 1692436211157}, {'id': 1692436216969, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'The capital of Denmark is Copenhagen.', 'timestamp': 1692436216969}, {'id': 1692436225940, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'best cricker of world', 'timestamp': 1692436225940}, {'id': 1692436233668, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'There have been many great cricketers throughout history, and it is subjective to determine the best cricketer of all time. However, some of the most highly regarded cricketers include Sir Donald Bradman, Sachin Tendulkar, Sir Vivian Richards, Sir Garfield Sobers, and Sir Jack Hobbs. These players have achieved remarkable records and have left a lasting impact on the game of cricket.', 'timestamp': 1692436233668}]}, {'chatId': '1692436239709', 'messages': []}, {'chatId': '1692436243005', 'messages': [{'id': 1692436251519, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'some icream flovors', 'timestamp': 1692436251519}, {'id': 1692436259952, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': '1. Vanilla\n2. Chocolate\n3. Strawberry\n4. Mint chocolate chip\n5. Cookies and cream\n6. Butter pecan\n7. Rocky road\n8. Coffee\n9. Pistachio\n10. Salted caramel\n11. Neapolitan\n12. Cherry Garcia (cherry ice cream with chocolate chunks and cherries)\n13. Peanut butter cup\n14. Coconut\n15. Birthday cake\n16. Matcha green tea\n17. Black raspberry\n18. Dulce de leche\n19. Red velvet\n20. Lemon sorbet', 'timestamp': 1692436259952}, {'id': 1692436267399, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'different color of apple', 'timestamp': 1692436267399}, {'id': 1692436279132, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'There are several different colors of apples, including:\n\n1. Red: This is the most common color for apples, with varieties such as Red Delicious, Gala, and Fuji.\n\n2. Green: Green apples, such as Granny Smith and Golden Delicious, have a tart flavor and are often used in baking or for making apple cider.\n\n3. Yellow: Yellow apples, like Yellow Transparent and Yellow Newtown Pippin, have a sweet and tangy taste.\n\n4. Pink: Pink Lady apples have a distinctive pinkish-red skin and a crisp, sweet-tart flavor.\n\n5. Bi-colored: Some apples have a combination of colors, such as the popular Honeycrisp apple, which has a red and yellow skin.\n\n6. Striped: Certain apple varieties, like the McIntosh apple, have a striped pattern on their skin, with a mix of red and green.\n\n7. Purple: There are a few varieties of purple apples, such as the Black Diamond apple, which have a deep purple or almost black skin.\n\nThese are just a few examples of the different colors of apples available. The specific color and appearance of an apple can vary depending on the variety and ripeness.', 'timestamp': 1692436279132}, {'id': 1692436280326, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'japan to india distance', 'timestamp': 1692436280326}, {'id': 1692436286987, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'The distance between Japan and India is approximately 4,500 kilometers (2,800 miles) when measured in a straight line. However, the actual distance may vary depending on the route taken for travel.', 'timestamp': 1692436286987}, {'id': 1692436288296, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'bye bye', 'timestamp': 1692436288296}, {'id': 1692436294137, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'Goodbye! Have a great day!', 'timestamp': 1692436294137}]}]
-    conversation_data = select_all_chats()
-    # print(conversation_data)
+    try:
+        conversation_data1 = [{'chatId': '1692436170698', 'messages': [{'id': 1692436175759, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'hello', 'timestamp': 1692436175759}, {'id': 1692436181744, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'Hello! How can I assist you today?', 'timestamp': 1692436181744}, {'id': 1692436191162, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'how are you', 'timestamp': 1692436191162}, {'id': 1692436198048, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': "As an AI, I don't have feelings, but I'm here to help you with any questions or tasks you have. How can I assist you today?", 'timestamp': 1692436198048}, {'id': 1692436211157, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'what is the capital of denmark', 'timestamp': 1692436211157}, {'id': 1692436216969, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'The capital of Denmark is Copenhagen.', 'timestamp': 1692436216969}, {'id': 1692436225940, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'best cricker of world', 'timestamp': 1692436225940}, {'id': 1692436233668, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'There have been many great cricketers throughout history, and it is subjective to determine the best cricketer of all time. However, some of the most highly regarded cricketers include Sir Donald Bradman, Sachin Tendulkar, Sir Vivian Richards, Sir Garfield Sobers, and Sir Jack Hobbs. These players have achieved remarkable records and have left a lasting impact on the game of cricket.', 'timestamp': 1692436233668}]}, {'chatId': '1692436239709', 'messages': []}, {'chatId': '1692436243005', 'messages': [{'id': 1692436251519, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'some icream flovors', 'timestamp': 1692436251519}, {'id': 1692436259952, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': '1. Vanilla\n2. Chocolate\n3. Strawberry\n4. Mint chocolate chip\n5. Cookies and cream\n6. Butter pecan\n7. Rocky road\n8. Coffee\n9. Pistachio\n10. Salted caramel\n11. Neapolitan\n12. Cherry Garcia (cherry ice cream with chocolate chunks and cherries)\n13. Peanut butter cup\n14. Coconut\n15. Birthday cake\n16. Matcha green tea\n17. Black raspberry\n18. Dulce de leche\n19. Red velvet\n20. Lemon sorbet', 'timestamp': 1692436259952}, {'id': 1692436267399, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'different color of apple', 'timestamp': 1692436267399}, {'id': 1692436279132, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'There are several different colors of apples, including:\n\n1. Red: This is the most common color for apples, with varieties such as Red Delicious, Gala, and Fuji.\n\n2. Green: Green apples, such as Granny Smith and Golden Delicious, have a tart flavor and are often used in baking or for making apple cider.\n\n3. Yellow: Yellow apples, like Yellow Transparent and Yellow Newtown Pippin, have a sweet and tangy taste.\n\n4. Pink: Pink Lady apples have a distinctive pinkish-red skin and a crisp, sweet-tart flavor.\n\n5. Bi-colored: Some apples have a combination of colors, such as the popular Honeycrisp apple, which has a red and yellow skin.\n\n6. Striped: Certain apple varieties, like the McIntosh apple, have a striped pattern on their skin, with a mix of red and green.\n\n7. Purple: There are a few varieties of purple apples, such as the Black Diamond apple, which have a deep purple or almost black skin.\n\nThese are just a few examples of the different colors of apples available. The specific color and appearance of an apple can vary depending on the variety and ripeness.', 'timestamp': 1692436279132}, {'id': 1692436280326, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'japan to india distance', 'timestamp': 1692436280326}, {'id': 1692436286987, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'The distance between Japan and India is approximately 4,500 kilometers (2,800 miles) when measured in a straight line. However, the actual distance may vary depending on the route taken for travel.', 'timestamp': 1692436286987}, {'id': 1692436288296, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'bye bye', 'timestamp': 1692436288296}, {'id': 1692436294137, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'Goodbye! Have a great day!', 'timestamp': 1692436294137}]}]
+        conversation_data = select_all_chats()
+        # print(conversation_data)
 
-    await websocket.accept()
-    # await asyncio.sleep(1)
-    # await websocket.send_text("Hello  now from FastAPI!")
+        user = get_current_user(websocket.query_params.get("token"))
+        print("acdf",user)
+        await websocket.accept()
+        print("rdytj")
+        if not user:
+            # Token has expired or is invalid, handle reauthentication
+            # You can send a message to the client to trigger reauthentication
+            # await websocket.send_text("Your token has expired. Please reauthenticate.")
+            await websocket.send_text(json.dumps({"authentication":False}))
 
-    file_list = []
-    root1 = Path(__file__).parent
-    input_directory_path = f"{root1}/repositories"  # Replace with the actual path to your directory
-    file_list = [f.split('.')[0] for f in os.listdir(input_directory_path) if f not in ['data','final']] 
-    # for filename in os.listdir(csv_directory_path):
-    #     if filename.endswith(".csv"):
-    #         csv_files.append(os.path.splitext(filename)[0])
-    print(file_list)       
-    await websocket.send_text(json.dumps({"chat_data":conversation_data,"saved_data_source":file_list,"action": "initiate", "message": "ploaded Successfully"}))
+            print("loal")
+            # Close the WebSocket connection
+            await websocket.close()
+
+        # await asyncio.sleep(1)
+        # await websocket.send_text("Hello  now from FastAPI!")
+        else:
+            file_list = []
+            root1 = Path(__file__).parent
+            input_directory_path = f"{root1}/repositories"  # Replace with the actual path to your directory
+            file_list = [f.split('.')[0] for f in os.listdir(input_directory_path) if f not in ['data','final']] 
+            # for filename in os.listdir(csv_directory_path):
+            #     if filename.endswith(".csv"):
+            #         csv_files.append(os.path.splitext(filename)[0])
+            print(file_list)       
+            await websocket.send_text(json.dumps({"username":user["username"],"chat_data":conversation_data,"saved_data_source":file_list,"action": "initiate", "message": "Uploaded Successfully"}))
 
 
-    # while True:
-    # # progress_message = {}
-    #     message = await websocket.receive_text()
-    #     print(message)
-
+        # while True:
+        # # progress_message = {}
+        #     message = await websocket.receive_text()
+        #     print(message)
+    except WebSocketDisconnect:
+        pass
 def delete_files_with_string(root_dir, target_string):
     for item in os.listdir(root_dir):
         item_path = os.path.join(root_dir, item)
@@ -123,121 +272,148 @@ def delete_files_with_string(root_dir, target_string):
 
 @app.websocket("/ws/process")
 async def status_websocket(websocket: WebSocket):
+    user = get_current_user(websocket.query_params.get("token"))
+    print("nanan",user)
     await websocket.accept()
-    while True:
-        progress_message = {}
-        message = await websocket.receive_text()
-        message_data = json.loads(message)
-        filename = message_data.get('filename')
-        print("llll",filename)
-        if message_data['type'] == 'deletedatasource':
-            if "." in filename:
-                filename=filename.split('.')[0]
-            root2 = Path(__file__).parent
-            root_directory=f'{root2}/repositories/{filename}.csv'
-            if os.path.exists(root_directory):
-                os.remove(root_directory)   
-            print("olhg")
-            root_directory=f'{root2}/repositories/data'   
-            delete_files_with_string(root_directory, filename)
-            print("rtyvj")
+    print("rdytj")
+    if not user:
+            # Token has expired or is invalid, handle reauthentication
+            # You can send a message to the client to trigger reauthentication
+            # await websocket.send_text("Your token has expired. Please reauthenticate.")
+        print("loal")
+            # Close the WebSocket connection
+        await websocket.close()
 
-        elif message_data['type'] == 'deletechatId':
-            print("del begin")
-            print("ttyyp",type(filename))
-            deletechatId(filename)
-            print("delte end")
-        elif message_data['type'] == 'filename':
-            data = await websocket.receive_bytes()  # Receive binary data in chunks
-            await websocket.send_text(json.dumps({"action": "process", "message": f"{filename} Uploaded Successfully"}))
-            if data:
-                # print("ertre")
-                file_path=f'repositories/data/{filename}'
-                # print("wwwwww")
-                if os.path.exists(file_path) or os.path.exists(file_path.split('.')[0]):
-                    # print("qqqqqqqqqqq")
-                    await asyncio.sleep(2)
-                    await websocket.send_text(json.dumps({"action": "process", "message":f"{filename} Exists"}))
-                    await asyncio.sleep(2)
-                    await websocket.send_text(json.dumps({"action": "process", "message":""}))
-                    continue
-                # Process the received binary data as a chunk of a larger file
-                with open(file_path, "ab") as f:
-                    # print("opop")
-                    f.write(data)
-                await asyncio.sleep(2)
-                await websocket.send_text(json.dumps({"action": "process", "message":f"{filename} Processed Successfully"}))
-                if filename.endswith('.zip'):
-                    with zipfile.ZipFile(f'repositories/data/{filename}', 'r') as zip_ref:
-                        zip_ref.extractall(f'repositories/data/')
-                        print("Zip file extracted successfully.")
-                    os.remove(file_path)
-                    await asyncio.sleep(2)
-                    await websocket.send_text(json.dumps({"action": "process", "message": f"Zip File Extracted Successfully"}))
-                # await websocket.send_text(json.dumps({"type": "success"}))
-                await asyncio.sleep(2)
-                await websocket.send_text(json.dumps({"action": "process", "message": f"Parsing source code of {filename}"}))
+        # await asyncio.sleep(1)
+        # await websocket.send_text("Hello  now from FastAPI!")
+    else:
 
-                create_upload_ast(filename,file_path)
-                await asyncio.sleep(2)
-                await websocket.send_text(json.dumps({"action": "process", "message": f" Source code of {filename} Parsed Successfully"}))
-                await asyncio.sleep(2)
-                await websocket.send_text(json.dumps({"data_source_name": f"{filename}","action": "process", "message": f" Data Source {filename} Successfully"}))
-        elif message_data['type'] == 'url':
-            source_url=message_data['url_string']
-            if message_data['sourcetype'] == 'Github':
-                pattern = r'https://github.com/([^/]+)/([^/]+)'
-    
-                    # Search for the pattern in the input URL                
-                match = re.search(pattern, source_url)
-                print(match)
-                if match:
-                    # Extract the username and repo name from the matched groups
-                    user_name = match.group(1)
-                    repo_name = match.group(2)
-                    if user_name and repo_name:
-                        print("Username:", user_name)
-                        print("Repository:", repo_name)
-                        print(source_url)
-                        await asyncio.sleep(1)
-                        await websocket.send_text(json.dumps({"action": "process", "message": "Repository Metadata extracted Successfully"}))
-                        print("wwwwww")
-                        root1 = Path(__file__).parent
-                        file_path1=f'{root1}/repositories/{user_name}_{repo_name}.csv'
-                        if os.path.exists(file_path1):
-                            print("qqqqqqqqqqq")
+        try:
+            while True:
+                progress_message = {}
+                message = await websocket.receive_text()
+                message_data = json.loads(message)
+                filename = message_data.get('filename')
+                print("llll",filename)
+                if message_data['type'] == 'deletedatasource':
+                    if "." in filename:
+                        filename=filename.split('.')[0]
+                    root2 = Path(__file__).parent
+                    root_directory=f'{root2}/repositories/{filename}.csv'
+                    if os.path.exists(root_directory):
+                        os.remove(root_directory)   
+                    print("olhg")
+                    root_directory=f'{root2}/repositories/data'   
+                    delete_files_with_string(root_directory, filename)
+                    print("rtyvj")
+
+                elif message_data['type'] == 'deletechatId':
+                    print("del begin")
+                    print("ttyyp",type(filename))
+                    deletechatId(filename)
+                    print("delte end")
+                elif message_data['type'] == 'filename':
+                    data = await websocket.receive_bytes()  # Receive binary data in chunks
+                    await websocket.send_text(json.dumps({"action": "process", "message": f"{filename} Uploaded Successfully"}))
+                    if data:
+                        # print("ertre")
+                        file_path=f'repositories/data/{filename}'
+                        # print("wwwwww")
+                        if os.path.exists(file_path) or os.path.exists(file_path.split('.')[0]):
+                            # print("qqqqqqqqqqq")
                             await asyncio.sleep(2)
-                            await websocket.send_text(json.dumps({"action": "process", "message":f"{user_name}_{repo_name} Exists"}))
-                            await asyncio.sleep(4)
+                            await websocket.send_text(json.dumps({"action": "process", "message":f"{filename} Exists"}))
+                            await asyncio.sleep(2)
                             await websocket.send_text(json.dumps({"action": "process", "message":""}))
                             continue
-                        extract_user_repo_github(source_url,user_name,repo_name)
+                        # Process the received binary data as a chunk of a larger file
+                        with open(file_path, "ab") as f:
+                            # print("opop")
+                            f.write(data)
                         await asyncio.sleep(2)
-                        await websocket.send_text(json.dumps({"action": "process", "message": "GitHub Repository cloned Successfully"}))
+                        await websocket.send_text(json.dumps({"action": "process", "message":f"{filename} Processed Successfully"}))
+                        if filename.endswith('.zip'):
+                            with zipfile.ZipFile(f'repositories/data/{filename}', 'r') as zip_ref:
+                                zip_ref.extractall(f'repositories/data/')
+                                print("Zip file extracted successfully.")
+                            os.remove(file_path)
+                            await asyncio.sleep(2)
+                            await websocket.send_text(json.dumps({"action": "process", "message": f"Zip File Extracted Successfully"}))
+                        # await websocket.send_text(json.dumps({"type": "success"}))
+                        await asyncio.sleep(2)
+                        await websocket.send_text(json.dumps({"action": "process", "message": f"Parsing source code of {filename}"}))
 
-                        print("nice")
+                        create_upload_ast(filename,file_path)
                         await asyncio.sleep(2)
-                        await websocket.send_text(json.dumps({"action": "process", "message": f"Parsing source code of {user_name}/{repo_name}"}))
+                        await websocket.send_text(json.dumps({"action": "process", "message": f" Source code of {filename} Parsed Successfully"}))
+                        await asyncio.sleep(2)
+                        await websocket.send_text(json.dumps({"data_source_name": f"{filename}","action": "process", "message": f" Data Source {filename} Successfully"}))
+                elif message_data['type'] == 'url':
+                    source_url=message_data['url_string']
+                    if message_data['sourcetype'] == 'Github':
+                        pattern = r'https://github.com/([^/]+)/([^/]+)'
+            
+                            # Search for the pattern in the input URL                
+                        match = re.search(pattern, source_url)
+                        print(match)
+                        if match:
+                            # Extract the username and repo name from the matched groups
+                            user_name = match.group(1)
+                            repo_name = match.group(2)
+                            if user_name and repo_name:
+                                print("Username:", user_name)
+                                print("Repository:", repo_name)
+                                print(source_url)
+                                await asyncio.sleep(1)
+                                await websocket.send_text(json.dumps({"action": "process", "message": "Repository Metadata extracted Successfully"}))
+                                print("wwwwww")
+                                root1 = Path(__file__).parent
+                                file_path1=f'{root1}/repositories/{user_name}_{repo_name}.csv'
+                                if os.path.exists(file_path1):
+                                    print("qqqqqqqqqqq")
+                                    await asyncio.sleep(2)
+                                    await websocket.send_text(json.dumps({"action": "process", "message":f"{user_name}_{repo_name} Exists"}))
+                                    await asyncio.sleep(4)
+                                    await websocket.send_text(json.dumps({"action": "process", "message":""}))
+                                    continue
+                                extract_user_repo_github(source_url,user_name,repo_name)
+                                await asyncio.sleep(2)
+                                await websocket.send_text(json.dumps({"action": "process", "message": "GitHub Repository cloned Successfully"}))
 
-                        create_repo_ast(f"{user_name}_{repo_name}")
-                        await asyncio.sleep(2)
-                        await websocket.send_text(json.dumps({"action": "process", "message": f" Source code of {user_name}/{repo_name} Parsed Successfully"}))
-                        await asyncio.sleep(2)
-                        await websocket.send_text(json.dumps({"data_source_name": f"{user_name}_{repo_name}","action": "process", "message": f" Data Source {user_name}/{repo_name} Successfully"}))
+                                print("nice")
+                                await asyncio.sleep(2)
+                                await websocket.send_text(json.dumps({"action": "process", "message": f"Parsing source code of {user_name}/{repo_name}"}))
 
-                    else:
-                        await asyncio.sleep(2)
-                        await websocket.send_text(json.dumps({"action": "process", "message": "Invalid GitHub Repository URL"}))
-        # simulate_processing_stage_2()  # Call another processing function
-        await asyncio.sleep(5)
-        await websocket.send_text(json.dumps({"action": "process", "message": ""}))    
-        
+                                create_repo_ast(f"{user_name}_{repo_name}")
+                                await asyncio.sleep(2)
+                                await websocket.send_text(json.dumps({"action": "process", "message": f" Source code of {user_name}/{repo_name} Parsed Successfully"}))
+                                await asyncio.sleep(2)
+                                await websocket.send_text(json.dumps({"data_source_name": f"{user_name}_{repo_name}","action": "process", "message": f" Data Source {user_name}/{repo_name} Successfully"}))
+
+                            else:
+                                await asyncio.sleep(2)
+                                await websocket.send_text(json.dumps({"action": "process", "message": "Invalid GitHub Repository URL"}))
+                # simulate_processing_stage_2()  # Call another processing function
+                await asyncio.sleep(5)
+                await websocket.send_text(json.dumps({"action": "process", "message": ""}))    
+        except WebSocketDisconnect:
+            pass  
 
 @app.websocket("/ws/chat")
 async def chat_socket(websocket: WebSocket):
     global no_Df
+    user = get_current_user(websocket.query_params.get("token"))
+    print("nanan",user)
     await websocket.accept()
-    logging.info(f"hello: ")
+    print("rdytj")
+    if not user:
+            # Token has expired or is invalid, handle reauthentication
+            # You can send a message to the client to trigger reauthentication
+            # await websocket.send_text("Your token has expired. Please reauthenticate.")
+        print("loal")
+            # Close the WebSocket connection
+        await websocket.close()
+        return
     try:
         while True:
             data = await websocket.receive_text()

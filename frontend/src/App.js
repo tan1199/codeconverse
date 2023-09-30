@@ -4,10 +4,12 @@ import SideNavbar from './SideNavbar';
 import ChatPanel from './ChatPanel';
 import {Route, Routes} from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Home from './pages/Home';
 import Customize from './pages/Customize';
 import Products from './pages/Products';
+import UserDetail from './pages/UserDetail';
 const App = () => {
   const navigate = useNavigate();
     const [isToggleOn, setIsToggleOn] = useState(false);
@@ -23,9 +25,14 @@ const App = () => {
   const [chatMessage, setChatMessage] = useState('');
   const [processSocket, setProcessSocket] = useState(null);
   const [chatSocket, setChatSocket] = useState(null);
+  const [userSocket, setUserSocket] = useState(null);
   const [valueList, setValueList] = useState([]);
   const [checkedValues, setCheckedValues] = useState([]);
   const [progressbar, setprogressbar] = useState(false);
+  const [token, setToken]=useState(localStorage.getItem('authToken'));
+  const [userInfo, setUserInfo] = useState('User');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   function generateRandomString() {
     // const strlength=Math.floor(Math.random() * 11) + 10;
     const strlength=10;
@@ -85,16 +92,26 @@ const handleCheckboxChange = (value) => {
   }
 };
   useEffect(() => {
-    const newProcessSocket = new WebSocket('ws://localhost:8000/ws/process');
+    if (!token){
+      return;
+    }
+    const newUserSocket = new WebSocket(`ws://localhost:8000/ws/user?token=${token}`);
+    newUserSocket.onopen = () => {
+      console.log("gbhjk",token);
+      setUserSocket(newUserSocket);
+    };
+
+    const newProcessSocket = new WebSocket(`ws://localhost:8000/ws/process?token=${token}`);
     newProcessSocket.onopen = () => {
       setProcessSocket(newProcessSocket);
     };
 
-    const newChatSocket = new WebSocket('ws://localhost:8000/ws/chat');
+    const newChatSocket = new WebSocket(`ws://localhost:8000/ws/chat?token=${token}`);
     newChatSocket.onopen = () => {
       setChatSocket(newChatSocket);
     };
-    const initiatesocket = new WebSocket("ws://localhost:8000/ws/initiate");
+
+    const initiatesocket = new WebSocket(`ws://localhost:8000/ws/initiate?token=${token}`);
 
     initiatesocket.onopen = () => {
       console.log("WebSocket connection opened");
@@ -103,9 +120,19 @@ const handleCheckboxChange = (value) => {
     initiatesocket.onmessage = (event) => {
       console.log("Received message:", event.data);
       const data = JSON.parse(event.data);
-      console.log("ertre message:",data.chat_data);
+      if(data.authentication==false){
+setIsAuthenticated(false);
+
+      }
+
+      else{
+                    setIsAuthenticated(true);
+
+              console.log("ertre message:",data.chat_data);
       setChats(data.chat_data)
       setValueList(data.saved_data_source)
+      setUserInfo(data.username)
+      }
       // Handle the received message in your React component
     };
 
@@ -113,16 +140,31 @@ const handleCheckboxChange = (value) => {
     //   console.log("WebSocket connection closed");
     // };
     console.log("lkmnj");
-    window.addEventListener("beforeunload", () => {
-      // Send a message to the backend before the session ends
-      if (initiatesocket.readyState === WebSocket.OPEN) {
-        initiatesocket.send("Session is ending2");
-        const filenameMessage1 = JSON.stringify({ type: 'filename', filename: chats });
+    // window.addEventListener("beforeunload", () => {
+    //   // Send a message to the backend before the session ends
+    //   if (initiatesocket.readyState === WebSocket.OPEN) {
+    //     initiatesocket.send("Session is ending2");
+    //     const filenameMessage1 = JSON.stringify({ type: 'filename', filename: chats });
 
-        initiatesocket.send(filenameMessage1);
+    //     initiatesocket.send(filenameMessage1);
         
+    //   }
+    // });
+        initiatesocket.onclose = (event) => {
+      if (event.wasClean) {
+        console.log(`WebSocket connection closed cleanly, code=${event.code}, reason=${event.reason}`);
+      } else {
+        console.error("WebSocket connection abruptly closed.");
       }
-    });
+    };
+    
+          newUserSocket.onclose = (event) => {
+      if (event.wasClean) {
+        console.log(`WebSocket connection closed cleanly, code=${event.code}, reason=${event.reason}`);
+      } else {
+        console.error("WebSocket connection abruptly closed.");
+      }
+    };  
     return () => {
       if (processSocket) {
         processSocket.close();
@@ -130,11 +172,14 @@ const handleCheckboxChange = (value) => {
       if (chatSocket) {
         chatSocket.close();
       }
-      if ( initiatesocket) {
-        initiatesocket.close();
-      }
+      // if ( initiatesocket) {
+      //   initiatesocket.close();
+      // }
+      // if (newUserSocket) {
+      //   newUserSocket.close();
+      // }
     };
-  }, []);
+  }, [token]);
   // const [messages, setMessages] = useState([]);
   const selectedChatIdRef = useRef(null);
 
@@ -142,6 +187,10 @@ const handleCheckboxChange = (value) => {
   const [chats, setChats] = useState([]);
 // const chats1 = ['CP2OjIkU5f', '6arELI86qY', 'JSql2fp2UQ', '2n7lGWSUtW', 'U0s3FJ4jj6', 'gV022AfgJi', 'g3wbgZ6BzG', 'AJgUp71Hly', 'ZwLiazPGSD', 'V0Qp2QIVnt'];
 const handleAddChatWindow = () => {
+  if(!isAuthenticated){
+    handletoastmessage('User not logged in');
+    return;
+  }
   const newChatId = Date.now().toString();
   setChats((prevChats) => [...prevChats, { chatId: newChatId, messages: [] }]);
   setSelectedChatId(newChatId); // Set the selectedChatId immediately after adding the new chat
@@ -299,9 +348,56 @@ const handleAddChatWindow = () => {
     setSelectedChatId(chatId); // Update the selected chat ID when a chat is clicked
 
   };
+  const handletoastmessage = (message) =>{
+            toast(`${message}`, {
+    position: toast.POSITION.BOTTOM_RIGHT,
+    className: 'toast-message',
+    bodyClassName:'toast-mess',
+    autoClose: 500, // Automatically close the toast after 2 seconds
+    hideProgressBar: true, // Hide the progress bar
 
+});
+  }
+  const handleUserDetail = (isSignup,username,password,email_id,aud,iss,client_id) => {
+    console.log("userdetails",isSignup,username,password,email_id,aud,iss,client_id);
+    var google_auth=false;
+          if((aud==client_id)&&(['accounts.google.com', 'https://accounts.google.com'].includes(iss))){
+google_auth=true
+setUserInfo(username);
+username=email_id
+      }
+    fetch("http://localhost:8000/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({username:username,password:password,email_id:email_id, isSignup: isSignup,google_auth:google_auth }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        console.log("oipoo")
+        console.log(data.token)
+        if(data.access_token){
+            setToken(data.access_token)
+            setIsAuthenticated(true);
+            // Storing the token in LocalStorage
+            localStorage.setItem('authToken', data.access_token);
+    handletoastmessage(`${username} logged in Successfully`)
+    if(!google_auth){
+          setUserInfo(username);
+    }
+            console.log("jghn");
+                navigate(`/data`);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      })
+
+  };
   useEffect(() => {
-    if (!processSocket || !chatSocket) return;
+    if (!processSocket || !chatSocket || !userSocket) return;
       
     processSocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -351,7 +447,7 @@ else{
     console.log(checkedValues);
     console.log("back",new_message_from_backend);
   }    };
-}, [processSocket, chatSocket, selectedChatId,checkedValues,valueList]);
+}, [processSocket, chatSocket,userSocket, selectedChatId,checkedValues,valueList]);
 
   return (
     <div className="app">
@@ -366,6 +462,9 @@ else{
         handleChatItemClick={handleChatItemClick}
         handleAddChatWindow={handleAddChatWindow}
         deletechat={deletechat}
+        isAuthenticated={isAuthenticated}
+        handletoastmessage={handletoastmessage}
+        userInfo={userInfo}
       />
         <Routes>
           <Route path='/data' exact element={<Home values={valueList} 
@@ -383,7 +482,12 @@ else{
           handleApiKeyChange={handleApiKeyChange}
           handlePromptChange={handlePromptChange}/>} 
           />
-          <Route path='/' element={<Products />} />
+          <Route path='/' element={<Products
+           isAuthenticated={isAuthenticated} />} />
+          <Route path='/user' element={<UserDetail
+           handleUserDetail={handleUserDetail} 
+            isAuthenticated={isAuthenticated}
+            userInfo={userInfo}/>} />
           {chats.map((chat) => (
                  <Route key={selectedChatId} path={`/chats/${chat.chatId}`}  element={<ChatPanel   
                   handlesetSelectedChatId={handlesetSelectedChatId}
@@ -397,6 +501,8 @@ else{
       </div >
    
       </div >
+                  <ToastContainer className={true}/>
+
     </div>
   );
 };

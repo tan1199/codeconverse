@@ -2,7 +2,8 @@
 .app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  /* height: 100vh; */
+    background-color: #0c051a;
 }
 .sidebars {
   flex: 1;
@@ -20,3 +21,16 @@
 
 
 
+.toast-mess {
+  background: rgb(255, 255, 255);
+  color: #38084a;
+  font-size: 20px;
+  width: 34vw;
+  padding: 30px 20px;
+  border: none;
+  font-weight: 400;
+  font-size: 16px;
+  letter-spacing: 1px;
+  font-family: 'Graffiti', cursive;
+  margin-right: 20px;
+}

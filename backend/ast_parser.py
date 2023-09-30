@@ -248,8 +248,11 @@ def traverse_ast(node,file_extension,current_path,function_definition,method_def
       for child in node.children[1].children[2].children[2].children:
         print("2424",child)
         lex_child=False
-        if child.type=='lexical_declaration' and child.children[1].children[2].type=='arrow_function':
-          lex_child=True
+        try:
+          if child.type=='lexical_declaration' and child.children[1].children[2].type=='arrow_function':
+            lex_child=True
+        except:
+          pass  
         if (num_tokens_in_chunk>1500) or (child.type  in (function_definition,method_definition,class_definition,method_definition,decorated_definition)) or lex_child:
           traverse_ast(child,file_extension,current_path + node_type + "-"+ code_identifier+"/",function_definition,method_definition,class_definition,field_definition_arg,decorated_definition,root_node_type,block_child_list,identifier_index)
 
@@ -261,8 +264,11 @@ def traverse_ast(node,file_extension,current_path,function_definition,method_def
             print("azaz",num_tokens_in_chunk,)
           for block_child in child.children:
             lex_child=False
-            if child.type=='lexical_declaration' and child.children[1].children[2].type=='arrow_function':
-              lex_child=True
+            try:
+              if child.type=='lexical_declaration' and child.children[1].children[2].type=='arrow_function':
+                lex_child=True
+            except:
+              pass
             if (num_tokens_in_chunk>1500) or (block_child.type  in (function_definition,method_definition,class_definition,field_definition,decorated_definition)) or lex_child:
               traverse_ast(block_child,file_extension,current_path + node_type + "-"+ code_identifier+"/",function_definition,method_definition,class_definition,field_definition_arg,decorated_definition,root_node_type,block_child_list,identifier_index)
         if child.type in (function_definition,method_definition,class_definition):

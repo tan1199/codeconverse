@@ -1,8 +1,66 @@
 
 import sqlite3
 
+def insert_user(user_name, password, email_id , avatar, timestamp):
+    insert_status="user_registered"
+    try:
+        conn = sqlite3.connect('user_credentials.db')
+        cursor = conn.cursor()
+        create_table_query = '''
+CREATE TABLE IF NOT EXISTS user_info (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL,
+        email TEXT NOT NULL,
+        avatar TEXT,
+        timestamp INTEGER
+)
+'''
+
+        cursor.execute(create_table_query)
+        insert_query = '''
+        INSERT INTO user_info (username, password, email, avatar, timestamp)
+        VALUES (?, ?, ?, ?, ?)
+        '''
+        # print(message_id, chat_id, avatar, username, message_content, timestamp)
+        cursor.execute(insert_query, (user_name, password, email_id, avatar, timestamp))
+        print("klklkl")
+        conn.commit()    
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+        insert_status=e.sqlite_errorname
+        conn.rollback()  # Roll back the transaction in case of an error
+    finally:
+        conn.close()
+    return insert_status
+
+def select_user(username):
+    message=None
+    try:
+        conn = sqlite3.connect('user_credentials.db')
+        cursor = conn.cursor()
+        # de = 'delete FROM chistory where 1=1'
+        select_query = 'select * from user_info  where username=?'
+        cursor.execute(select_query, (username,))
+        result = cursor.fetchall()
+
+        for row in result:
+            message = {
+                'id': row[0],        
+                'username': row[1],     
+                'password': row[2],    
+                'email_id': row[3],    
+                'avatar': row[4],
+                'timestamp': row[5]
+            }
 
 
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+        conn.rollback()  # Roll back the transaction in case of an error
+    finally:
+        conn.close()
+    return message
 
 def insert_message(message_id, chat_id, avatar, username, message_content, timestamp):      
     print("ppppppppp")  

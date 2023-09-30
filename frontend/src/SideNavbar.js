@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 
 
 
-function SideNavbar({ chats, selectedChatId, handleChatItemClick, handleAddChatWindow, deletechat }) {
+function SideNavbar({ chats, selectedChatId, handleChatItemClick, handleAddChatWindow, deletechat, isAuthenticated, handletoastmessage,userInfo }) {
   const navigate = useNavigate();
   
   const navigatetohome = () => {
@@ -89,7 +89,8 @@ const abc=selectedChatId;
 
 
 
-
+{ isAuthenticated ? (
+  <div>
         {SidebarData.map((item, index) => {
                                      return (
                               <li key={index}>
@@ -103,9 +104,32 @@ const abc=selectedChatId;
                                               <span className="tooltip">{item.title}</span>
                                             </li>
                                      );
+                                   })}</div>
+):(        <div>  {SidebarData.map((item, index) => {
+                                     return (
+                              <li key={index}>
+                                    <Link to="/" onClick={() => handletoastmessage('Please Login to access')} >
+
+
+
+                                                <i className="bx bx-cog">{item.icon}</i>
+                                                <span className="links_name">{item.title}</span>
+                                             </Link>
+                                              <span className="tooltip">{item.title}</span>
+                                            </li>
+                                     );
                                    })}
+                                   </div>)}
+                        <li>
+                                    <Link to="/user">
 
 
+
+                                                <i className="bx bx-cog"><IoIcons.IoMdPeople /></i>
+                                                <span className="links_name">{userInfo}</span>
+                                             </Link>
+                                              <span className="tooltip">{userInfo}</span>
+                                            </li>
              </ul>
        </div>
 

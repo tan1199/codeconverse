@@ -2,11 +2,16 @@ import React from 'react';
 import './Products.css';
 import { useNavigate } from 'react-router-dom';
 
-function Products() {
+function Products({isAuthenticated}) {
   const navigate = useNavigate();
   
   const navigatetodatasource = () => {
+    if(isAuthenticated){
     navigate(`/data`);
+  }
+  else{
+        navigate(`/user`);
+  }
   };
   return (
     <div className='products'>

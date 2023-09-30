@@ -4,6 +4,7 @@ import * as AiIcons from 'react-icons/ai';
 import * as IoIcons from 'react-icons/io';
 import * as BsIcons from 'react-icons/bs';
 import * as SiIcons from 'react-icons/si';
+import * as BiIcons from 'react-icons/bi';
 
 export const SidebarData = [
   {
@@ -22,19 +23,13 @@ export const SidebarData = [
   {
     title: 'About',
     path: '/about',
-    icon: <IoIcons.IoMdPeople />,
-    cName: 'nav-text'
-  },
-  {
-    title: 'Analytics',
-    path: '/analytics',
-    icon: <SiIcons.SiGoogleanalytics />,
-    cName: 'nav-text'
-  },
-  {
-    title: 'Support',
-    path: '/support',
     icon: <IoIcons.IoMdHelpCircle />,
+    cName: 'nav-text'
+  },
+  {
+    title: 'Pricing',
+    path: '/pricing',
+    icon: <BiIcons.BiSolidDollarCircle />,
     cName: 'nav-text'
   }
 ];

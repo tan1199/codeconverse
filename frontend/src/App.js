@@ -10,13 +10,19 @@ import Home from './pages/Home';
 import Customize from './pages/Customize';
 import Products from './pages/Products';
 import UserDetail from './pages/UserDetail';
+import About from './pages/About';
 const App = () => {
   const navigate = useNavigate();
-    const [isToggleOn, setIsToggleOn] = useState(false);
-  
-    const handleToggleChange = () => {
-      console.log(isToggleOn);
-      setIsToggleOn(prevToggle => !prevToggle);
+    const [isFilterToggleOn, setIsFilterToggleOn] = useState(false);
+      const [isRerankToggleOn, setIsRerankToggleOn] = useState(false);
+
+    const onFilterToggleChange = () => {
+      console.log(isFilterToggleOn);
+      setIsFilterToggleOn(prevToggle => !prevToggle);
+    };
+        const onRerankToggleChange = () => {
+      console.log(isRerankToggleOn);
+      setIsRerankToggleOn(prevToggle => !prevToggle);
     };
   // Update the route whenever chatid changes
   const [prompt, setPrompt] = useState('');
@@ -30,7 +36,11 @@ const App = () => {
   const [checkedValues, setCheckedValues] = useState([]);
   const [progressbar, setprogressbar] = useState(false);
   const [token, setToken]=useState(localStorage.getItem('authToken'));
-  const [userInfo, setUserInfo] = useState('User');
+  const [userInfo, setUserInfo] =useState({
+    username: 'Guest',
+    email: '',
+    usage: '',
+  });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   function generateRandomString() {
@@ -48,14 +58,25 @@ const App = () => {
     return result;
   }
   const handleApiKeyChange = (apikey) => {
-    // if (checkedValues.includes(value)) {
-    //   // If value is already checked, remove it from the checked values.
-    //   setCheckedValues(checkedValues.filter((item) => item !== value));
-    // } else {
-    //   // If value is not checked, add it to the checked values.
-    //   setCheckedValues([...checkedValues, value]);
-    // }
-  };
+    console.log("plkmmmmmmmmmmmmmmmmmmmnn");
+    const action='api_key_update';
+    const socket = processSocket;
+    if (!socket) {
+      console.error('Socket is not available for this action.');
+      return;
+    }
+    // setChatMessage(`Sending ${action} action`);
+    socket.send(JSON.stringify({ type: action, action, data: apikey }));
+    // setMessages([...messages, newMessage]);
+    
+        handletoastmessage('API Key Successfully Updated');
+     setTimeout(() => {
+    window.location.reload();
+
+      }, 2000);
+   
+       
+        };
 
   const handlePromptChange = (prompt) => {
     console.log("oiljgvdfljdfli")
@@ -131,7 +152,12 @@ setIsAuthenticated(false);
               console.log("ertre message:",data.chat_data);
       setChats(data.chat_data)
       setValueList(data.saved_data_source)
-      setUserInfo(data.username)
+      console.log("ememem",data.email_id)
+      setUserInfo({
+    username: data.username,
+    email: data.email_id,
+    usage: data.usage,
+  })
       }
       // Handle the received message in your React component
     };
@@ -191,21 +217,38 @@ const handleAddChatWindow = () => {
     handletoastmessage('User not logged in');
     return;
   }
+  if(chats.length){
+        const maxChatId = Math.max(...chats.map(chat => parseInt(chat.chatId, 10)), 0);
+    const maxIdChat = chats.find((chat) => chat.chatId.toString() === maxChatId.toString());
+    if(maxIdChat['messages'].length===0){
+      // console.log("nm,.",maxIdChat['messages'].length,isDelete,chats.length,chats[chats.length-1])
+        navigate(`/chats/${maxChatId}`);
+      return;
+    }
+    console.log("wsdfr",maxChatId,typeof maxIdChat['messages'],maxIdChat.length,maxIdChat['messages'])
+
+  }
+
   const newChatId = Date.now().toString();
   setChats((prevChats) => [...prevChats, { chatId: newChatId, messages: [] }]);
   setSelectedChatId(newChatId); // Set the selectedChatId immediately after adding the new chat
   console.log("bbbbbbbbbbbb");
   selectedChatIdRef.current = newChatId;
   navigate(`/chats/${newChatId}`);
+
   console.log("fgb",newChatId)
 };
   
   const handleAddDataSourceClick = (datasourcevalue, sourcetype) => {
     // Handle the logic for sending the textbox content (e.g., display or process it)
-    console.log('Sending:', datasourcevalue);
+    console.log('Sending:', datasourcevalue,sourcetype);
     // Reset the textbox and hide it after sending
     // setdatasourcevalue('');
     // setShowTextbox(false);
+    if(sourcetype==='Gitlab'){
+      handletoastmessage(`Coming Soon`)
+      return;
+    }
     const action='progress';
     const socket = action === 'chat' ? chatSocket : processSocket;
     if (!socket) {
@@ -213,8 +256,8 @@ const handleAddChatWindow = () => {
       return;
     }
 
-    setProcessMessage(`Parsing  ${datasourcevalue}`);
-  const urlMessage = JSON.stringify({ type: 'url', url_string: datasourcevalue, sourcetype:sourcetype });
+    setProcessMessage('Uploading Data Source');
+  const urlMessage = JSON.stringify({ type: 'url', source_string: datasourcevalue, sourcetype:sourcetype });
   socket.send(urlMessage);
     // socket.send(JSON.stringify({ action, data: datasourcevalue }));
   };
@@ -297,13 +340,49 @@ const handleAddChatWindow = () => {
     }
 
     // setChatMessage(`Sending ${action} action`);
-    socket.send(JSON.stringify({ type: 'chat', action,chatId, data: message ,ch:chats,metadata_filter:isToggleOn,query_timestamp:query_timestamp}));
+    socket.send(JSON.stringify({ type: 'chat', action,chatId, data: message ,ch:chats,metadata_filter:isFilterToggleOn,rerank:isRerankToggleOn,query_timestamp:query_timestamp,source_location:"",regenerate:false,custom_prompt:prompt}));
     // setMessages([...messages, newMessage]);
     console.log("rrrrr");
     setSelectedChatId(chatId);
 
 
   };
+
+  const regenerateResponse = (message, chatId,source_location) => {
+    console.log("qqqqqqqqqqqqq")
+    console.log(chatId);
+    const query_timestamp=Date.now()
+    const newMessage = {
+      id: query_timestamp,
+      avatar: 'https://example.com/avatar.png',
+      username: 'User',
+     message: message,
+      timestamp: query_timestamp,
+    };
+    setChats((prevChats) => {
+      return prevChats.map((chat) =>
+        chat.chatId === chatId
+          ? { ...chat, messages: [...chat.messages, newMessage] }
+          : chat
+      );
+    });
+     const action='chat';
+    const socket = action === 'chat' ? chatSocket : processSocket;
+    if (!socket) {
+      console.error('Socket is not available for this action.');
+      return;
+    }
+
+    // setChatMessage(`Sending ${action} action`);
+    socket.send(JSON.stringify({ type: 'chat', action,chatId, data: message ,ch:chats,metadata_filter:isFilterToggleOn,rerank:isRerankToggleOn,query_timestamp:query_timestamp,source_location:source_location,regenerate:true,custom_prompt:prompt}));
+    // setMessages([...messages, newMessage]);
+    console.log("rrrrr");
+    setSelectedChatId(chatId);
+
+
+  };
+
+
   const handlesetSelectedChatId = (newValue) => {
     console.log("napa",newValue)
 
@@ -323,6 +402,11 @@ const handleAddChatWindow = () => {
   };
   const deletechat = (ChatId) => {
     console.log("deletechat",ChatId);
+    const maxChatId = Math.max(...chats.map(chat => parseInt(chat.chatId, 10)), 0);
+      const maxIdChat = chats.find((chat) => chat.chatId.toString() === maxChatId.toString());
+     if((ChatId.toString() === maxChatId.toString())&&(maxIdChat['messages'].length===0)){
+      return;
+     }
     handleAddChatWindow();
         console.log("nowathome",ChatId);
     setChats((prevChats) => {
@@ -358,12 +442,17 @@ const handleAddChatWindow = () => {
 
 });
   }
+  
   const handleUserDetail = (isSignup,username,password,email_id,aud,iss,client_id) => {
     console.log("userdetails",isSignup,username,password,email_id,aud,iss,client_id);
     var google_auth=false;
           if((aud==client_id)&&(['accounts.google.com', 'https://accounts.google.com'].includes(iss))){
 google_auth=true
-setUserInfo(username);
+  setUserInfo(prevValues => ({
+      ...prevValues,
+      username: username,
+      email_id: username,
+    }));
 username=email_id
       }
     fetch("http://localhost:8000/token", {
@@ -385,10 +474,21 @@ username=email_id
             localStorage.setItem('authToken', data.access_token);
     handletoastmessage(`${username} logged in Successfully`)
     if(!google_auth){
-          setUserInfo(username);
+        setUserInfo(prevValues => ({
+      ...prevValues,
+      username: username,
+      email_id: email_id,
+    }));
     }
             console.log("jghn");
                 navigate(`/data`);
+        }
+        else{
+              setToken(data.access_token)
+            setIsAuthenticated(false);
+            // Storing the token in LocalStorage
+            localStorage.setItem('authToken', data.access_token);
+    handletoastmessage(`Log in failed due to ${data.insert_status}`)
         }
       })
       .catch((error) => {
@@ -446,7 +546,11 @@ else{
     console.log(valueList);
     console.log(checkedValues);
     console.log("back",new_message_from_backend);
-  }    };
+  }
+else{
+  console.log("edccccccccccccccc")
+      handletoastmessage(`${data.message.slice(9, 34)}`)
+}    };
 }, [processSocket, chatSocket,userSocket, selectedChatId,checkedValues,valueList]);
 
   return (
@@ -464,7 +568,7 @@ else{
         deletechat={deletechat}
         isAuthenticated={isAuthenticated}
         handletoastmessage={handletoastmessage}
-        userInfo={userInfo}
+        userInfo={userInfo.username}
       />
         <Routes>
           <Route path='/data' exact element={<Home values={valueList} 
@@ -477,26 +581,31 @@ else{
         deletedatasource={deletedatasource}
         />} />
           <Route path='/customize' element={<Customize 
-          isToggleOn={isToggleOn} 
-          onToggleChange={handleToggleChange}
+          isFilterToggleOn={isFilterToggleOn} 
+          onFilterToggleChange={onFilterToggleChange} 
+          isRerankToggleOn={isRerankToggleOn} 
+          onRerankToggleChange={onRerankToggleChange} 
           handleApiKeyChange={handleApiKeyChange}
-          handlePromptChange={handlePromptChange}/>} 
+          handlePromptChange={handlePromptChange}
+          userInfo={userInfo}
+          />} 
           />
+                    <Route path='/about' element={<About/>}/>
           <Route path='/' element={<Products
            isAuthenticated={isAuthenticated} />} />
           <Route path='/user' element={<UserDetail
            handleUserDetail={handleUserDetail} 
-            isAuthenticated={isAuthenticated}
-            userInfo={userInfo}/>} />
+            isAuthenticated={isAuthenticated}/>} />
           {chats.map((chat) => (
                  <Route key={selectedChatId} path={`/chats/${chat.chatId}`}  element={<ChatPanel   
                   handlesetSelectedChatId={handlesetSelectedChatId}
                   selectedChatId={selectedChatId}
                   handleSendMessage={handleSendMessage}
                   getChatMessages={getChatMessages}
+                  regenerateResponse = {regenerateResponse}
                    />} />
         ))}
-   
+    <Route  path="*" element={<About/>}/>
         </Routes>
       </div >
    

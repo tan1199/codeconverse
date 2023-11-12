@@ -31,8 +31,8 @@
 
 .container {
   text-align: left; /* Align the inner divs to the left */
-  margin-left: 25%;
-  margin-top: -2%;
+  margin-left: 35%;
+  margin-top: 6%;
 position: relative;
 }
 
@@ -142,23 +142,25 @@ overflow-y: auto;
   
 
   .input-container-home {
-    background-color: #0c051a;
-    padding: 40px;
+    /* padding: 40px; */
     /* position: relative; */
     /* border: 10px solid #c11818; */
-    margin-top:2.5%;
+    /* margin-top:2.5%; */
     /* flex: 1; */
     bottom: 0;
-    display: flex;
-    flex-direction: column;
+  display: flex;
+    flex-direction: row;
+    /* height:25vh; */
 }
 
 .input-box-home {
-  flex: 1;
-margin-right: 40px;
-width: 70%;
-height: 20%;
-  padding: 5px;
+    margin-top: 7%;
+    margin-left: 7%;
+  /* flex: 1; */
+/* margin-right: 40px; */
+width: 50vw;
+height: 7vh;
+  /* padding: 5px; */
   border: 1px solid #ccc;
   border-radius: 5px;
   box-sizing: border-box;
@@ -171,6 +173,45 @@ outline:none;
 box-shadow: 0 0 10px #ffd2f2;
 }
 .send-button-home {
+  width: 10vw;
+    height: 7vh;
+  background-color: #ffffff;
+  border: 2px solid #422800;
+  border-radius: 30px;
+  box-shadow: #422800 4px 4px 0 0;
+  color: #422800;
+  cursor: pointer;
+  display: inline-block;
+  font-weight: 600;
+  font-size: 18px;
+  padding: 10 18px;
+  line-height: 18px;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  margin-left: 10px;
+  border: none;
+  border-radius: 5px;
+
+  box-shadow: 0 0 10px #ffd2f2;
+    margin-top: 7%;
+    margin-left: 4%;
+}
+
+.send-button-home:hover {
+  /* background-color: #ebe1e9; */
+  box-shadow: 0 0 15px #ffd2f2;
+
+}
+
+.send-button-home:active {
+  box-shadow: #422800 2px 2px 0 0;
+  transform: translate(2px, 2px);
+}
+
+.send-button-home1 {
 width:250px;
 height:40px;
 background-color: #ffffff;
@@ -196,13 +237,13 @@ touch-action: manipulation;
     box-shadow: 0 0 10px #ffd2f2;
   }
 
-.send-button-home:hover {
+.send-button-home1:hover {
 /* background-color: #ebe1e9; */
 box-shadow: 0 0 15px #ffd2f2;
 
 }
 
-.send-button-home:active {
+.send-button-home1:active {
 box-shadow: #422800 2px 2px 0 0;
 transform: translate(2px, 2px);
 }

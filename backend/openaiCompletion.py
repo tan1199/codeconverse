@@ -1,8 +1,13 @@
 import openai
 from keys.api_key import API_KEY
 from langchain.document_loaders import TextLoader
-
-openai.api_key=API_KEY
+# from tenacity import (
+#     retry,
+#     stop_after_attempt,
+#     wait_random_exponential,
+# )  
+# openai.api_key = API_KEY
+# print("xxxxxxxxxxxxxxxxxxxxxxxxxxxx", API_KEY)
 prompt="""classify the following tweet sentiment as positive or negative
 Tweet: I pity the new Batman movie!
 sentiment:"""
@@ -21,8 +26,10 @@ sentiment:"""
 #     return response.choices[0].text
 
 
-def getresponse_from_openai_api(prompt):
-
+# @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
+def getresponse_from_openai_api(prompt, apikey):
+   openai.api_key=apikey
+   try:
     completion = openai.ChatCompletion.create(
   model = 'gpt-3.5-turbo',
   messages = [
@@ -30,4 +37,9 @@ def getresponse_from_openai_api(prompt):
   ],
   temperature = 0  
 )
-    return completion['choices'][0]['message']['content']
+    response = completion['choices'][0]['message']['content']
+   except Exception as e:
+    print("lllll")
+    response = "##error##"+ str(e)
+    print("reee ",response)
+   return response

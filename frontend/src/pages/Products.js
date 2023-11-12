@@ -3,9 +3,11 @@ import './Products.css';
 import { useNavigate } from 'react-router-dom';
 
 function Products({isAuthenticated}) {
+  
   const navigate = useNavigate();
   
   const navigatetodatasource = () => {
+
     if(isAuthenticated){
     navigate(`/data`);
   }
@@ -14,7 +16,8 @@ function Products({isAuthenticated}) {
   }
   };
   return (
-    <div className='products'>
+    <div className='products' style={{ backgroundImage: `url(/888.jpg)`,backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat', }}>
   <div className='home-panels'>
     <div className='he'>
           <svg className='qwes' viewBox="0 0 960 300">
@@ -70,7 +73,7 @@ Edit the prompt to prevent hallucinations, maintain voice and format requirement
         <span style={{'--i': 8}}>d</span>
       </div>
       </button>
-  {/* <div class="loader">Generating...</div> */}
+  {/* <div className="loader">Generating...</div> */}
     </div>
   );
 }

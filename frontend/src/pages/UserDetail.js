@@ -1,16 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect  } from 'react';
 import { GoogleOAuthProvider,GoogleLogin  } from '@react-oauth/google';
 import jwt_decode from 'jwt-decode'
 import './UserDetail.css';
-import Loginimg from "../images/register.svg";
-import { dark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-function UserDetail({handleUserDetail,isAuthenticated,userInfo}) {
+function UserDetail({handleUserDetail,isAuthenticated}) {
   console.log("sisisisi",isAuthenticated);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
   const [isSignup, setIsSignup] = useState(false);
+    const [googleCID, setGoogleCID] = useState(false);
 
+  const handleGoogleLogin = () => {
+     console.log("hmhmhm ")
+    fetch("http://localhost:8000/googlecidtoken", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("glgglgl ",data.googleCID)
+              setGoogleCID(data.googleCID)
+
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      })
+
+  };
+
+   useEffect(() => {
+    // This will be called when the component mounts
+    handleGoogleLogin();
+  }, [])
     const handleLoginButtonClick = (e) => {
       e.preventDefault(); 
     // toast.success('Success Notification !', {
@@ -28,31 +51,27 @@ function UserDetail({handleUserDetail,isAuthenticated,userInfo}) {
     // });
 
 console.log("lpjl");
-handleUserDetail(isSignup,username,password,email,null,null,"632050271544-7vr7fs6kss02oakf95q4v6f25rur7oqt.apps.googleusercontent.com");
+handleUserDetail(isSignup,username,password,email,null,null,googleCID);
   };
   return (
-    <div className='userdetail'>
+    <div className='userdetail'style={{ backgroundImage: `url(/124.jpg)`,backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat', }}>
 
- {isAuthenticated ? ( <div className='user-panel'>
-  <div className='odiv'>
-        <div  className='odiv'>Username:{userInfo}</div>
-            <div  className='odiv'>Usage:</div>
-            <div  className='odiv'>Upgrade</div>
-              <div  className='odiv'>Logout</div>
-            </div>
+ {isAuthenticated ? ( <div className='about-info'>
+For security reasons, this page has expired.
       </div>):
 
-    (<div className='user-panel'>
-        <div className="loginimg">
+    (<div className='user-panel' >
+        {/* <div className="loginimg">
         <img src={Loginimg} alt="User Avatar" />
-      </div>
+      </div> */}
                 <div className="auth-container">
-<GoogleOAuthProvider clientId="632050271544-7vr7fs6kss02oakf95q4v6f25rur7oqt.apps.googleusercontent.com">
+<GoogleOAuthProvider clientId={googleCID}>
     <GoogleLogin
   onSuccess={credentialResponse => {
     const userdetail=jwt_decode(credentialResponse.credential)
     console.log(userdetail);
-handleUserDetail(false,userdetail["given_name"],userdetail["family_name"],userdetail["email"],userdetail["aud"],userdetail["iss"],"632050271544-7vr7fs6kss02oakf95q4v6f25rur7oqt.apps.googleusercontent.com");
+handleUserDetail(false,userdetail["given_name"],userdetail["family_name"],userdetail["email"],userdetail["aud"],userdetail["iss"],googleCID);
 
   }}
   onError={() => {
@@ -60,7 +79,7 @@ handleUserDetail(false,userdetail["given_name"],userdetail["family_name"],userde
   }}
 /></GoogleOAuthProvider>
 </div>
-<div class="horizontal-line"></div>
+<div className="horizontal-line"></div>
          <div className="login-container">
       <h2>{isSignup ? 'Sign Up' : 'Login'}</h2>
       <form onSubmit={handleLoginButtonClick}>
@@ -68,6 +87,7 @@ handleUserDetail(false,userdetail["given_name"],userdetail["family_name"],userde
         {isSignup ? (<div className="form-group">
           <label htmlFor="email">Email-Id</label>
           <input
+            autoFocus
             type="text"
             id="email"
             value={email}
@@ -78,6 +98,7 @@ handleUserDetail(false,userdetail["given_name"],userdetail["family_name"],userde
         <div className="form-group">
           <label htmlFor="username">Username</label>
           <input
+            autoFocus
             type="text"
             id="username"
             value={username}
@@ -99,8 +120,8 @@ handleUserDetail(false,userdetail["given_name"],userdetail["family_name"],userde
           {isSignup ? 'Sign Up' : 'Login'}
         </button>
       </form>
-        {isSignup ?(<p class="punder">Already have an account? <a onClick={() => setIsSignup(!isSignup)} class="link-danger">Sign in</a></p>)
-         : (<p className="punder">Don't have an account? <a onClick={() => setIsSignup(!isSignup)} class="link-danger">Register</a></p>)
+        {isSignup ?(<p className="punder">Already have an account? <a onClick={() => setIsSignup(!isSignup)} className="link-danger">Sign in</a></p>)
+         : (<p className="punder">Don't have an account? <a onClick={() => setIsSignup(!isSignup)} className="link-danger">Register</a></p>)
          }
     </div>
 

@@ -52,13 +52,15 @@ const len=values.length;
       e.preventDefault();
     }
     if (e.key === 'Enter' && datasourcevalue.trim() !== '') {
+      console.log(datasourcevalue,sourcetype)
       handleAddDataSourceClick(datasourcevalue,sourcetype);
       setSourcetype('');
       setdatasourcevalue('')
     }
   };
   return (
-    <div className="home">
+    <div className="home" style={{ backgroundImage: `url(/124.jpg)`,backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat', }}>
       <div>
 {/* 
 <p>Fully managed GUI ingestion & deployment</p>
@@ -100,12 +102,14 @@ const len=values.length;
 <div className="button-container">
 <div className="add-data-source">Add a Data Source</div>
         <div className="row">
-          <button className="send-button-home" onClick={() => handleButtonClick('Github')}>💽  Github Source</button>
-          <button className="send-button-home" onClick={() => handleButtonClick('Gitlab')}>💽  Gitlab source</button>
+          <button className="send-button-home1" onClick={() => handleButtonClick('Github')}>💽  Github Source</button>
+          <button className="send-button-home1" onClick={() => handleButtonClick('Gitlab')}>💽  Gitlab source</button>
         </div>
         <div className="row">
-        <button className="send-button-home" onClick={() => handleButtonClick('Code')}>📼 Paste code</button>
-          <button className="send-button-home" onClick={() =>  document.getElementById('fileInput').click()}>📼 Archived Repository</button>
+        <button className="send-button-home1" onClick={() => handleButtonClick('Code')}>📼 Paste code</button>
+
+          <button className="send-button-home1" onClick={() => {document.getElementById('fileInput').click();
+                setSourcetype('');}}>📼 Archived Repository</button>
         </div>
         <div>
       <input
@@ -119,10 +123,10 @@ const len=values.length;
     </div>
       </div>
       </div>
-<div className='input-container-home'>
+<div >
       {sourcetype!=='' && (
-        <div>
-          <input
+        <div className='input-container-home'>
+          <textarea
             type="text"
             placeholder="Add Repository.."
             value={datasourcevalue}
@@ -140,15 +144,15 @@ const len=values.length;
         </div>
       )}
       </div>
-      {/* {progressbar && (<div class="lds-ripple"><div></div><div></div></div>)} */}
+      {/* {progressbar && (<div className="lds-ripple"><div></div><div></div></div>)} */}
       {processMessage!=='' && (<div className='container'>
         <div className='inner-div'>{processMessage}</div>
         {/* <div className='inner-div'>fgdg</div> */}
-        <div className='inner-div'><div class="lds-ripple"><div></div><div></div></div></div>
+        <div className='inner-div'><div className="lds-ripple"><div></div><div></div></div></div>
       </div>)}
-      {/* <div class="container">
-  <div class="inner-div">Div 1</div>
-  <div class="inner-div">Div 2</div>
+      {/* <div className="container">
+  <div className="inner-div">Div 1</div>
+  <div className="inner-div">Div 2</div>
 </div> */}
 
     </div>

@@ -1,0 +1,21 @@
+.about {
+  text-align: center;
+  padding: 40px;
+  background-color: #0c051a;
+  color: #c298d5;
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 82%;
+  float: right;
+}
+
+.about-info{
+font-weight: 500;
+font-size: 40px;
+letter-spacing: 1px;
+font-family:'Courier New', Courier, monospace;
+margin-right: 20px;
+color: rgb(60, 50, 122)
+}

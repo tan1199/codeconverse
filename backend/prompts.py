@@ -51,3 +51,12 @@ Think step by step and reason yourself to the right decisions to make sure we on
 and also make sure you extract the metadata efficiently and correctly that is if you do not find keywords associated with them as explained earlier then report 'NA' in the format explained above. The metadata values will not contain any space.
 
 """
+
+detect_language_prompt = """given the following piece of code please identify the language the code is written in.
+If it is python output is .py
+If it is C++ output is .cpp
+If it is java output is .java
+If it is javascript output is .js
+If it is rust output is .rs
+, so your task is to output the file extension of the identified language below code 
+"""

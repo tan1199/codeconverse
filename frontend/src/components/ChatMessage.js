@@ -1,6 +1,6 @@
-import React from 'react';
-import AIimg from "../images/ai.png";
-import Userimg from "../images/user.jpg";
+import React, { useState, useEffect } from 'react';
+import AIimg from "../images/aiicon.avif";
+import Userimg from "../images/usericon.png";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { prism } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Import desired syntax highlighting style
 import { language } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Import the language style you want to use
@@ -12,8 +12,42 @@ import { materialDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { tomorrowNight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { synthwave84 } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import * as prismstyle from 'react-syntax-highlighter/dist/esm/styles/prism';
-const ChatMessage = ({ avatar, username, message, timestamp,chatindex }) => {
+const ChatMessage = ({ avatar, username, message, timestamp,chatindex,regenerateAnswer }) => {
+
+    const [activeDiv, setActiveDiv] = useState(null);
+
+
+  const handleCloseTooltip = (source_location) => {
+console.log("ccchchch",chatindex)
+regenerateAnswer(chatindex,source_location)
+    setActiveDiv(null);
+  };
+  const handleMouseEnter = (divId) => {
+    setActiveDiv(divId);
+  };
+
+  const handleMouseLeave = (delayTime=100) => {
+     setTimeout(() => {
+          setActiveDiv(null);
+    }, delayTime);
+  };
+
+   useEffect(() => {
+
+    document.addEventListener('click', handleMouseLeave);
+
+    return () => {
+      document.removeEventListener('click', handleMouseLeave);
+    };
+  }, []);
   const imageSource = chatindex % 2 === 0 ? Userimg : AIimg;
+  const paragraphs = message.split('------------------------------------------------------------------------------------------');
+
+  // Display the first paragraph as it is
+  const answer = paragraphs[0].trim();
+
+  // If there is a second paragraph, split it into lines
+  const sources = paragraphs.length > 1 ? paragraphs[1].trim().split('\n') : null;
 
   const renderContent = (content) => {
     const splitText = (inputText) => {
@@ -161,13 +195,46 @@ if __name__ == '__main__':
       <div className="message-content">
         <div className="username">{username}</div>
         {/* <div className="message">{message}</div> */}
-        {renderContent(message)}
+        {renderContent(answer)}
+         {sources && (
+        <div>
+           <br />
+          <p>-------------------------------------------------------------------------------------------------------</p>
+            {/* <br /> */}
+          <p>Verified Sources:</p>
+          <div className='sources'>
+            {sources.map((link, index) => (
+   
+              <div className='source' key={index}>
+                  {link.includes("github.com") ? (<a className="anchor-content" href={link.split(' ')[1]}  target="_blank" rel="noopener noreferrer" 
+                    onMouseEnter={() => handleMouseEnter(index)}
+                 onMouseLeave={() => handleMouseLeave(3000)}>
+                   {index+1}) {link.split(' ')[0]} <p className='source-text'>{link.split(' ')[1].slice(19,)}</p>
+                </a>) : (<div className="anchor-content" 
+                    onMouseEnter={() => handleMouseEnter(index)}
+                 onMouseLeave={() => handleMouseLeave(3000)}>
+                   {index+1}) {link.split(' ')[0]} <p className='source-text'>{link.split(' ')[1]}</p>
+                </div>)}
+                
+                         {activeDiv === index && (
+            <div className="tooltip">
+              {/* {div.explanation} */} 
+              <button onClick={() => handleCloseTooltip(link.split(' ')[2])} className="tooltip-button">
+                Regenrate 
+              </button>
+            </div>
+              )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-        {/* <div>fgdfgd</div>
+        {/* 
         <SyntaxHighlighter language="python"  style={prismstyle.atomDark}  wrapLines={true} className='syntax-high'>
 {codeString}
    </SyntaxHighlighter> */}
-         {/* <div class="loader">Generating...</div>  */}
+         {/* <div className="loader">Generating...</div>  */}
 
       </div>
     </div>

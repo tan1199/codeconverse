@@ -85,9 +85,11 @@ def traverse_ast(node,file_extension,current_path,function_definition,method_def
     # Recursively traverse child nodes
     lexical_function=False
     field_definition_arg=field_definition
-    if node_type=='lexical_declaration' and node.children[1].children[2].type=='arrow_function':
-      print("lexo")
-      lexical_function=True
+    try:
+      if node_type=='lexical_declaration' and node.children[1].children[2].type=='arrow_function':
+        lexical_function=True
+    except:
+      pass  
     if node_type=='mod_item' and 'declaration_list' in [child.type for child in node.children]:
       field_definition="mod_item"
       print("45456",node.type,field_definition)
@@ -291,10 +293,16 @@ def bytes_to_string(byte_str):
 
 
 # Function to create AST for a given file
-def create_ast(file_path, file_type):
-  global concat
+def create_ast(file_location, file_type, repo_name,from_github):
+  global concat,file_path
   concat=False
-  with open(file_path, "r", encoding='utf-8') as file:
+  with open(file_location, "r", encoding='utf-8') as file:
+
+    if from_github!="":
+      file_path =str(file_location).replace(repo_name, f'{repo_name}_github_{from_github}')
+      print("qdfsg", file_path, from_github)
+    else:
+      file_path = file_location
     # Read the entire file as a string
     file_content = file.read()
     # Convert the string to bytes using the specified encoding
@@ -323,7 +331,7 @@ def create_ast(file_path, file_type):
       tree = parser.parse(bytes(file_content, "utf8"))
       root=tree.root_node
       traverse_ast(root,".rs","","function_item","trait_item","impl_item","field_definition","decorated_definition","source_file",["block","declaration_list"],2)
-
+  file_path = file_location
 # List of supported file extensions and their corresponding languages
 language_extensions = {
     '.py': 'python',
@@ -353,11 +361,12 @@ class_attributes=['class_definition','decorated_definition','class_declaration',
 function_attributes=['function_definition','decorated_definition','method_declaration','constructor_declaration','method_definition','field_definition','function_declaration','function_item','trait_item']
 
 
-def create_repo_ast(repo_name):
+def create_repo_ast(repo_name, username, from_github):
   global df,file_path,file_name,concat
   df = pd.DataFrame(columns=["code_chunk", "file_name", "file_path", "path_to_code_chunk","parent","prev_sibling","next_sibling","start_point","end_point","has_error","code_node_type","code_identifier","is_chunked","num_tokens","uuid_str"])
   root = Path(__file__).parent
-  repo_path = Path(os.path.join(root, "repositories/data", repo_name))
+  repo_path = Path(os.path.join(
+      root, f"repositories/{username}/data", repo_name))
   print(repo_path)
   for file_path in repo_path.rglob('*.*'):
     file_extension = file_path.suffix
@@ -365,7 +374,7 @@ def create_repo_ast(repo_name):
     if file_extension in language_extensions:
       print("opop")
       if os.path.getsize(file_path) != 0:
-        create_ast(file_path, file_extension)
+        create_ast(file_path, file_extension,repo_name, from_github)
   if len(df)>0:
     df['code_chunk'] = df['code_chunk'].apply(bytes_to_string)
     df = df.loc[df['num_tokens'] < 5000]
@@ -390,14 +399,17 @@ def create_repo_ast(repo_name):
     # print(data_frame)
     print(f"Elapsed Time: {elapsed_time:.2f} seconds")
     # df['code_embedding'] = df['code_chunk'].apply(lambda x: get_embedding(x, engine='text-embedding-ada-002'))
-    df.to_csv(f"{root}/repositories/{repo_name}.csv", index=False)
+    df.to_csv(f"{root}/repositories/{username}/{repo_name}.csv", index=False)
+  return len(df)>0
 
-def create_upload_ast(filename,file_location):
+
+def create_upload_ast(filename, file_location, username, from_github):
   global df,file_path,file_name,concat
   df = pd.DataFrame(columns=["code_chunk", "file_name", "file_path", "path_to_code_chunk","parent","prev_sibling","next_sibling","start_point","end_point","has_error","code_node_type","code_identifier","is_chunked","num_tokens","uuid_str"])
   root = Path(__file__).parent
   if file_location.endswith(".zip"):
-    repo_path = Path(os.path.join(root,"repositories/data", filename.split('.')[0]))
+    repo_path = Path(os.path.join(
+        root, f"repositories/{username}/data", filename.split('.')[0]))
     print(repo_path)
     for file_path in repo_path.rglob('*.*'):
       file_extension = file_path.suffix
@@ -405,7 +417,7 @@ def create_upload_ast(filename,file_location):
       if file_extension in language_extensions:
         print("opop")
         if os.path.getsize(file_path) != 0:
-          create_ast(file_path, file_extension)
+          create_ast(file_path, file_extension,"", from_github)
     if len(df)>0:
       df['code_chunk'] = df['code_chunk'].apply(bytes_to_string)
       df = df.loc[df['num_tokens'] < 5000]
@@ -430,7 +442,7 @@ def create_upload_ast(filename,file_location):
     # print(data_frame)
       print(f"Elapsed Time: {elapsed_time:.2f} seconds")
     # df['code_embedding'] = df['code_chunk'].apply(lambda x: get_embedding(x, engine='text-embedding-ada-002'))
-      df.to_csv(f"{root}/repositories/{filename.split('.')[0]}.csv", index=False)
+      df.to_csv(f"{root}/repositories/{username}/{filename.split('.')[0]}.csv", index=False)
     
   
   else:
@@ -443,7 +455,7 @@ def create_upload_ast(filename,file_location):
     if file_extension in language_extensions:
       print("opop")
       if os.path.getsize(file_path) != 0:
-        create_ast(file_path, file_extension)
+        create_ast(file_path, file_extension, "",from_github)
     if len(df)>0:
       df['code_chunk'] = df['code_chunk'].apply(bytes_to_string)
       df = df.loc[df['num_tokens'] < 5000]
@@ -468,4 +480,5 @@ def create_upload_ast(filename,file_location):
     # print(data_frame)
       print(f"Elapsed Time: {elapsed_time:.2f} seconds")
     # df['code_embedding'] = df['code_chunk'].apply(lambda x: get_embedding(x, engine='text-embedding-ada-002'))
-      df.to_csv(f"{root}/repositories/{file_name.split('.')[0]}.csv", index=False)
+      df.to_csv(f"{root}/repositories/{username}/{file_name.split('.')[0]}.csv", index=False)
+  return len(df)>0

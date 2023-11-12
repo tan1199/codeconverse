@@ -17,7 +17,17 @@ import { useNavigate } from 'react-router-dom';
 
 function SideNavbar({ chats, selectedChatId, handleChatItemClick, handleAddChatWindow, deletechat, isAuthenticated, handletoastmessage,userInfo }) {
   const navigate = useNavigate();
-  
+  if(isAuthenticated){
+userInfo= "Logout"
+  }
+  const handleLogout = () => {
+    localStorage.setItem('authToken', null);
+    handletoastmessage('Logged Out')
+     setTimeout(() => {
+    window.location.reload();
+
+      }, 2000);
+     };
   const navigatetohome = () => {
     navigate(`/`);
   };
@@ -121,7 +131,7 @@ const abc=selectedChatId;
                                    })}
                                    </div>)}
                         <li>
-                                    <Link to="/user">
+                                    <Link to="/user"  onClick={() => handleLogout()}>
 
 
 

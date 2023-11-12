@@ -4,7 +4,7 @@ import InputBox from './components/InputBox';
 import './ChatPanel.css';
 import { useLocation } from 'react-router-dom';
 
-function ChatPanel({handlesetSelectedChatId,selectedChatId,handleSendMessage,getChatMessages}) {
+function ChatPanel({handlesetSelectedChatId,selectedChatId,handleSendMessage,getChatMessages,regenerateResponse}) {
   const location = (useLocation()).pathname;
       useEffect(() => {
         // Check if selectedChatId is null and pathname includes "/chats/"
@@ -17,10 +17,14 @@ function ChatPanel({handlesetSelectedChatId,selectedChatId,handleSendMessage,get
   const messagesEndRef = useRef(null)
   const selectedChatmeaages=getChatMessages(selectedChatId)
   const lengthofchat = selectedChatmeaages.length
+  // console.log("qaxzs",selectedChatmeaages[0].message)
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
-
+  const regenerateAnswer = (index,source_location) => {
+console.log("jnbhj",index-1,source_location)
+regenerateResponse(selectedChatmeaages[index-1].message,selectedChatId,source_location)
+  };
   useEffect(() => {
     scrollToBottom()
   }, [lengthofchat]);
@@ -29,7 +33,8 @@ function ChatPanel({handlesetSelectedChatId,selectedChatId,handleSendMessage,get
 // chatsize=1;
   return (
     <div>
-        <div className="chat-panel">
+        <div className="chat-panel" style={{ backgroundImage: `url(/545.jpg)`,backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat', }}>
       <div className="chat-messages">
       {selectedChatId ? (
         <div>
@@ -44,6 +49,7 @@ function ChatPanel({handlesetSelectedChatId,selectedChatId,handleSendMessage,get
               message={message.message}
               timestamp={message.timestamp}
               chatindex={index}
+              regenerateAnswer={regenerateAnswer}
             />
           ))}
           <div>
@@ -56,10 +62,10 @@ function ChatPanel({handlesetSelectedChatId,selectedChatId,handleSendMessage,get
         </div>
               ):(<div>
                 <div className='headingpanel'>Understand your codebase with GPT-4 and Semantic Code Search</div>
-                <p className='parapanel'>👉🏼 We’re excited to share Code Converse, a novel to understand your codebase.</p>
-                <p className='parapanel'>👉🏼 A blazing fast code search engine capable of understanding 5 languages</p>
-                <p className='parapanel'>👉🏼 Precise code navigation, built on stack graphs and scope queries</p>
-                <p className='parapanel'>👉🏼 An intelligent AI agent, powered by GPT-4 and semantic code search</p>
+                <p className='parapanel'>🪄 We’re excited to share Code Converse, a novel to understand your codebase.</p>
+                <p className='parapanel'>🪄 A blazing fast code search engine capable of understanding multiple languages</p>
+                <p className='parapanel'>🪄 Precise code navigation, built on stack graphs and scope queries</p>
+                <p className='parapanel'>🪄 An intelligent AI agent, powered by GPT-4 and semantic code search</p>
 
 
               

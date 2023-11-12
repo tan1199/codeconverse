@@ -2,48 +2,11 @@
 import asyncio
 import logging
 import json
-# from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from openaiManager import completion_endpoint_plain
-# app = FastAPI()
-
-# # Configure CORS
-# app = FastAPI()
-
-
-
-# messages = []
-
-# Configure logging format
-logging.basicConfig(
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    level=logging.INFO,
-)
-
-# @app.get("/")
-# def root():
-#     if messages:
-#         return {"message": messages[-1]}
-#     else:
-#         return {"message": "No messages yet"}
-
-# @app.get("/api/messages")
-# def get_messages():
-#     return {"messages": "hello there"}
-
-
-# @app.post("/api/messages")
-# def add_message(message: dict):
-#     new_message = message.get("message")
-#     print("fdgdfgfdf fgfhf")
-#     logging.info(f"Received new message: {new_message}")
-#     messages.append(new_message)
-#     # backend_response = completion_endpoint_plain(new_message)
-#     return {"message": "\nimport sys\nsys.path.append('/path/to/folder')\nfrom my_module import my_function"}
-#     # return {"message": backend_response}
-
-from connect_db import insert_message,select_all_chats,deletechatId,insert_user,select_user
+from connect_db import insert_message, select_all_chats, deletechatId, insert_user, select_user, update_api_key, usage_for_user
 import time,sqlite3
+from count_token import num_tokens_from_string
 from clone_repo import extract_user_repo_github
 from ast_parser import create_repo_ast,create_upload_ast,language_extensions_to_class_attribute,language_extensions_to_function_attribute,class_attributes,function_attributes
 from fastapi import FastAPI, WebSocket, HTTPException, File, UploadFile, Depends, status,WebSocketDisconnect
@@ -54,15 +17,25 @@ import os, re,shutil
 import zipfile
 import pandas as pd
 from pathlib import Path
-from prompts import metadata_json_prompt
+from prompts import metadata_json_prompt,detect_language_prompt
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import json
+import openai
 import jwt
 import Levenshtein
 from rapidfuzz import fuzz
 from similarity_search import calculate_levenshtein_fuzzy_distance_similarity,code_embedding_similarity_search
+
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    level=logging.INFO,
+)
+
+
 app = FastAPI()
+# Configure CORS
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],  # Replace with your frontend origin
@@ -70,7 +43,6 @@ app.add_middleware(
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
-# Configure CORS
 
 no_Df=True
 # df = pd.DataFrame(columns=["code_chunk", "file_name", "file_path", "path_to_code_chunk","parent","prev_sibling","next_sibling","start_point","end_point","has_error","code_node_type","code_identifier","is_chunked","num_tokens","uuid_str"])
@@ -79,15 +51,6 @@ async def simulate_processing_stage_1():
     # Simulate some processing for stage 1
     await asyncio.sleep(1)
 
-async def simulate_processing_stage_2():
-    # Simulate some processing for stage 2
-    await asyncio.sleep(1)
-
-async def simulate_processing_stage_3():
-    # Simulate some processing for stage 3
-    await asyncio.sleep(1)
-
-
 # Define your JWT secret key (replace with a strong, random key)
 SECRET_KEY = "your-secret-key354354gfbgc@354gfbkhjyiyuWREF#56TcdsERD7vxc"
 
@@ -95,15 +58,7 @@ SECRET_KEY = "your-secret-key354354gfbgc@354gfbkhjyiyuWREF#56TcdsERD7vxc"
 ALGORITHM = "HS256"
 
 # Define the access token expiration time (in minutes)
-ACCESS_TOKEN_EXPIRE_MINUTES = 10
-
-# Mock user database for demonstration
-fake_users_db = {
-    "user1": {
-        "username": "user1",
-        "password": "password1",
-    }
-}
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # OAuth2 Bearer Token scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -151,7 +106,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     
     # Retrieve user details from the mock database
     user = select_user(username)
-    print(user)
+    openai.api_key = user['apikey']
     # if user is None:
     #     raise HTTPException(
     #         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -161,6 +116,26 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 
     return user
 
+
+def convert_path(input_path):
+    # Split the input path into parts using underscores and slashes
+    parts = input_path.split('_github_')    
+    # Extract the repository owner and name from the first part
+    index_of_first_underscore = parts[0].find('_')
+    owner = parts[0][:index_of_first_underscore]
+    rest = parts[0][index_of_first_underscore + 1:]
+    repo_name = rest.split('/')[-1]
+
+    # Combine the parts to form the desired GitHub URL
+    github_url = f"https://github.com/{owner}/{repo_name}/blob/{parts[1]}"
+
+    return github_url
+
+@app.get("/googlecidtoken", response_model=dict)
+async def login_for_googlecid_token_token():
+    print("GLULGLGUGLGLU")
+    return {"googleCID": os.getenv("GOOGLE_CID_KEY")}
+    
 # Route to obtain an access token
 @app.post("/token", response_model=dict)
 async def login_for_access_token(form_data: dict):
@@ -175,16 +150,12 @@ async def login_for_access_token(form_data: dict):
         print("HHJK",user)
         if user is None or user["password"] != password:
             if google_auth:
-                insert_status=insert_user(username,password, email_id, 'https://example.com/avatar.png', int(time.time() * 1000)) 
+                insert_status=insert_user(username,password, email_id, 'api_key', int(time.time() * 1000)) 
 
             else:
-                raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid credentials",
-                headers={"WWW-Authenticate": "Bearer"},
-                )
+                insert_status = "Invalid credentials"
     else:
-        insert_status=insert_user(username,password, email_id, 'https://example.com/avatar.png', int(time.time() * 1000)) 
+        insert_status=insert_user(username,password, email_id, 'api_key', int(time.time() * 1000)) 
         print("ellls",insert_status)
     # Generate an access token
     if insert_status=="user_registered":
@@ -220,7 +191,6 @@ async def userdetail_websocket(websocket: WebSocket):
 async def initiate_websocket(websocket: WebSocket):
     try:
         conversation_data1 = [{'chatId': '1692436170698', 'messages': [{'id': 1692436175759, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'hello', 'timestamp': 1692436175759}, {'id': 1692436181744, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'Hello! How can I assist you today?', 'timestamp': 1692436181744}, {'id': 1692436191162, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'how are you', 'timestamp': 1692436191162}, {'id': 1692436198048, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': "As an AI, I don't have feelings, but I'm here to help you with any questions or tasks you have. How can I assist you today?", 'timestamp': 1692436198048}, {'id': 1692436211157, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'what is the capital of denmark', 'timestamp': 1692436211157}, {'id': 1692436216969, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'The capital of Denmark is Copenhagen.', 'timestamp': 1692436216969}, {'id': 1692436225940, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'best cricker of world', 'timestamp': 1692436225940}, {'id': 1692436233668, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'There have been many great cricketers throughout history, and it is subjective to determine the best cricketer of all time. However, some of the most highly regarded cricketers include Sir Donald Bradman, Sachin Tendulkar, Sir Vivian Richards, Sir Garfield Sobers, and Sir Jack Hobbs. These players have achieved remarkable records and have left a lasting impact on the game of cricket.', 'timestamp': 1692436233668}]}, {'chatId': '1692436239709', 'messages': []}, {'chatId': '1692436243005', 'messages': [{'id': 1692436251519, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'some icream flovors', 'timestamp': 1692436251519}, {'id': 1692436259952, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': '1. Vanilla\n2. Chocolate\n3. Strawberry\n4. Mint chocolate chip\n5. Cookies and cream\n6. Butter pecan\n7. Rocky road\n8. Coffee\n9. Pistachio\n10. Salted caramel\n11. Neapolitan\n12. Cherry Garcia (cherry ice cream with chocolate chunks and cherries)\n13. Peanut butter cup\n14. Coconut\n15. Birthday cake\n16. Matcha green tea\n17. Black raspberry\n18. Dulce de leche\n19. Red velvet\n20. Lemon sorbet', 'timestamp': 1692436259952}, {'id': 1692436267399, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'different color of apple', 'timestamp': 1692436267399}, {'id': 1692436279132, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'There are several different colors of apples, including:\n\n1. Red: This is the most common color for apples, with varieties such as Red Delicious, Gala, and Fuji.\n\n2. Green: Green apples, such as Granny Smith and Golden Delicious, have a tart flavor and are often used in baking or for making apple cider.\n\n3. Yellow: Yellow apples, like Yellow Transparent and Yellow Newtown Pippin, have a sweet and tangy taste.\n\n4. Pink: Pink Lady apples have a distinctive pinkish-red skin and a crisp, sweet-tart flavor.\n\n5. Bi-colored: Some apples have a combination of colors, such as the popular Honeycrisp apple, which has a red and yellow skin.\n\n6. Striped: Certain apple varieties, like the McIntosh apple, have a striped pattern on their skin, with a mix of red and green.\n\n7. Purple: There are a few varieties of purple apples, such as the Black Diamond apple, which have a deep purple or almost black skin.\n\nThese are just a few examples of the different colors of apples available. The specific color and appearance of an apple can vary depending on the variety and ripeness.', 'timestamp': 1692436279132}, {'id': 1692436280326, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'japan to india distance', 'timestamp': 1692436280326}, {'id': 1692436286987, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'The distance between Japan and India is approximately 4,500 kilometers (2,800 miles) when measured in a straight line. However, the actual distance may vary depending on the route taken for travel.', 'timestamp': 1692436286987}, {'id': 1692436288296, 'avatar': 'https://example.com/avatar.png', 'username': 'User', 'message': 'bye bye', 'timestamp': 1692436288296}, {'id': 1692436294137, 'avatar': 'https://example.com/avatar.png', 'username': 'AI Assistant', 'message': 'Goodbye! Have a great day!', 'timestamp': 1692436294137}]}]
-        conversation_data = select_all_chats()
         # print(conversation_data)
 
         user = get_current_user(websocket.query_params.get("token"))
@@ -240,15 +210,21 @@ async def initiate_websocket(websocket: WebSocket):
         # await asyncio.sleep(1)
         # await websocket.send_text("Hello  now from FastAPI!")
         else:
+
+            conversation_data = select_all_chats(user['username'])
+            usage = usage_for_user(user['username'])
             file_list = []
-            root1 = Path(__file__).parent
-            input_directory_path = f"{root1}/repositories"  # Replace with the actual path to your directory
-            file_list = [f.split('.')[0] for f in os.listdir(input_directory_path) if f not in ['data','final']] 
+            root = Path(__file__).parent
+            input_directory_path = f"{root}/repositories/{user['username']}"  # Replace with the actual path to your directory
+            try:
+                file_list = [f.split('.')[0] for f in os.listdir(input_directory_path) if f not in ['data','final']] 
+            except:
+                pass
             # for filename in os.listdir(csv_directory_path):
             #     if filename.endswith(".csv"):
             #         csv_files.append(os.path.splitext(filename)[0])
             print(file_list)       
-            await websocket.send_text(json.dumps({"username":user["username"],"chat_data":conversation_data,"saved_data_source":file_list,"action": "initiate", "message": "Uploaded Successfully"}))
+            await websocket.send_text(json.dumps({"username": user["username"], "email_id": user["email_id"], "usage": usage, "chat_data": conversation_data, "saved_data_source": file_list, "action": "initiate", "message": "Uploaded Successfully"}))
 
 
         # while True:
@@ -273,7 +249,6 @@ def delete_files_with_string(root_dir, target_string):
 @app.websocket("/ws/process")
 async def status_websocket(websocket: WebSocket):
     user = get_current_user(websocket.query_params.get("token"))
-    print("nanan",user)
     await websocket.accept()
     print("rdytj")
     if not user:
@@ -290,39 +265,45 @@ async def status_websocket(websocket: WebSocket):
 
         try:
             while True:
+                print("nanan",user["username"])
                 progress_message = {}
                 message = await websocket.receive_text()
                 message_data = json.loads(message)
                 filename = message_data.get('filename')
-                print("llll",filename)
-                if message_data['type'] == 'deletedatasource':
+                print("llll112211",filename)
+                if message_data['type'] == 'api_key_update':
+                    update_status = update_api_key(
+                        message_data.get('data'), user["username"])
+                    print("api key updated ",update_status)
+
+                elif message_data['type'] == 'deletedatasource':
                     if "." in filename:
                         filename=filename.split('.')[0]
-                    root2 = Path(__file__).parent
-                    root_directory=f'{root2}/repositories/{filename}.csv'
+                    root = Path(__file__).parent
+                    root_directory = f'{root}/repositories/{user["username"]}/{filename}.csv'
                     if os.path.exists(root_directory):
                         os.remove(root_directory)   
                     print("olhg")
-                    root_directory=f'{root2}/repositories/data'   
+                    root_directory = f'{root}/repositories/{user["username"]}/data'
                     delete_files_with_string(root_directory, filename)
                     print("rtyvj")
 
                 elif message_data['type'] == 'deletechatId':
                     print("del begin")
                     print("ttyyp",type(filename))
-                    deletechatId(filename)
+                    deletechatId(filename, user['username'])
                     print("delte end")
                 elif message_data['type'] == 'filename':
                     data = await websocket.receive_bytes()  # Receive binary data in chunks
-                    await websocket.send_text(json.dumps({"action": "process", "message": f"{filename} Uploaded Successfully"}))
+                    await websocket.send_text(json.dumps({"action": "process", "message": f"Codebase Uploaded Successfully"}))
                     if data:
                         # print("ertre")
-                        file_path=f'repositories/data/{filename}'
+                        file_path = f'repositories/{user["username"]}/data/{filename}'
                         # print("wwwwww")
                         if os.path.exists(file_path) or os.path.exists(file_path.split('.')[0]):
                             # print("qqqqqqqqqqq")
                             await asyncio.sleep(2)
-                            await websocket.send_text(json.dumps({"action": "process", "message":f"{filename} Exists"}))
+                            await websocket.send_text(json.dumps({"action": "process", "message":"Codebase Already Exists"}))
                             await asyncio.sleep(2)
                             await websocket.send_text(json.dumps({"action": "process", "message":""}))
                             continue
@@ -331,25 +312,85 @@ async def status_websocket(websocket: WebSocket):
                             # print("opop")
                             f.write(data)
                         await asyncio.sleep(2)
-                        await websocket.send_text(json.dumps({"action": "process", "message":f"{filename} Processed Successfully"}))
+                        await websocket.send_text(json.dumps({"action": "process", "message":f"Codebase Processed Successfully"}))
                         if filename.endswith('.zip'):
-                            with zipfile.ZipFile(f'repositories/data/{filename}', 'r') as zip_ref:
-                                zip_ref.extractall(f'repositories/data/')
+                            with zipfile.ZipFile(f'repositories/{user["username"]}/data/{filename}', 'r') as zip_ref:
+                                zip_ref.extractall(f'repositories/{user["username"]}/data/')
                                 print("Zip file extracted successfully.")
                             os.remove(file_path)
                             await asyncio.sleep(2)
                             await websocket.send_text(json.dumps({"action": "process", "message": f"Zip File Extracted Successfully"}))
                         # await websocket.send_text(json.dumps({"type": "success"}))
                         await asyncio.sleep(2)
-                        await websocket.send_text(json.dumps({"action": "process", "message": f"Parsing source code of {filename}"}))
+                        await websocket.send_text(json.dumps({"action": "process", "message": f"Parsing Codebase"}))
 
-                        create_upload_ast(filename,file_path)
+                        ast_status = create_upload_ast(filename,file_path, user['username'],"")
+                        print("asatat",ast_status)
                         await asyncio.sleep(2)
-                        await websocket.send_text(json.dumps({"action": "process", "message": f" Source code of {filename} Parsed Successfully"}))
+                        await websocket.send_text(json.dumps({"action": "process", "message": f"Codebase Parsed Successfully"}))
                         await asyncio.sleep(2)
-                        await websocket.send_text(json.dumps({"data_source_name": f"{filename}","action": "process", "message": f" Data Source {filename} Successfully"}))
+                        if ast_status:
+                            await websocket.send_text(json.dumps({"data_source_name": f"{filename}","action": "process", "message": f" Data Source uploaded Successfully"}))
+                            await asyncio.sleep(2)
+                            await websocket.send_text(json.dumps({"action": "process", "message": ""}))
+                        else:
+                            await websocket.send_text(json.dumps({"action": "process", "message": f"Failed to upload Data Source "}))
+                            await asyncio.sleep(2)
+                            await websocket.send_text(json.dumps({"action": "process", "message": ""}))
+                elif message_data['sourcetype'] == 'Code':
+                    await asyncio.sleep(1)
+                    await websocket.send_text(json.dumps({"action": "process", "message": "Identifying Source Code Language"}))
+                               
+                    print("ccococococococo")
+                    source_code = message_data['source_string']
+                    print(detect_language_prompt, source_code)
+                    language_identifier_prompt = detect_language_prompt + "\n"+source_code + \
+                        "\n NOTE - remember just output the file extension and nothing else"
+                    source_code_language = completion_endpoint_plain(
+                        language_identifier_prompt, user['apikey'])
+                    print("lala", source_code_language)
+                    root = Path(__file__).parent
+                    directory_path = f'{root}/repositories/{user["username"]}/data'
+                    if not os.path.exists(directory_path):
+                        os.makedirs(directory_path)
+                    source_code_files = [file for file in os.listdir(directory_path) if file.startswith('sourceCode') and os.path.isfile(os.path.join(directory_path, file))]
+                    num_source_code_files = str(len(source_code_files)+1)
+                    print(num_source_code_files)
+                    await asyncio.sleep(2)
+                    extension="NA"
+                    if ".js" in source_code_language:
+                        extension=".js"
+                    elif ".java" in source_code_language:
+                        extension = ".java"
+                    elif ".cpp" in source_code_language:
+                        extension = ".cpp"
+                    elif ".rs" in source_code_language:
+                        extension = ".rs"
+                    elif ".py" in source_code_language:
+                        extension = ".py"
+                    else:
+                        await websocket.send_text(json.dumps({"action": "process", "message": f"Source  cannot be parsed"}))
+
+                    if extension !="NA":
+                        print(f"Contains {extension}")
+                        with open(f'{directory_path}/sourceCode-{num_source_code_files}{extension}', 'w') as file:
+                            file.write(source_code)
+                             
+                        await websocket.send_text(json.dumps({"action": "process", "message": f"Parsing source code"}))
+
+                        ast_status = create_upload_ast(f'sourceCode-{num_source_code_files}{extension}',f'repositories/{user["username"]}/data/sourceCode-{num_source_code_files}{extension}', user['username'],"")
+                        await asyncio.sleep(1)
+                        if ast_status:
+                            await websocket.send_text(json.dumps({"data_source_name": f"sourceCode-{num_source_code_files}{extension}","action": "process", "message": f" Data Source uploaded Successfully"}))
+                            await asyncio.sleep(2)
+                            await websocket.send_text(json.dumps({"action": "process", "message": ""}))    
+                        else:
+                            await websocket.send_text(json.dumps({"action": "process", "message": f"Failed to upload Data Source {filename}"}))
+                            await asyncio.sleep(2)
+                            await websocket.send_text(json.dumps({"action": "process", "message": ""}))    
+
                 elif message_data['type'] == 'url':
-                    source_url=message_data['url_string']
+                    source_url=message_data['source_string']
                     if message_data['sourcetype'] == 'Github':
                         pattern = r'https://github.com/([^/]+)/([^/]+)'
             
@@ -367,8 +408,8 @@ async def status_websocket(websocket: WebSocket):
                                 await asyncio.sleep(1)
                                 await websocket.send_text(json.dumps({"action": "process", "message": "Repository Metadata extracted Successfully"}))
                                 print("wwwwww")
-                                root1 = Path(__file__).parent
-                                file_path1=f'{root1}/repositories/{user_name}_{repo_name}.csv'
+                                root = Path(__file__).parent
+                                file_path1 = f'{root}/repositories/{user["username"]}/{user_name}_{repo_name}.csv'
                                 if os.path.exists(file_path1):
                                     print("qqqqqqqqqqq")
                                     await asyncio.sleep(2)
@@ -376,26 +417,45 @@ async def status_websocket(websocket: WebSocket):
                                     await asyncio.sleep(4)
                                     await websocket.send_text(json.dumps({"action": "process", "message":""}))
                                     continue
-                                extract_user_repo_github(source_url,user_name,repo_name)
+                                clone_status,default_branch = extract_user_repo_github(source_url,user_name,repo_name,user['username'])
                                 await asyncio.sleep(2)
-                                await websocket.send_text(json.dumps({"action": "process", "message": "GitHub Repository cloned Successfully"}))
+                                if clone_status:
+                                    print("nicer")
+                                    await websocket.send_text(json.dumps({"action": "process", "message": "GitHub Repository cloned Successfully"}))
 
-                                print("nice")
-                                await asyncio.sleep(2)
-                                await websocket.send_text(json.dumps({"action": "process", "message": f"Parsing source code of {user_name}/{repo_name}"}))
-
-                                create_repo_ast(f"{user_name}_{repo_name}")
-                                await asyncio.sleep(2)
-                                await websocket.send_text(json.dumps({"action": "process", "message": f" Source code of {user_name}/{repo_name} Parsed Successfully"}))
-                                await asyncio.sleep(2)
-                                await websocket.send_text(json.dumps({"data_source_name": f"{user_name}_{repo_name}","action": "process", "message": f" Data Source {user_name}/{repo_name} Successfully"}))
-
+                                    await asyncio.sleep(2)
+                                    await websocket.send_text(json.dumps({"action": "process", "message": f"Parsing Codebase"}))
+                                    print("nnnnnic")
+                                    ast_status = create_repo_ast(
+                                        f"{user_name}_{repo_name}", user['username'],default_branch)
+                                    print("nnnnnic")
+                                    await asyncio.sleep(2)
+                                    await websocket.send_text(json.dumps({"action": "process", "message": f"Codebase Parsed Successfully"}))
+                                    await asyncio.sleep(2)
+                                    if ast_status:
+                                        await websocket.send_text(json.dumps({"data_source_name": f"{user_name}_{repo_name}","action": "process", "message": f" Data Source {user_name}/{repo_name} Successfully"}))
+                                        await asyncio.sleep(2)
+                                        await websocket.send_text(json.dumps({"action": "process", "message": ""}))    
+                                    else:
+                                        await websocket.send_text(json.dumps({"action": "process", "message": f"Failed to upload Data Source"}))
+                                        await asyncio.sleep(2)
+                                        await websocket.send_text(json.dumps({"action": "process", "message": ""}))    
+                                else:
+                                    await websocket.send_text(json.dumps({"action": "process", "message": "Failed to clone GitHub Repository"}))
+                                    await asyncio.sleep(2)
+                                    await websocket.send_text(json.dumps({"action": "process", "message": ""}))    
                             else:
                                 await asyncio.sleep(2)
-                                await websocket.send_text(json.dumps({"action": "process", "message": "Invalid GitHub Repository URL"}))
+                                await websocket.send_text(json.dumps({"action": "process", "message": "Invalid GitHub/Gitlab Repository URL"}))
                 # simulate_processing_stage_2()  # Call another processing function
-                await asyncio.sleep(5)
-                await websocket.send_text(json.dumps({"action": "process", "message": ""}))    
+                                await asyncio.sleep(2)
+                                await websocket.send_text(json.dumps({"action": "process", "message": ""}))    
+                        else:
+                            await asyncio.sleep(2)
+                            await websocket.send_text(json.dumps({"action": "process", "message": "Invalid GitHub/Gitlab Repository URL"}))
+                # simulate_processing_stage_2()  # Call another processing function
+                            await asyncio.sleep(2)
+                            await websocket.send_text(json.dumps({"action": "process", "message": ""}))     
         except WebSocketDisconnect:
             pass  
 
@@ -403,7 +463,7 @@ async def status_websocket(websocket: WebSocket):
 async def chat_socket(websocket: WebSocket):
     global no_Df
     user = get_current_user(websocket.query_params.get("token"))
-    print("nanan",user)
+    print("nananpl",user)
     await websocket.accept()
     print("rdytj")
     if not user:
@@ -426,20 +486,28 @@ async def chat_socket(websocket: WebSocket):
                         no_Df=False
                         data_frame=query_data["active_df"][0]
                         print("asouter")
-                        print(f"{root}/repositories/{data_frame}.csv")
-                        df=pd.read_csv(f"{root}/repositories/{data_frame.split('.')[0]}.csv")
+                        print(
+                            f"{root}/repositories/{user['username']}/{data_frame}.csv")
+                        df = pd.read_csv(
+                            f"{root}/repositories/{user['username']}/{data_frame.split('.')[0]}.csv")
                         print("outer")
                         for i in range(1, len(query_data["active_df"])):
                             print("Inner")
                             data_frame = query_data["active_df"][i]
                             print("olko",data_frame)
-                            print(f"{root}/repositories/{data_frame.split('.')[0]}.csv")
-                            df1=pd.read_csv(f"{root}/repositories/{data_frame.split('.')[0]}.csv")
+                            print(f"{root}/repositories/{user['username']}/{data_frame.split('.')[0]}.csv")
+                            df1=pd.read_csv(f"{root}/repositories/{user['username']}/{data_frame.split('.')[0]}.csv")
                             df = pd.concat([df, df1], ignore_index=True)
                             print(df)
                             print("nowu")
                             print(df1)
-                        df.to_csv(f"{root}/repositories/final/qwe.csv", index=False)                      
+                        if not os.path.exists(f"{root}/repositories/{user['username']}/final"):
+                            print("hhjplkiop")
+                            os.makedirs(
+                                f"{root}/repositories/{user['username']}/final")
+                        print("lmklop")
+                        df.to_csv(
+                            f"{root}/repositories/{user['username']}/final/current_data.csv", index=False)
                       else :
                           no_Df=True
                   elif query_data["type"]=="chat":
@@ -450,6 +518,7 @@ async def chat_socket(websocket: WebSocket):
                     conversation_data1 = query_data["ch"]
                     selectedid = query_data["chatId"]
                     chat_history="Chat History: []"
+                    top_n_similarities, top_n_sources_file_path, top_n_sources_start_line_no, top_n_sources_end_line_no=[],[],[],[]
                     filtered_conversations = [conversation for conversation in conversation_data1 if conversation['chatId'] == selectedid]
                     if filtered_conversations:
                         last_conversation = filtered_conversations[-1]
@@ -470,14 +539,43 @@ User: {last_4_message_texts[2]}]
 Assistant: {last_4_message_texts[3]}]    
 
         """        
-                    print(chat_history,no_Df)
+                    print(chat_history, no_Df, query_data["custom_prompt"])
                     code_context=""
-                    code_search_prompt=chat_history
+                    code_search_prompt=chat_history+query_data["custom_prompt"]
                     file_name_value=class_value=funcion_value="NA"
 
-                    if no_Df==False and query_data["metadata_filter"]:
+                    if query_data["regenerate"]:
+                        print("ab regegegeg", query_data["source_location"])
+                        root = Path(__file__).parent
+                        regenerate_source = []
+                        source_location = query_data["source_location"].split('#_#')[0]
+                        start_line = int(query_data["source_location"].split('#_#')[1].split('-')[0])
+                        end_line = int(query_data["source_location"].split('#_#')[1].split('-')[1])                  
+                        print(
+                            f'{root}/repositories/{user["username"]}/data/{source_location}', start_line, end_line, source_location)
+                        with open(f'{root}/repositories/{user["username"]}/data/{source_location}', 'r') as file:
+                            print("klmnx")
+                            for line_number, line in enumerate(file, start=1):
+                                if start_line <= line_number <= end_line:
+                                    regenerate_source.append(line.rstrip())
+                        print("jnmmmnnm",regenerate_source)
+                        code_search_prompt=f"""
+{regenerate_source}
+
+User Query: {query_data["data"]}
+
+Craft a comprehensive and insightful answer that addresses the user query by integrating relevant information from the code context, chat history, or both. Tailor your answer to the user's needs while maintaining a coherent and informative narrative.
+
+If the available information is inadequate, kindly acknowledge it and guide the user on seeking further information.
+Provide the complete code context at the end of your response as well.
+"""
+                        refined_response = completion_endpoint_plain(
+                                code_search_prompt, user['apikey'])
+
+                    elif no_Df==False and query_data["metadata_filter"]:
                         prompt=metadata_json_prompt+f"user query :'{user_prompt}"
-                        llm_json_response = completion_endpoint_plain(prompt)
+                        llm_json_response = completion_endpoint_plain(
+                            prompt, user['apikey'])
                         print(llm_json_response)
                         try:
                             instruction_data = json.loads(llm_json_response)
@@ -551,7 +649,8 @@ Assistant: {last_4_message_texts[3]}]
                                   filtered_df = filtered_df[filtered_df['code_identifier']==funcion_value]
                                   print("plo",filtered_df)
 
-                                context_result,similarity,file_ext=code_embedding_similarity_search(filtered_df,instruction)
+                                context_result, similarity, file_ext, top_n_similarities, top_n_sources_file_path, top_n_sources_start_line_no, top_n_sources_end_line_no = code_embedding_similarity_search(
+                                    filtered_df, instruction, user['apikey'], query_data["rerank"])
                                 code_context += f"Code Snippet for {instruction} : \n"+context_result+"\n"
                                 print("yuiop",instruction,code_context)
                             code_search_prompt+=f"""
@@ -572,7 +671,8 @@ Finally  do ouptut the following string based on if you utilized the code contex
 
 """
                                 # print(code_search_prompt)
-                            refined_response =completion_endpoint_plain(code_search_prompt)
+                            refined_response = completion_endpoint_plain(
+                                code_search_prompt, user['apikey'])
                             print("ijjij",refined_response)
                             lines = refined_response.split('\n')
                             last_line = lines[-1].strip()
@@ -591,7 +691,8 @@ Finally  do ouptut the following string based on if you utilized the code contex
                             
                     elif no_Df==False:
                         print("lainla",len(df),code_context,"nknkk",chat_history)
-                        context_result,similarity,file_ext = code_embedding_similarity_search(df,user_prompt)
+                        context_result, similarity, file_ext, top_n_similarities, top_n_sources_file_path, top_n_sources_start_line_no, top_n_sources_end_line_no = code_embedding_similarity_search(
+                            df, user_prompt, user['apikey'], query_data["rerank"])
                         code_context += f"Code Snippet for {user_prompt} : \n"+context_result+"\n"
                         print("pnofil ",user_prompt,code_context)
                         # print("yuiop",instruction,code_context)
@@ -612,7 +713,7 @@ Finally  do ouptut the following string based on if you utilized the code contex
 (code_context_utilized: "YES/NO")]
 
 """                     
-                        refined_response =completion_endpoint_plain(code_search_prompt)
+                        refined_response =completion_endpoint_plain(code_search_prompt, user['apikey'])
                         print("ijjij",refined_response)
                         lines = refined_response.split('\n')
                         last_line = lines[-1].strip()
@@ -626,7 +727,7 @@ Finally  do ouptut the following string based on if you utilized the code contex
                             refined_response= '\n'.join(lines)
                       
                     elif no_Df == True:
-                        print("khali")
+                        print("khali", user['apikey'])
                         code_search_prompt+=f"""
 You are an helpful AI Assistant please provide an elaborate answer to the user query to the best of your abilities
 User Query: {user_prompt}
@@ -634,36 +735,76 @@ User Query: {user_prompt}
                     # backend_response = """
 # In Java, the `TypeReference` class is used to capture the generic type information at runtime. It is commonly used when working with libraries or frameworks that require generic type information, such as JSON parsing libraries like Jackson or Gson.
 # """     
-                        refined_response = completion_endpoint_plain(code_search_prompt)
+                        refined_response = completion_endpoint_plain(
+                            code_search_prompt, user['apikey'])
                         # print(query_data["data"],refined_response)
                     # print(query_data["ch"])
                     logging.info(f"Received new message: ")
+                    print("dekjo1")
+
                     message = {}
 
                     message['action'] = 'chat'
                     message['message'] = 'valid link'
                     message['chatId'] = query_data["chatId"]
                     message['progressbar'] = True
+                    print("dekjo2")
                     # await websocket.send_json(message)
                     # await asyncio.sleep(8)
                     # logging.info(f"Received new message: {data} ")
                     # logging.info(f"Received new message w/o chtat print: {data} ")
                     # print(no_Df,"ccccccmj",code_search_prompt)
                     message['action'] = 'chat'
-                    message['message'] = refined_response
                     message['chatId'] = query_data["chatId"]
                     message['newvalue'] = "acha"
                     message['progressbar'] = False
+                    message['no_Df'] = no_Df
+                    print("dekjo3")
+
+                    if not (no_Df or query_data["regenerate"]):
+                        source_results = ""
+                        print("dekjo4")
+                        for index in range(len(top_n_similarities)):
+                            print("dekjo7")
+                            source_path = top_n_sources_file_path[index]
+                            source_path = source_path.replace('\\', '/')
+
+                            # Split the string based on "data/"
+                            parts = source_path.split('data/')
+
+                            # Get the substring after "data/"
+                            source_result = parts[1] if len(parts) > 1 else source_path
+
+                            print("sssoc",source_result)
+                            line_result_start = str(eval(top_n_sources_start_line_no[index])[0]+1)
+                            line_result_end = str(eval(top_n_sources_end_line_no[index])[0]+1)
+                            source_result_path = source_result
+                            source_file_path = source_result
+                            if "_github_" in source_result:
+                                source_result_path = convert_path(source_result)
+                                index_github = source_result.find("_github")
+                                index_slash = source_result.find("/", index_github)
+                                source_file_path =  source_result[:index_github] + source_result[index_slash:]
+                            source_results += f"Score:{str(top_n_similarities[index])[:6]} "+ source_result_path  +f"#L{line_result_start}-L{line_result_end}"+f" {source_file_path}#_#{line_result_start}-{line_result_end} \n"
+                            print("llllinenennenen", source_results)
+                        refined_response+="------------------------------------------------------------------------------------------\n"+source_results
                     response_timestamp =  int(time.time() * 1000)
                     message['response_timestamp']= response_timestamp
-                    print(response_timestamp)
+                    message['message'] = refined_response
+                    print(response_timestamp," kmk ",refined_response)
+                    if refined_response.startswith("##error##"):
+                        print("The string does not start with 'abc'")
+                        message['action'] = 'error'
                     # await asyncio.sleep(5)
                     end_time = time.time()
                     elapsed_time = end_time - start_time
                     print(f"Elapsed Time: {elapsed_time:.2f} seconds")
                     await websocket.send_json(message)       
-                    insert_message(query_data["query_timestamp"], query_data["chatId"], 'https://example.com/avatar.png', "User", user_prompt, query_data["query_timestamp"]) 
-                    insert_message(response_timestamp, query_data["chatId"], 'https://example.com/avatar.png', "AI Assistant", refined_response,response_timestamp)
+                    num_tokens_query = num_tokens_from_string(query_data["data"], "cl100k_base")
+                    num_tokens_response = num_tokens_from_string(refined_response, "cl100k_base")
+                    insert_message(query_data["query_timestamp"], query_data["chatId"], 'https://example.com/avatar.png', user["username"], user_prompt,num_tokens_query, query_data["query_timestamp"],user['username']) 
+                    insert_message(response_timestamp, query_data["chatId"], 'https://example.com/avatar.png',
+                                   "AI Assistant", refined_response, num_tokens_response, response_timestamp, user['username'])
                     
     except Exception:
         pass

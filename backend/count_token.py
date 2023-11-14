@@ -5,8 +5,8 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
     num_tokens = len(encoding.encode(string))
     return num_tokens
 
-
-print(num_tokens_from_string("""
+if __name__ == '__main__':
+   print(num_tokens_from_string("""
             
 You will get a user query regarding a codebase .The user query can contain multiple instructions.
 First you will split all the instruction and list them. Make sure that each instruction makes sense on its own. Do not add anythong which is not provided in the user query, but if suppose

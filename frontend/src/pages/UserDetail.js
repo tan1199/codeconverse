@@ -3,7 +3,6 @@ import { GoogleOAuthProvider,GoogleLogin  } from '@react-oauth/google';
 import jwt_decode from 'jwt-decode'
 import './UserDetail.css';
 function UserDetail({handleUserDetail,isAuthenticated}) {
-  console.log("sisisisi",isAuthenticated);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
@@ -11,7 +10,6 @@ function UserDetail({handleUserDetail,isAuthenticated}) {
     const [googleCID, setGoogleCID] = useState(false);
 
   const handleGoogleLogin = () => {
-     console.log("hmhmhm ")
     fetch("http://localhost:8000/googlecidtoken", {
       method: "GET",
       headers: {
@@ -20,7 +18,6 @@ function UserDetail({handleUserDetail,isAuthenticated}) {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("glgglgl ",data.googleCID)
               setGoogleCID(data.googleCID)
 
       })
@@ -50,7 +47,6 @@ function UserDetail({handleUserDetail,isAuthenticated}) {
     //   hideProgressBar: true, // Hide the progress bar
     // });
 
-console.log("lpjl");
 handleUserDetail(isSignup,username,password,email,null,null,googleCID);
   };
   return (
@@ -66,11 +62,13 @@ For security reasons, this page has expired.
         <img src={Loginimg} alt="User Avatar" />
       </div> */}
                 <div className="auth-container">
-<GoogleOAuthProvider clientId={googleCID}>
+<GoogleOAuthProvider  clientId={googleCID} >
     <GoogleLogin
+    // type = 'icon'
+    width="250"
+    text='continue_with'
   onSuccess={credentialResponse => {
     const userdetail=jwt_decode(credentialResponse.credential)
-    console.log(userdetail);
 handleUserDetail(false,userdetail["given_name"],userdetail["family_name"],userdetail["email"],userdetail["aud"],userdetail["iss"],googleCID);
 
   }}

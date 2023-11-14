@@ -15,14 +15,14 @@ function formatTimestamp(timestamp) {
 }
 
 
-const ChatItem = ({ chat, selectedChatId, handleChatItemClick, deletechat }) => {
+const ChatItem = ({ chat, selectedChatId, handleChatItemClick }) => {
   return (
     <div
       key={chat.chatId}
       className={`chat-item links_name ${selectedChatId === chat.chatId ? 'active' : ''}`}
       onClick={() => handleChatItemClick(chat.chatId)}
     >                                  
-    <BiIcons.BiSolidChat size={20} id='ioplk' /> {formatTimestamp(chat.chatId)}
+    <BiIcons.BiSolidChat size ='1.5vw' id='ioplk' /> {formatTimestamp(chat.chatId)}
     </div>
   );
 };

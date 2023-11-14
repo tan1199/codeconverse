@@ -10,7 +10,7 @@
   background-color: #0c051a;;
   align-items: center;
     width: 20%;
-
+/* border: 15px solid salmon; */
 }
 .chat {
           margin: 0;
@@ -24,12 +24,11 @@
 .toast-mess {
   background: rgb(255, 255, 255);
   color: #38084a;
-  font-size: 20px;
-  width: 34vw;
-  padding: 30px 20px;
+  width: 54vw;
+  /* padding: 30px 20px; */
   border: none;
   font-weight: 400;
-  font-size: 16px;
+  /* font-size: 1vw; */
   letter-spacing: 1px;
   font-family: 'Graffiti', cursive;
   margin-right: 20px;

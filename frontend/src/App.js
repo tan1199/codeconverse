@@ -17,11 +17,11 @@ const App = () => {
       const [isRerankToggleOn, setIsRerankToggleOn] = useState(false);
 
     const onFilterToggleChange = () => {
-      console.log(isFilterToggleOn);
+      // console.log(isFilterToggleOn);
       setIsFilterToggleOn(prevToggle => !prevToggle);
     };
         const onRerankToggleChange = () => {
-      console.log(isRerankToggleOn);
+      // console.log(isRerankToggleOn);
       setIsRerankToggleOn(prevToggle => !prevToggle);
     };
   // Update the route whenever chatid changes
@@ -58,7 +58,6 @@ const App = () => {
     return result;
   }
   const handleApiKeyChange = (apikey) => {
-    console.log("plkmmmmmmmmmmmmmmmmmmmnn");
     const action='api_key_update';
     const socket = processSocket;
     if (!socket) {
@@ -79,16 +78,7 @@ const App = () => {
         };
 
   const handlePromptChange = (prompt) => {
-    console.log("oiljgvdfljdfli")
-    console.log("promt",prompt);
     setPrompt(prompt);
-    // if (checkedValues.includes(value)) {
-    //   // If value is already checked, remove it from the checked values.
-    //   setCheckedValues(checkedValues.filter((item) => item !== value));
-    // } else {
-    //   // If value is not checked, add it to the checked values.
-    //   setCheckedValues([...checkedValues, value]);
-    // }
   };
 
   // Function to handle checkbox changes.
@@ -97,17 +87,14 @@ const handleCheckboxChange = (value) => {
   const socket = action === 'chat' ? chatSocket : processSocket;
   if (checkedValues.includes(value)) {
     // If value is already checked, remove it from the checked values.
-
    
     const activedf = JSON.stringify({ type: 'activate', active_df:checkedValues.filter((item) => item !== value)  });
-    console.log("hnhnhnj",activedf)
     socket.send(activedf);
     setCheckedValues(checkedValues.filter((item) => item !== value));
   } else {
     // If value is not checked, add it to the checked values.
     setCheckedValues([...checkedValues, value]);    
     const activedf = JSON.stringify({ type: 'activate', active_df:[...checkedValues, value] });
-    console.log("olhnhnj",activedf)
 
     socket.send(activedf);
   }
@@ -118,7 +105,6 @@ const handleCheckboxChange = (value) => {
     }
     const newUserSocket = new WebSocket(`ws://localhost:8000/ws/user?token=${token}`);
     newUserSocket.onopen = () => {
-      console.log("gbhjk",token);
       setUserSocket(newUserSocket);
     };
 
@@ -139,7 +125,7 @@ const handleCheckboxChange = (value) => {
     };
 
     initiatesocket.onmessage = (event) => {
-      console.log("Received message:", event.data);
+      
       const data = JSON.parse(event.data);
       if(data.authentication==false){
 setIsAuthenticated(false);
@@ -149,10 +135,8 @@ setIsAuthenticated(false);
       else{
                     setIsAuthenticated(true);
 
-              console.log("ertre message:",data.chat_data);
       setChats(data.chat_data)
       setValueList(data.saved_data_source)
-      console.log("ememem",data.email_id)
       setUserInfo({
     username: data.username,
     email: data.email_id,
@@ -165,7 +149,6 @@ setIsAuthenticated(false);
     // initiatesocket.onclose = () => {
     //   console.log("WebSocket connection closed");
     // };
-    console.log("lkmnj");
     // window.addEventListener("beforeunload", () => {
     //   // Send a message to the backend before the session ends
     //   if (initiatesocket.readyState === WebSocket.OPEN) {
@@ -206,7 +189,6 @@ setIsAuthenticated(false);
       // }
     };
   }, [token]);
-  // const [messages, setMessages] = useState([]);
   const selectedChatIdRef = useRef(null);
 
   const [selectedChatId, setSelectedChatId] = useState(null);
@@ -222,26 +204,26 @@ const handleAddChatWindow = () => {
     const maxIdChat = chats.find((chat) => chat.chatId.toString() === maxChatId.toString());
     if(maxIdChat['messages'].length===0){
       // console.log("nm,.",maxIdChat['messages'].length,isDelete,chats.length,chats[chats.length-1])
-        navigate(`/chats/${maxChatId}`);
+        navigate(`/chats/${maxChatId.toString()}`);
+          setSelectedChatId(maxChatId.toString()); 
+            selectedChatIdRef.current = maxChatId.toString();
       return;
     }
-    console.log("wsdfr",maxChatId,typeof maxIdChat['messages'],maxIdChat.length,maxIdChat['messages'])
+    // console.log("clog",maxChatId,typeof maxIdChat['messages'],maxIdChat.length,maxIdChat['messages'])
 
   }
 
   const newChatId = Date.now().toString();
   setChats((prevChats) => [...prevChats, { chatId: newChatId, messages: [] }]);
   setSelectedChatId(newChatId); // Set the selectedChatId immediately after adding the new chat
-  console.log("bbbbbbbbbbbb");
   selectedChatIdRef.current = newChatId;
   navigate(`/chats/${newChatId}`);
 
-  console.log("fgb",newChatId)
 };
   
   const handleAddDataSourceClick = (datasourcevalue, sourcetype) => {
     // Handle the logic for sending the textbox content (e.g., display or process it)
-    console.log('Sending:', datasourcevalue,sourcetype);
+    // console.log('Sending:', datasourcevalue,sourcetype);
     // Reset the textbox and hide it after sending
     // setdatasourcevalue('');
     // setShowTextbox(false);
@@ -263,9 +245,8 @@ const handleAddChatWindow = () => {
   };
   const deletedatasource = (datasource) => {
     // Handle the logic for sending the textbox content (e.g., display or process it)
-    console.log('deleting:', datasource);
+    // console.log('deleting:', datasource);
     const action='progress';
-    console.log(processSocket);
     const socket = action === 'chat' ? chatSocket : processSocket;
     if (!socket) {
       console.error('Socket is not available for this action.');
@@ -287,9 +268,8 @@ const handleAddChatWindow = () => {
   const handleFileUpload = (selectedFile) => {
     // Here, you can handle the upload logic, e.g. send the file to a server.
     if (selectedFile) {
-      console.log('Uploading file in APP:', selectedFile);
+      // console.log('Uploading file in APP:', selectedFile);
       const action='progress';
-      console.log(processSocket);
       const socket = action === 'chat' ? chatSocket : processSocket;
       if (!socket) {
         console.error('Socket is not available for this action.');
@@ -302,12 +282,10 @@ const handleAddChatWindow = () => {
         const reader = new FileReader();
         reader.onload = (event) => {
           const chunk = event.target.result;
-          console.log("chunk ",chunk);
           socket.send(chunk);
         };
         reader.readAsArrayBuffer(selectedFile);
 
-      console.log("ttttttttttttttttt")
     } else {
       console.log('No file selected.');
     }
@@ -315,8 +293,6 @@ const handleAddChatWindow = () => {
 
 
   const handleSendMessage = (message, chatId) => {
-    console.log("qqqqqqqqqqqqq")
-    console.log(chatId);
     const query_timestamp=Date.now()
     const newMessage = {
       id: query_timestamp,
@@ -342,15 +318,12 @@ const handleAddChatWindow = () => {
     // setChatMessage(`Sending ${action} action`);
     socket.send(JSON.stringify({ type: 'chat', action,chatId, data: message ,ch:chats,metadata_filter:isFilterToggleOn,rerank:isRerankToggleOn,query_timestamp:query_timestamp,source_location:"",regenerate:false,custom_prompt:prompt}));
     // setMessages([...messages, newMessage]);
-    console.log("rrrrr");
     setSelectedChatId(chatId);
 
 
   };
 
   const regenerateResponse = (message, chatId,source_location) => {
-    console.log("qqqqqqqqqqqqq")
-    console.log(chatId);
     const query_timestamp=Date.now()
     const newMessage = {
       id: query_timestamp,
@@ -376,7 +349,6 @@ const handleAddChatWindow = () => {
     // setChatMessage(`Sending ${action} action`);
     socket.send(JSON.stringify({ type: 'chat', action,chatId, data: message ,ch:chats,metadata_filter:isFilterToggleOn,rerank:isRerankToggleOn,query_timestamp:query_timestamp,source_location:source_location,regenerate:true,custom_prompt:prompt}));
     // setMessages([...messages, newMessage]);
-    console.log("rrrrr");
     setSelectedChatId(chatId);
 
 
@@ -384,36 +356,26 @@ const handleAddChatWindow = () => {
 
 
   const handlesetSelectedChatId = (newValue) => {
-    console.log("napa",newValue)
 
     setSelectedChatId(newValue);
   };
 
   const getChatMessages = (chatId) => {
-    console.log("ooooo");
-    console.log("na",chatId,":lk",chats)
-    console.log(typeof chats[0].chatId);  // Output: "function"
-    console.log(typeof chatId);  // Output: "function"
 
     const selectedChat = chats.find((chat) => chat.chatId === chatId);
-    console.log(selectedChat)
-    // console.log(messages)
     return selectedChat ? selectedChat.messages : [];
   };
   const deletechat = (ChatId) => {
-    console.log("deletechat",ChatId);
     const maxChatId = Math.max(...chats.map(chat => parseInt(chat.chatId, 10)), 0);
       const maxIdChat = chats.find((chat) => chat.chatId.toString() === maxChatId.toString());
      if((ChatId.toString() === maxChatId.toString())&&(maxIdChat['messages'].length===0)){
       return;
      }
     handleAddChatWindow();
-        console.log("nowathome",ChatId);
     setChats((prevChats) => {
       return prevChats.filter((chat) => chat.chatId !== ChatId);
     });
     const action='progress';
-    console.log(processSocket);
     const socket = action === 'chat' ? chatSocket : processSocket;
     if (!socket) {
       console.error('Socket is not available for this action.');
@@ -426,8 +388,6 @@ const handleAddChatWindow = () => {
     }
   
   const handleChatItemClick = (chatId) => {
-    console.log(chatId);
-    console.log("eeee")
 
     setSelectedChatId(chatId); // Update the selected chat ID when a chat is clicked
 
@@ -444,7 +404,6 @@ const handleAddChatWindow = () => {
   }
   
   const handleUserDetail = (isSignup,username,password,email_id,aud,iss,client_id) => {
-    console.log("userdetails",isSignup,username,password,email_id,aud,iss,client_id);
     var google_auth=false;
           if((aud==client_id)&&(['accounts.google.com', 'https://accounts.google.com'].includes(iss))){
 google_auth=true
@@ -464,9 +423,6 @@ username=email_id
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
-        console.log("oipoo")
-        console.log(data.token)
         if(data.access_token){
             setToken(data.access_token)
             setIsAuthenticated(true);
@@ -480,7 +436,6 @@ username=email_id
       email_id: email_id,
     }));
     }
-            console.log("jghn");
                 navigate(`/data`);
         }
         else{
@@ -503,7 +458,7 @@ username=email_id
       const data = JSON.parse(event.data);
       if (data.action === 'process') {
         setProcessMessage(data.message);
-        console.log("progress_message ",data.message);
+        // console.log("progress_message ",data.message);
         if ('data_source_name' in data){
           if(valueList.length===0){
             handleCheckboxChange(data.data_source_name)
@@ -516,9 +471,7 @@ username=email_id
 
     chatSocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(selectedChatId)
-      console.log("88888")
-      console.log(data.message)
+
       if (data.action === 'chat') {
         const new_message_from_backend = {
           id: data.response_timestamp,
@@ -540,16 +493,15 @@ username=email_id
 else{
   setprogressbar(false);
 }
-    console.log(chats);
+    // console.log(chats);
 
-    console.log("zxzxzx");
-    console.log(valueList);
-    console.log(checkedValues);
-    console.log("back",new_message_from_backend);
+    // console.log("zxzxzx");
+    // console.log(valueList);
+    // console.log(checkedValues);
+    // console.log("back",new_message_from_backend);
   }
 else{
-  console.log("edccccccccccccccc")
-      handletoastmessage(`${data.message.slice(9, 34)}`)
+      handletoastmessage(`Please Set a Valid API key`)
 }    };
 }, [processSocket, chatSocket,userSocket, selectedChatId,checkedValues,valueList]);
 

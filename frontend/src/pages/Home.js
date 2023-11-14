@@ -11,7 +11,7 @@ function Home({ values, processMessage, checkedValues, onCheckboxChange, handleA
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
     if (event.target.files[0]){
-      console.log('Uploading file:', event.target.files[0]);
+      // console.log('Uploading file:', event.target.files[0]);
       handleFileUpload(event.target.files[0])
       // setSelectedFile(null);
       // You can use fetch or any other library to upload the file to your server.
@@ -20,7 +20,7 @@ function Home({ values, processMessage, checkedValues, onCheckboxChange, handleA
     }
   };
 
-console.log("homey",progressbar);
+// console.log("homey",progressbar);
 const len=values.length;
 
   const [sourcetype, setSourcetype] = useState('');
@@ -33,7 +33,7 @@ const len=values.length;
 
   const handleSendClick = () => {
     // Handle the logic for sending the textbox content (e.g., display or process it)
-    console.log('Sending:', datasourcevalue);
+    // console.log('Sending:', datasourcevalue);
     // Reset the textbox and hide it after sending
     setdatasourcevalue('');
     setSourcetype('');
@@ -43,7 +43,7 @@ const len=values.length;
 
   const handleTextboxChange = (event) => {
     setdatasourcevalue(event.target.value);
-    console.log('Sendingqq:', datasourcevalue);
+    // console.log('current datasourcevalue is:', datasourcevalue);
 
   };
 
@@ -52,7 +52,7 @@ const len=values.length;
       e.preventDefault();
     }
     if (e.key === 'Enter' && datasourcevalue.trim() !== '') {
-      console.log(datasourcevalue,sourcetype)
+      // console.log(datasourcevalue,sourcetype)
       handleAddDataSourceClick(datasourcevalue,sourcetype);
       setSourcetype('');
       setdatasourcevalue('')
@@ -82,15 +82,15 @@ const len=values.length;
             onChange={() => onCheckboxChange(value)}
           />
           <label className="cbx" htmlFor={`cbx-${index}`}>
-            <span>
-              <svg width="12px" height="10px" viewBox="0 0 12 10">
-                <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+            <span className='cbb'>
+              <svg width="1vw" height="1vh" viewBox="0 0 12 10">
+                <polyline width="1vw" height="1vh" points="1.5 6 4.5 9 10.5 1"></polyline>
               </svg>
             </span>
-            <span>{value.length > 22 ? value.slice(0, 22) + '...' : value.substring(0, 22)}</span>
+            <div className='datasrc'>{value.length > 22 ? value.slice(0, 22) + '...' : value.substring(0, 22)}</div>
           </label>
         </div>
-        <div className='del' onClick={() => deletedatasource(value)}><MdIcons.MdOutlineDeleteOutline color='beige' size={25} /></div> 
+        <div className='del' onClick={() => deletedatasource(value)}><MdIcons.MdOutlineDeleteOutline color='beige'  size='2vw' /></div> 
 
         </div>
       ))}
@@ -145,10 +145,15 @@ const len=values.length;
       )}
       </div>
       {/* {progressbar && (<div className="lds-ripple"><div></div><div></div></div>)} */}
-      {processMessage!=='' && (<div className='container'>
+      {processMessage !=='' && (
+      <div className='container'>
         <div className='inner-div'>{processMessage}</div>
         {/* <div className='inner-div'>fgdg</div> */}
-        <div className='inner-div'><div className="lds-ripple"><div></div><div></div></div></div>
+        <div className='inner-div'>
+          <span className="loadinginfo"></span>
+
+        </div>
+        {/* <div className='inner-div'><div className="lds-ripple"><div></div><div></div></div></div> */}
       </div>)}
       {/* <div className="container">
   <div className="inner-div">Div 1</div>

@@ -1,73 +1,85 @@
-.products{
-    text-align: center;
-    padding: 40px;
-    background-color: #0c051a;
-    color:#c298d5;
-    min-height: 100vh;
-       position: relative;
-       display: flex;
-       flex-direction: column;
-         width: 82%;
-     float: right;
+.products {
+  text-align: center;
+  padding: 40px;
+  background-color: #0c051a;
+  color: #c298d5;
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 82%;
+  float: right;
 }
 
 
 .home-panel {
-    margin: 40px 20px 30px 80px;
-    padding: 40px 20px 30px 40px;
-    flex-grow: 1;
-    overflow-y: auto;
-    width: 1100px;
-    height: 150px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px #ffd2f2;
-    background-color: #0c051a;
-    display: flex;
-
+  margin: 40px 20px 30px 80px;
+  padding: 40px 20px 30px 40px;
+  flex-grow: 1;
+  overflow-y: auto;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #ffd2f2;
+  background-color: #0c051a;
+  display: flex;
 }
+
 .grid-containern {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Two columns */
-    grid-gap: 0px; /* Gap between grid items */
-    margin-top: -1%;
-    /* border: 10px solid palegreen; */
-    width: 1050PX;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  /* Two columns */
+  /* grid-gap: 0px; */
+  /* Gap between grid items */
+  margin-top: 0%;
+  /* border: 10px solid palegreen; */
+  width: 70vw;
 
-    height: 500PX;
-    margin-left: 6%;
-    
-  }
-  
-  .grid-itemn {
-    border: 1px solid #ccc;
-    padding: 10px;
-    /* width: 90%; */
-    box-shadow: 0 0 10px #ffd2f2;
-    box-shadow: 2px 2px 2px 2px rgba(170, 156, 210, 0.5);
-    box-shadow: 0 0 2px 2px rgba(195, 95, 242, 0.399);
-
-    border-radius: 10px;
-    height: 220px;
-    width: 470PX;
-    box-shadow: le;
-border: none
-  }
-  h1{
-    color: #dfd3d7
-    
-  }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Raleway', sans-serif; /* Or the font of your choice */
-    /* Additional styling properties like font-weight, text-transform, etc. */
-  }
-.para-content{
-    margin-top: 20px;
-    font-weight: 500;
-    font-size: 18px;
-        font-family: 'Montserrat', sans-serif; /* Or the font of your choice */
-        /* Additional styling properties like font-weight, text-transform, etc. */
+  height: 65vh;
+  margin-left: 5%;
+  /* border: 10px solid red; */
+margin-top: -5vh;
 }
- @import url('https://fonts.googleapis.com/css?family=Montserrat');
+
+.grid-itemn {
+  border: 1px solid #ccc;
+  padding: 10px;
+  /* width: 90%; */
+  box-shadow: 0 0 10px #ffd2f2;
+  box-shadow: 2px 2px 2px 2px rgba(170, 156, 210, 0.5);
+  box-shadow: 0 0 2px 2px rgba(156, 12, 222, 0.399);
+
+  border-radius: 10px;
+  height: 28vh;
+  width: 30vw;
+  /* font-size: 1.3vw; */
+}
+
+h1 {
+  color: #ad9ad6
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Raleway', sans-serif;
+  /* Or the font of your choice */
+  /* Additional styling properties like font-weight, text-transform, etc. */
+}
+
+.para-content {
+  margin-top: 20px;
+  font-weight: 500;
+  font-size: 1.2vw;
+  font-family: 'Montserrat', sans-serif;
+  /* Or the font of your choice */
+  /* Additional styling properties like font-weight, text-transform, etc. */
+}
+
+@import url('https://fonts.googleapis.com/css?family=Montserrat');
 
 .heading-conatiner {
   display: flex;
@@ -76,123 +88,166 @@ border: none
   border: 10px solid rgb(198, 134, 15);
 }
 
-.qwes {
-  display: block;
-  font: 7.5em 'Ubuntu';
-  width: 760px;
-  height: 200px;
-  /* margin: 0 auto; */
-  margin-top:-10%;
-  margin-left: 20%;
-    /* border: 10px solid wheat; */
+@import url('https://fonts.googleapis.com/css?family=Fira+Mono:400');
 
+.divhea {
+  display: flex;
+  width: 92vw;
+  height: 20vh;
+  /* align-items: center;
+  justify-content: center; */
+  margin: 0;
+  color: #c6bcf4;
+  font-size: 6vw;
+  font-family: 'Fira Mono', monospace;
+  letter-spacing: -0.2vw;
+  animation: glitch 1s linear infinite;
+  /* border: 10px solid red; */
+  margin-left: 15vw;
+  margin-top: -1vh;
 }
 
-.text-copy {
-  fill: none;
-  stroke: white;
-  stroke-dasharray: 6% 29%;
-  stroke-width: 5px;
-  stroke-dashoffset: 0%;
-  animation: stroke-offset 5.5s infinite linear;
+@keyframes glitch {
+
+  2%,
+  64% {
+    transform: translate(2px, 0) skew(0deg);
+  }
+
+  4%,
+  60% {
+    transform: translate(-2px, 0) skew(0deg);
+  }
+
+  62% {
+    transform: translate(0, 0) skew(5deg);
+  }
 }
 
-.text-copy:nth-child(1) {
-  stroke: #6a5698;
-  animation-delay: -1s;
+.divhea:before,
+.divhea:after {
+  content: attr(title);
+  position: absolute;
+  left: 0;
 }
 
-.text-copy:nth-child(2) {
-  stroke: #510084;
-  animation-delay: -2s;
+.divhea:before {
+  animation: glitchTop 1s linear infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
 }
 
-.text-copy:nth-child(3) {
-  stroke: #8469d8;
-  animation-delay: -3s;
+@keyframes glitchTop {
+
+  2%,
+  64% {
+    transform: translate(2px, -2px);
+  }
+
+  4%,
+  60% {
+    transform: translate(-2px, 2px);
+  }
+
+  62% {
+    transform: translate(13px, -1px) skew(-13deg);
+  }
 }
 
-.text-copy:nth-child(4) {
-  stroke: #7669af;
-  animation-delay: -4s;
+.divhea:after {
+  animation: glitchBotom 1.5s linear infinite;
+  clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
+  -webkit-clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
 }
 
-.text-copy:nth-child(5) {
-  stroke: #b98ce5;
-  animation-delay: -5s;
+@keyframes glitchBotom {
+
+  2%,
+  64% {
+    transform: translate(-2px, 0);
+  }
+
+  4%,
+  60% {
+    transform: translate(-2px, 0);
+  }
+
+  62% {
+    transform: translate(-22px, 5px) skew(21deg);
+  }
 }
 
-@keyframes stroke-offset {
-  100% {
-    stroke-dashoffset: -35%;
+
+.get-started {
+  width: 13vw;
+  height: 7vh;
+  background-color: #fff;
+  border: 2px solid #422800;
+  border-radius: 30px;
+  box-shadow: #422800 4px 4px 0 0;
+  color: #422800;
+  cursor: pointer;
+  display: inline-block;
+  font-weight: 600;
+  font-size: 18px;
+  padding: 10 18px;
+  line-height: 18px;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  margin-left: 42%;
+  border: none;
+  border-radius: 5px;
+  margin-top: 1%;
+
+  box-shadow: 0 0 10px #ffd2f2;
+    /* margin-top: -0.1%; */
+}
+
+.get-started:hover {
+  background-color: #fbeee0;
+}
+
+.get-started:active {
+  box-shadow: #422800 2px 2px 0 0;
+  transform: translate(2px, 2px);
+}
+
+.waviy {
+  position: relative;
+}
+
+.waviy span {
+  position: relative;
+  display: inline-block;
+  font-size: 1.5vw;
+  color: #04094c;
+  text-transform: uppercase;
+  animation: flip 2s infinite;
+  animation-delay: calc(.2s * var(--i))
+}
+
+@keyframes flip {
+
+  0%,
+  80% {
+    transform: rotateY(360deg)
   }
 }
 
 
 
-.get-started {
-    width:210px;
-    height:60px;
-    background-color: #fff;
-    border: 2px solid #422800;
-    border-radius: 30px;
-    box-shadow: #422800 4px 4px 0 0;
-    color: #422800;
-    cursor: pointer;
-    display: inline-block;
-    font-weight: 600;
-    font-size: 18px;
-    padding: 10 18px;
-    line-height: 18px;
-    text-align: center;
-    text-decoration: none;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
-       margin-left: 42%;
-        border: none;
-        border-radius: 5px;
-        margin-top: 2.2%;
-    
-        box-shadow: 0 0 10px #ffd2f2;
-      }
-    
-    .get-started:hover {
-    background-color: #fbeee0;
-    }
-    
-    .get-started:active {
-    box-shadow: #422800 2px 2px 0 0;
-    transform: translate(2px, 2px);
-    }
-    .waviy {
-        position: relative;
-      }
-      .waviy span {
-        position: relative;
-        display: inline-block;
-        font-size: 25px;
-        color: #04094c;
-        text-transform: uppercase;
-        animation: flip 2s infinite;
-        animation-delay: calc(.2s * var(--i))
-      }
-      @keyframes flip {
-        0%,80% {
-          transform: rotateY(360deg) 
-        }
-      }
+
+.spaced-span {
+  margin-right: 10px;
+  /* Adjust the value as needed */
+
+}
 
 
-
-
-      .spaced-span{
-        margin-right: 10px; /* Adjust the value as needed */
-
-      }
-
-
-      @import url("https://fonts.googleapis.com/css?family=Raleway:400");
+@import url("https://fonts.googleapis.com/css?family=Raleway:400");
 
 * {
   box-sizing: border-box;
@@ -218,7 +273,7 @@ border: none
 
 
 :root {
-  --d:3500ms;
+  --d: 3500ms;
   --angle: 90deg;
   --gradX: 100%;
   --gradY: 50%;
@@ -231,7 +286,7 @@ border: none
 } */
 
 .box {
-  font-size: 1vw;
+  font-size: 1.3vw;
   margin: max(1rem, 1.2vw);
   border: 0.25rem solid;
   padding: 1vw;
@@ -256,18 +311,22 @@ border: none
     --gradX: 100%;
     --gradY: 50%;
   }
+
   40% {
     --gradX: 100%;
     --gradY: 100%;
   }
+
   60% {
     --gradX: 50%;
     --gradY: 100%;
   }
+
   80% {
     --gradX: 0%;
     --gradY: 50%;
   }
+
   100% {
     --gradX: 50%;
     --gradY: 0%;

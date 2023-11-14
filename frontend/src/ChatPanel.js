@@ -5,6 +5,7 @@ import './ChatPanel.css';
 import { useLocation } from 'react-router-dom';
 
 function ChatPanel({handlesetSelectedChatId,selectedChatId,handleSendMessage,getChatMessages,regenerateResponse}) {
+  
   const location = (useLocation()).pathname;
       useEffect(() => {
         // Check if selectedChatId is null and pathname includes "/chats/"
@@ -29,7 +30,7 @@ regenerateResponse(selectedChatmeaages[index-1].message,selectedChatId,source_lo
     scrollToBottom()
   }, [lengthofchat]);
 
-  console.log("whooo", lengthofchat);
+  // console.log("lenofselectedchat", lengthofchat);
 // chatsize=1;
   return (
     <div>

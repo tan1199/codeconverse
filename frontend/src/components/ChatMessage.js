@@ -62,7 +62,7 @@ regenerateAnswer(chatindex,source_location)
         )
       );
     };
-    console.log("mkop",content);
+    // console.log("content",content);
     const lang = ['java','cpp','pyhthon','rust','json','sh' ,'javascript','go','kotlin','swift','php','csharp','ruby'];
     // const str = "```word\nThis is the first line.\nThis is the second line.\n``` Some other text ```another\nContent here.\n```";
     // const pattern = /```(\w+)\n([\s\S]*?)```/g;
@@ -199,9 +199,8 @@ if __name__ == '__main__':
          {sources && (
         <div>
            <br />
-          <p>-------------------------------------------------------------------------------------------------------</p>
             {/* <br /> */}
-          <p>Verified Sources:</p>
+          <p className='source-heading'>Verified Sources:</p>
           <div className='sources'>
             {sources.map((link, index) => (
    

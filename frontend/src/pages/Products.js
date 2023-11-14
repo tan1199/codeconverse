@@ -19,27 +19,13 @@ function Products({isAuthenticated}) {
     <div className='products' style={{ backgroundImage: `url(/888.jpg)`,backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat', }}>
   <div className='home-panels'>
-    <div className='he'>
-          <svg className='qwes' viewBox="0 0 960 300">
-        <symbol id="s-text">
-          <text textAnchor="middle" x="50%" y="80%">Code Converse</text>
-        </symbol>
-
-        <g className="g-ants">
-          <use xlinkHref="#s-text" className="text-copy"></use>
-          <use xlinkHref="#s-text" className="text-copy"></use>
-          <use xlinkHref="#s-text" className="text-copy"></use>
-          <use xlinkHref="#s-text" className="text-copy"></use>
-          <use xlinkHref="#s-text" className="text-copy"></use>
-        </g>
-      </svg>
-      </div>
+  <div className ='divhea' title="Code Converse">Code Converse</div>
 
       <div className="grid-containern">
         <div className="grid-itemn box">
     <h1>Code Discovery</h1>     
     <div className="para-content"> 
-    Natural language search surfaces internal libraries and existing patterns and returns accurate results in less time, making it a powerful alternative to slow keyword searches.</div> 
+    Natural language search surfaces internal existing patterns and returns accurate results in less time, making it a powerful alternative to slow keyword searches.</div> 
     </div>
     <div className="grid-itemn box">
     <h1>Human Explanation</h1>      

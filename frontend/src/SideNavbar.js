@@ -21,6 +21,9 @@ function SideNavbar({ chats, selectedChatId, handleChatItemClick, handleAddChatW
 userInfo= "Logout"
   }
   const handleLogout = () => {
+      if(!isAuthenticated){
+        return;
+  }
     localStorage.setItem('authToken', null);
     handletoastmessage('Logged Out')
      setTimeout(() => {
@@ -45,9 +48,10 @@ const abc=selectedChatId;
         <i className="bx bxl-c-plus-plus icon"></i>
 
         <div className="logo_name" onClick={() => navigatetohome()} >Code Converse</div>
-  <button id="btn" onClick={menuBtnChange}>
+  {/* <button id="btn" onClick={menuBtnChange}>
        <FaIcons.FaBars size={25}  onClick={menuBtnChange} />
-      </button>      </div>
+  </button>  */}
+      </div> 
       <ul className="nav-list">
 
       <button className="add-chat-window-button" onClick={handleAddChatWindow}>➕         New Chat</button>
@@ -62,17 +66,16 @@ const abc=selectedChatId;
                                      return (
                                       <div className='qsdfi' key={index}>
 
-                                      <li>
+                                      <li key={index}>
                                         <Link to={`/chats/${chat.chatId}`} >
                                       {/* <i className="bx bx-cog"><BiIcons.BiSolidChat /></i> */}
 
-          <span className="links_name">
+          <span>
   <ChatItem
     key={chat.chatId}
     chat={chat}
     selectedChatId={selectedChatId}
     handleChatItemClick={handleChatItemClick}
-    deletechat={deletechat}
   />
   {/* <div className='del'><MdIcons.MdDelete size={20} /></div> */}
   </span>
@@ -86,7 +89,7 @@ const abc=selectedChatId;
   />
     </span>
   </li>
-  <div className='desl' onClick={() => deletechat(chat.chatId)}><MdIcons.MdOutlineDeleteOutline color='white' size={20} /></div> 
+  <div className='desl' onClick={() => deletechat(chat.chatId)}><MdIcons.MdOutlineDeleteOutline color='white' size='2vw' /></div> 
   </div>
 
   );
@@ -104,12 +107,12 @@ const abc=selectedChatId;
         {SidebarData.map((item, index) => {
                                      return (
                               <li key={index}>
-                                    <Link to={item.path}>
+                                    <Link to={item.path} className='sideitems'>
 
 
 
-                                                <i className="bx bx-cog">{item.icon}</i>
-                                                <span className="links_name">{item.title}</span>
+                                                <div className='asb'>{item.icon}</div>
+                                                <span className="links_names" >{item.title}</span>
                                              </Link>
                                               <span className="tooltip">{item.title}</span>
                                             </li>
@@ -118,25 +121,24 @@ const abc=selectedChatId;
 ):(        <div>  {SidebarData.map((item, index) => {
                                      return (
                               <li key={index}>
-                                    <Link to="/" onClick={() => handletoastmessage('Please Login to access')} >
+                                    <Link to="/" onClick={() => handletoastmessage('Please Login to access')}  className='sideitems'>
 
 
 
-                                                <i className="bx bx-cog">{item.icon}</i>
-                                                <span className="links_name">{item.title}</span>
+                                                <div className='asb'>{item.icon}</div>
+                                                <span className="links_names">{item.title}</span>
                                              </Link>
                                               <span className="tooltip">{item.title}</span>
                                             </li>
                                      );
                                    })}
                                    </div>)}
-                        <li>
-                                    <Link to="/user"  onClick={() => handleLogout()}>
+                        <li key='1'>
+                                    <Link to="/user"  onClick={() => handleLogout()} className='sideitems'>
 
 
-
-                                                <i className="bx bx-cog"><IoIcons.IoMdPeople /></i>
-                                                <span className="links_name">{userInfo}</span>
+                                                  <div className='asb'><IoIcons.IoMdPeople  size='1.5vw' /></div>
+                                                <span className="links_names">{userInfo}</span>
                                              </Link>
                                               <span className="tooltip">{userInfo}</span>
                                             </li>

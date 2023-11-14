@@ -26,14 +26,11 @@ const chats1 = ['CP2OjIkU5f', '6arELI86qY', 'JSql2fp2UQ', '2n7lGWSUtW', 'U0s3FJ4
     const newChatId = chats1[chats.length];
     setChats((prevChats) => [...prevChats, { chatId: newChatId, messages: [] }]);
     setSelectedChatId(newChatId); // Automatically select the newly added chat window
-    console.log("bbbbbbbbbbbb");
   };
   const code = `
   import logging
   `
   const handleSendMessage = (message, chatId) => {
-    console.log("qqqqqqqqqqqqq")
-    console.log(chatId);
 
     const newMessage = {
       id: messages.length + 1,

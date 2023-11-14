@@ -47,6 +47,20 @@ app.add_middleware(
 no_Df=True
 # df = pd.DataFrame(columns=["code_chunk", "file_name", "file_path", "path_to_code_chunk","parent","prev_sibling","next_sibling","start_point","end_point","has_error","code_node_type","code_identifier","is_chunked","num_tokens","uuid_str"])
 
+
+def is_api_key_valid():
+    try:
+        response = openai.Completion.create(
+            engine="davinci",
+            prompt="This is a test.",
+            max_tokens=5
+        )
+    except:
+        return False
+    else:
+        return True
+    
+    
 async def simulate_processing_stage_1():
     # Simulate some processing for stage 1
     await asyncio.sleep(1)
@@ -58,7 +72,7 @@ SECRET_KEY = "your-secret-key354354gfbgc@354gfbkhjyiyuWREF#56TcdsERD7vxc"
 ALGORITHM = "HS256"
 
 # Define the access token expiration time (in minutes)
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 90
 
 # OAuth2 Bearer Token scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -93,7 +107,7 @@ def verify_token(token: str):
 # Function to verify user credentials and return user details
 def get_current_user(token: str = Depends(oauth2_scheme)):
     # Verify the token
-    print("ojo",token)
+    # print("token",token)
     username = verify_token(token)
     print("lala",username)
     if username is None:
@@ -133,7 +147,6 @@ def convert_path(input_path):
 
 @app.get("/googlecidtoken", response_model=dict)
 async def login_for_googlecid_token_token():
-    print("GLULGLGUGLGLU")
     return {"googleCID": os.getenv("GOOGLE_CID_KEY")}
     
 # Route to obtain an access token
@@ -147,7 +160,6 @@ async def login_for_access_token(form_data: dict):
     insert_status="user_registered"
     if isSignup == False:
         user = select_user(username)
-        print("HHJK",user)
         if user is None or user["password"] != password:
             if google_auth:
                 insert_status=insert_user(username,password, email_id, 'api_key', int(time.time() * 1000)) 
@@ -156,7 +168,6 @@ async def login_for_access_token(form_data: dict):
                 insert_status = "Invalid credentials"
     else:
         insert_status=insert_user(username,password, email_id, 'api_key', int(time.time() * 1000)) 
-        print("ellls",insert_status)
     # Generate an access token
     if insert_status=="user_registered":
         access_token = create_access_token(data={"sub": username})
@@ -173,14 +184,11 @@ async def protected_route(user: dict = Depends(get_current_user)):
 @app.websocket("/ws/user")
 async def userdetail_websocket(websocket: WebSocket):
     user = get_current_user(websocket.query_params.get("token"))
-    print("nanan",user)
     await websocket.accept()
-    print("rdytj")
     if not user:
             # Token has expired or is invalid, handle reauthentication
             # You can send a message to the client to trigger reauthentication
             # await websocket.send_text("Your token has expired. Please reauthenticate.")
-            print("loal")
             # Close the WebSocket connection
             await websocket.close()
 
@@ -194,16 +202,13 @@ async def initiate_websocket(websocket: WebSocket):
         # print(conversation_data)
 
         user = get_current_user(websocket.query_params.get("token"))
-        print("acdf",user)
         await websocket.accept()
-        print("rdytj")
         if not user:
             # Token has expired or is invalid, handle reauthentication
             # You can send a message to the client to trigger reauthentication
             # await websocket.send_text("Your token has expired. Please reauthenticate.")
             await websocket.send_text(json.dumps({"authentication":False}))
 
-            print("loal")
             # Close the WebSocket connection
             await websocket.close()
 
@@ -250,12 +255,10 @@ def delete_files_with_string(root_dir, target_string):
 async def status_websocket(websocket: WebSocket):
     user = get_current_user(websocket.query_params.get("token"))
     await websocket.accept()
-    print("rdytj")
     if not user:
             # Token has expired or is invalid, handle reauthentication
             # You can send a message to the client to trigger reauthentication
             # await websocket.send_text("Your token has expired. Please reauthenticate.")
-        print("loal")
             # Close the WebSocket connection
         await websocket.close()
 
@@ -270,7 +273,6 @@ async def status_websocket(websocket: WebSocket):
                 message = await websocket.receive_text()
                 message_data = json.loads(message)
                 filename = message_data.get('filename')
-                print("llll112211",filename)
                 if message_data['type'] == 'api_key_update':
                     update_status = update_api_key(
                         message_data.get('data'), user["username"])
@@ -283,25 +285,22 @@ async def status_websocket(websocket: WebSocket):
                     root_directory = f'{root}/repositories/{user["username"]}/{filename}.csv'
                     if os.path.exists(root_directory):
                         os.remove(root_directory)   
-                    print("olhg")
                     root_directory = f'{root}/repositories/{user["username"]}/data'
                     delete_files_with_string(root_directory, filename)
-                    print("rtyvj")
 
                 elif message_data['type'] == 'deletechatId':
                     print("del begin")
-                    print("ttyyp",type(filename))
                     deletechatId(filename, user['username'])
                     print("delte end")
                 elif message_data['type'] == 'filename':
+                    api_key_valid = is_api_key_valid()
+                    if not api_key_valid:
+                        pass
                     data = await websocket.receive_bytes()  # Receive binary data in chunks
                     await websocket.send_text(json.dumps({"action": "process", "message": f"Codebase Uploaded Successfully"}))
                     if data:
-                        # print("ertre")
                         file_path = f'repositories/{user["username"]}/data/{filename}'
-                        # print("wwwwww")
                         if os.path.exists(file_path) or os.path.exists(file_path.split('.')[0]):
-                            # print("qqqqqqqqqqq")
                             await asyncio.sleep(2)
                             await websocket.send_text(json.dumps({"action": "process", "message":"Codebase Already Exists"}))
                             await asyncio.sleep(2)
@@ -309,7 +308,6 @@ async def status_websocket(websocket: WebSocket):
                             continue
                         # Process the received binary data as a chunk of a larger file
                         with open(file_path, "ab") as f:
-                            # print("opop")
                             f.write(data)
                         await asyncio.sleep(2)
                         await websocket.send_text(json.dumps({"action": "process", "message":f"Codebase Processed Successfully"}))
@@ -341,21 +339,19 @@ async def status_websocket(websocket: WebSocket):
                     await asyncio.sleep(1)
                     await websocket.send_text(json.dumps({"action": "process", "message": "Identifying Source Code Language"}))
                                
-                    print("ccococococococo")
                     source_code = message_data['source_string']
                     print(detect_language_prompt, source_code)
                     language_identifier_prompt = detect_language_prompt + "\n"+source_code + \
                         "\n NOTE - remember just output the file extension and nothing else"
                     source_code_language = completion_endpoint_plain(
                         language_identifier_prompt, user['apikey'])
-                    print("lala", source_code_language)
+                    print("lang", source_code_language)
                     root = Path(__file__).parent
                     directory_path = f'{root}/repositories/{user["username"]}/data'
                     if not os.path.exists(directory_path):
                         os.makedirs(directory_path)
                     source_code_files = [file for file in os.listdir(directory_path) if file.startswith('sourceCode') and os.path.isfile(os.path.join(directory_path, file))]
                     num_source_code_files = str(len(source_code_files)+1)
-                    print(num_source_code_files)
                     await asyncio.sleep(2)
                     extension="NA"
                     if ".js" in source_code_language:
@@ -370,9 +366,9 @@ async def status_websocket(websocket: WebSocket):
                         extension = ".py"
                     else:
                         await websocket.send_text(json.dumps({"action": "process", "message": f"Source  cannot be parsed"}))
-
+                        await asyncio.sleep(2)
+                        await websocket.send_text(json.dumps({"action": "process", "message": ""}))  
                     if extension !="NA":
-                        print(f"Contains {extension}")
                         with open(f'{directory_path}/sourceCode-{num_source_code_files}{extension}', 'w') as file:
                             file.write(source_code)
                              
@@ -396,22 +392,17 @@ async def status_websocket(websocket: WebSocket):
             
                             # Search for the pattern in the input URL                
                         match = re.search(pattern, source_url)
-                        print(match)
                         if match:
                             # Extract the username and repo name from the matched groups
                             user_name = match.group(1)
                             repo_name = match.group(2)
                             if user_name and repo_name:
-                                print("Username:", user_name)
-                                print("Repository:", repo_name)
-                                print(source_url)
                                 await asyncio.sleep(1)
-                                await websocket.send_text(json.dumps({"action": "process", "message": "Repository Metadata extracted Successfully"}))
+                                await websocket.send_text(json.dumps({"action": "process", "message": "Repository Metadata Extracted "}))
                                 print("wwwwww")
                                 root = Path(__file__).parent
                                 file_path1 = f'{root}/repositories/{user["username"]}/{user_name}_{repo_name}.csv'
                                 if os.path.exists(file_path1):
-                                    print("qqqqqqqqqqq")
                                     await asyncio.sleep(2)
                                     await websocket.send_text(json.dumps({"action": "process", "message":f"{user_name}_{repo_name} Exists"}))
                                     await asyncio.sleep(4)
@@ -425,10 +416,8 @@ async def status_websocket(websocket: WebSocket):
 
                                     await asyncio.sleep(2)
                                     await websocket.send_text(json.dumps({"action": "process", "message": f"Parsing Codebase"}))
-                                    print("nnnnnic")
                                     ast_status = create_repo_ast(
                                         f"{user_name}_{repo_name}", user['username'],default_branch)
-                                    print("nnnnnic")
                                     await asyncio.sleep(2)
                                     await websocket.send_text(json.dumps({"action": "process", "message": f"Codebase Parsed Successfully"}))
                                     await asyncio.sleep(2)
@@ -465,12 +454,10 @@ async def chat_socket(websocket: WebSocket):
     user = get_current_user(websocket.query_params.get("token"))
     print("nananpl",user)
     await websocket.accept()
-    print("rdytj")
     if not user:
             # Token has expired or is invalid, handle reauthentication
             # You can send a message to the client to trigger reauthentication
             # await websocket.send_text("Your token has expired. Please reauthenticate.")
-        print("loal")
             # Close the WebSocket connection
         await websocket.close()
         return
@@ -480,32 +467,19 @@ async def chat_socket(websocket: WebSocket):
             if data:
                   query_data = json.loads(data)
                   if query_data["type"]=="activate":
-                      print(query_data["active_df"])
                       root = Path(__file__).parent
                       if len(query_data["active_df"])!=0:
                         no_Df=False
                         data_frame=query_data["active_df"][0]
-                        print("asouter")
-                        print(
-                            f"{root}/repositories/{user['username']}/{data_frame}.csv")
                         df = pd.read_csv(
                             f"{root}/repositories/{user['username']}/{data_frame.split('.')[0]}.csv")
-                        print("outer")
                         for i in range(1, len(query_data["active_df"])):
-                            print("Inner")
                             data_frame = query_data["active_df"][i]
-                            print("olko",data_frame)
-                            print(f"{root}/repositories/{user['username']}/{data_frame.split('.')[0]}.csv")
                             df1=pd.read_csv(f"{root}/repositories/{user['username']}/{data_frame.split('.')[0]}.csv")
                             df = pd.concat([df, df1], ignore_index=True)
-                            print(df)
-                            print("nowu")
-                            print(df1)
                         if not os.path.exists(f"{root}/repositories/{user['username']}/final"):
-                            print("hhjplkiop")
                             os.makedirs(
                                 f"{root}/repositories/{user['username']}/final")
-                        print("lmklop")
                         df.to_csv(
                             f"{root}/repositories/{user['username']}/final/current_data.csv", index=False)
                       else :
@@ -539,26 +513,21 @@ User: {last_4_message_texts[2]}]
 Assistant: {last_4_message_texts[3]}]    
 
         """        
-                    print(chat_history, no_Df, query_data["custom_prompt"])
+                    print(no_Df, query_data["custom_prompt"])
                     code_context=""
                     code_search_prompt=chat_history+query_data["custom_prompt"]
                     file_name_value=class_value=funcion_value="NA"
 
                     if query_data["regenerate"]:
-                        print("ab regegegeg", query_data["source_location"])
                         root = Path(__file__).parent
                         regenerate_source = []
                         source_location = query_data["source_location"].split('#_#')[0]
                         start_line = int(query_data["source_location"].split('#_#')[1].split('-')[0])
                         end_line = int(query_data["source_location"].split('#_#')[1].split('-')[1])                  
-                        print(
-                            f'{root}/repositories/{user["username"]}/data/{source_location}', start_line, end_line, source_location)
                         with open(f'{root}/repositories/{user["username"]}/data/{source_location}', 'r') as file:
-                            print("klmnx")
                             for line_number, line in enumerate(file, start=1):
                                 if start_line <= line_number <= end_line:
                                     regenerate_source.append(line.rstrip())
-                        print("jnmmmnnm",regenerate_source)
                         code_search_prompt=f"""
 {regenerate_source}
 
@@ -567,7 +536,6 @@ User Query: {query_data["data"]}
 Craft a comprehensive and insightful answer that addresses the user query by integrating relevant information from the code context, chat history, or both. Tailor your answer to the user's needs while maintaining a coherent and informative narrative.
 
 If the available information is inadequate, kindly acknowledge it and guide the user on seeking further information.
-Provide the complete code context at the end of your response as well.
 """
                         refined_response = completion_endpoint_plain(
                                 code_search_prompt, user['apikey'])
@@ -589,8 +557,7 @@ Provide the complete code context at the end of your response as well.
                                 target_function_value = instruction_obj['metadata']['function_name']
                                 target_class_value = instruction_obj['metadata']['class_name']
                                 target_file_value = instruction_obj['metadata']['file_name']
-                                print("dss",target_file_value)
-                                print("After JSON parsing (if successful)")
+                                print("After JSON parsing")
                                 file_name_value=class_value=funcion_value="NA"
                                 filtered_df=df
                                 if target_file_value !="NA":
@@ -627,7 +594,6 @@ Provide the complete code context at the end of your response as well.
                                         print("hgbj",funcion_value_row)
                                         funcion_value = funcion_value_row['code_identifier'].values[0]
                                 print(file_name_value,class_value,funcion_value)
-                                print("SDFS")
                                 if file_name_value!="NA":
                                     filtered_df = filtered_df[filtered_df['file_name']==file_name_value]
                                     print("iop",filtered_df)
@@ -670,16 +636,12 @@ Finally  do ouptut the following string based on if you utilized the code contex
 (code_context_utilized: "YES/NO")]
 
 """
-                                # print(code_search_prompt)
                             refined_response = completion_endpoint_plain(
                                 code_search_prompt, user['apikey'])
-                            print("ijjij",refined_response)
                             lines = refined_response.split('\n')
                             last_line = lines[-1].strip()
-                            print("nmnmnm",last_line,file_ext)
                             if ("YES" in last_line and similarity>0.741) or ( ( file_name_value!="NA" ) or ( class_value !="NA" ) or ( funcion_value!= "NA" ) ):
                                 lines[-1] = f"{code_context}"     
-                                print(" 88888888888888888 ",lines[-1]) 
                                 refined_response= '\n'.join(lines)
                             else:
                                 lines.pop()  
@@ -694,8 +656,6 @@ Finally  do ouptut the following string based on if you utilized the code contex
                         context_result, similarity, file_ext, top_n_similarities, top_n_sources_file_path, top_n_sources_start_line_no, top_n_sources_end_line_no = code_embedding_similarity_search(
                             df, user_prompt, user['apikey'], query_data["rerank"])
                         code_context += f"Code Snippet for {user_prompt} : \n"+context_result+"\n"
-                        print("pnofil ",user_prompt,code_context)
-                        # print("yuiop",instruction,code_context)
                         code_search_prompt+=f"""
 {code_context}
 
@@ -714,20 +674,17 @@ Finally  do ouptut the following string based on if you utilized the code contex
 
 """                     
                         refined_response =completion_endpoint_plain(code_search_prompt, user['apikey'])
-                        print("ijjij",refined_response)
                         lines = refined_response.split('\n')
                         last_line = lines[-1].strip()
-                        print("nmnmnm",last_line,file_ext)
                         if ("YES" in last_line and similarity>0.741) or ( ( file_name_value!="NA" ) or ( class_value !="NA" ) or ( funcion_value!= "NA" ) ):
                             lines[-1] = f"{code_context}"     
-                            print(" 88888888888888888 ",lines[-1]) 
                             refined_response= '\n'.join(lines)
                         else:
                             lines.pop()  
                             refined_response= '\n'.join(lines)
                       
                     elif no_Df == True:
-                        print("khali", user['apikey'])
+                        print("vanillause")
                         code_search_prompt+=f"""
 You are an helpful AI Assistant please provide an elaborate answer to the user query to the best of your abilities
 User Query: {user_prompt}
@@ -737,10 +694,8 @@ User Query: {user_prompt}
 # """     
                         refined_response = completion_endpoint_plain(
                             code_search_prompt, user['apikey'])
-                        # print(query_data["data"],refined_response)
-                    # print(query_data["ch"])
+
                     logging.info(f"Received new message: ")
-                    print("dekjo1")
 
                     message = {}
 
@@ -748,24 +703,19 @@ User Query: {user_prompt}
                     message['message'] = 'valid link'
                     message['chatId'] = query_data["chatId"]
                     message['progressbar'] = True
-                    print("dekjo2")
                     # await websocket.send_json(message)
                     # await asyncio.sleep(8)
                     # logging.info(f"Received new message: {data} ")
                     # logging.info(f"Received new message w/o chtat print: {data} ")
-                    # print(no_Df,"ccccccmj",code_search_prompt)
                     message['action'] = 'chat'
                     message['chatId'] = query_data["chatId"]
                     message['newvalue'] = "acha"
                     message['progressbar'] = False
                     message['no_Df'] = no_Df
-                    print("dekjo3")
 
                     if not (no_Df or query_data["regenerate"]):
                         source_results = ""
-                        print("dekjo4")
                         for index in range(len(top_n_similarities)):
-                            print("dekjo7")
                             source_path = top_n_sources_file_path[index]
                             source_path = source_path.replace('\\', '/')
 
@@ -774,8 +724,6 @@ User Query: {user_prompt}
 
                             # Get the substring after "data/"
                             source_result = parts[1] if len(parts) > 1 else source_path
-
-                            print("sssoc",source_result)
                             line_result_start = str(eval(top_n_sources_start_line_no[index])[0]+1)
                             line_result_end = str(eval(top_n_sources_end_line_no[index])[0]+1)
                             source_result_path = source_result
@@ -786,16 +734,16 @@ User Query: {user_prompt}
                                 index_slash = source_result.find("/", index_github)
                                 source_file_path =  source_result[:index_github] + source_result[index_slash:]
                             source_results += f"Score:{str(top_n_similarities[index])[:6]} "+ source_result_path  +f"#L{line_result_start}-L{line_result_end}"+f" {source_file_path}#_#{line_result_start}-{line_result_end} \n"
-                            print("llllinenennenen", source_results)
                         refined_response+="------------------------------------------------------------------------------------------\n"+source_results
                     response_timestamp =  int(time.time() * 1000)
                     message['response_timestamp']= response_timestamp
-                    message['message'] = refined_response
+
                     print(response_timestamp," kmk ",refined_response)
                     if refined_response.startswith("##error##"):
-                        print("The string does not start with 'abc'")
+                        refined_response='Please Retry'
                         message['action'] = 'error'
                     # await asyncio.sleep(5)
+                    message['message'] = refined_response
                     end_time = time.time()
                     elapsed_time = end_time - start_time
                     print(f"Elapsed Time: {elapsed_time:.2f} seconds")

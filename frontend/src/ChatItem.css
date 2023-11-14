@@ -2,25 +2,32 @@
 
 .chat-item {
     width: 160px;
-    padding:8px;
+    padding:0.4vw;
     margin: 8px;
     font-size: 12px;
     cursor: pointer;
     color: rgb(255, 255, 255); /* Default font color is white */
     transition: background-color 0.2s ease-in-out;
     border-radius: 10px;
-    background-color: rgba(189, 171, 217, 0.2); /* Example background color for active chat item */
+    background-color: rgba(129, 106, 193, 0.2); /* Example background color for active chat item */
     flex-grow: 1;
     overflow-y: auto;
     box-shadow: 0 0 5px #0b1d5e;
   }
   
   .chat-item.active {
-    border-radius: 10px;
-    box-shadow: 0 0 5px #6406ef;
+    border-radius: 1vh;
+    box-shadow: 0 0 1vh #c3a6f0;
     color: rgb(175, 153, 210); /* Active chat item font color is pink */
-    background-color: rgba(255, 255, 255, 0.2); /* Example background color for active chat item */
+    background-color: #160e23;
   }
 
+    .chat-item:hover{
+      background: rgb(250, 255, 255);
+    }
 
 
+#ioplk{
+  /* border: 2px solid rgb(139, 0, 12); */
+  /* margin-top: 11vh; */
+}

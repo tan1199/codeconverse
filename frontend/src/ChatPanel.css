@@ -1,26 +1,26 @@
 .chat-panel {
     background-color: #0c051a;
- min-height: 100vh;
+    height: 100vh;
     position: relative;
     display: flex;
     flex-direction: column;
       width: 82%;
   float: right;
+  /* border: 10px solid red; */
 }
 .syntax-high{
   background-color: #0c1a05;
   margin-left: 100px;
 white-space: pre-wrap;
 display: block;
-width: 900px; 
+  width: 100%;
 overflow-wrap: break-word; /* Ensure content wraps to the next line */
 white-space: pre-wrap; /* Preserve whitespace formatting */
-font-size: 14px; /* Set font size as needed */
 line-height: 1.5;
 /* flex-grow: 1; */
 overflow-x: auto;
 box-shadow: 0 0 5px #2b0620;
-
+font-size: 1vw;
 }
 
 
@@ -31,16 +31,19 @@ box-shadow: 0 0 5px #2b0620;
         /* height:5vh; */
        margin-left:49%;
         overflow-x:hidden;
-        padding-top:4vh;
+        padding-top:3vh;
         /* position:absolute; */
         text-align:center;
-        margin-top:3.5%;
+        margin-top:5%;
         transform:translate(-50%,-50%);
-        border-radius: 20px;
+        border-radius: 2vw;
         border:1px solid rgb(21, 10, 41);
         /* padding-bottom: 25px; */
-        height: 70px;
+        height: 10vh;
         width:103%;
+        /* border: 8px solid red; */
+                  font-size: 1.5vw;
+                  /* padding-bottom: 20vh; */
         &:before {
           animation:left-to-right 3s alternate infinite linear;
           background-image:linear-gradient(to right, transparent, rgb(26, 14, 49), transparent);
@@ -52,7 +55,7 @@ box-shadow: 0 0 5px #2b0620;
           position:absolute;
           right:0;
           top:0;
-          max-height: 100px;
+          max-height: 10vh;
         }
         &:after {
  
@@ -74,18 +77,27 @@ box-shadow: 0 0 5px #2b0620;
           transform:translateX(100%);
         }
       }
+
 .chat-messages {
     margin: 40px 20px 30px 80px;
     padding: 40px 20px 30px 40px;
     flex-grow: 1;
     overflow-y: auto;
-    width: 1100px;
-    height: 100px;
+    width: 90%;
+    /* height: 75vh;*/
+    /* max-height: 75vh;  */
+    /* max-height:75vh; */
+    /* min-height: 40vh; */
     border-radius: 10px;
     box-shadow: 0 0 8px #b571da;
     background-color: #0c051a;
     flex-direction: column-reverse;
-
+    margin-left: 5%;
+    margin-bottom:0.5%;
+    padding-left: 3%;
+    margin-top: 4%;
+overflow: auto;
+max-height: 75vh;
 }
 .anchor-content{
   background-color: rgb(120, 82, 225);
@@ -97,8 +109,7 @@ box-shadow: 0 0 5px #2b0620;
     /* Ensure content wraps to the next line */
     white-space: pre-wrap;
     /* Preserve whitespace formatting */
-    font-size: 14px;
-    /* Set font size as needed */
+    font-size: 1.2vw;
 }
 .sources{
   display: flex;
@@ -106,12 +117,13 @@ box-shadow: 0 0 5px #2b0620;
    flex-wrap: wrap;
   padding: 1%;
   /* margin-left: -5%; */
-
+/* border: 3px solid green; */
         max-width: 65vw;
+        /* height: 30vh; */
 }
 .source-text{
-  font-size: 10px;
-  height: 7vh;
+    font-size: 0.8vw;
+      height: 8vh;
   /* min-height:10%; */
     overflow: hidden;
     
@@ -125,13 +137,22 @@ box-shadow: 0 0 5px #2b0620;
     /* border: 2px solid red; */
     width: 17.5%;
     overflow-wrap: break-word;
+    /* height: 10vh; */
 
+}
+.source-heading{
+  background-color: rgb(38, 12, 86);
+  padding: 0.5%;
+  width: 11vw;
+    border-radius: 0.625em;
+        font-size: 1vw;
+        padding: 1vw;
 }
 .tooltip-button {
   display: block;
-  margin-left: 1vw;
+  margin-left: 0.8vw;
   margin-top: 5%;
-  width: 5vw;
+  width: 6vw;
   height: 4vh;
   background-color: rgb(201, 162, 223);
   font-size: 10px;
@@ -140,6 +161,7 @@ box-shadow: 0 0 5px #2b0620;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 0.8vw;
 }
 .chat-message {
   display: flex;
@@ -149,6 +171,8 @@ box-shadow: 0 0 5px #2b0620;
   margin-left: -2.4%;
  border: none;
 padding: 5px;
+max-height: max-content;
+position: sticky;
   }
 .chat-message:nth-child(odd) {
   background-color: #0c051a;; /* Background color for odd-numbered messages */
@@ -170,27 +194,27 @@ background-color: #1b1330; /* Background color for even-numbered messages */
 
 .input-container {
     /* background-color: #0c051a; */
-    padding: 40px;
+    padding: 0.5%;
     position: sticky;
     bottom: 0;
     width: 100%;
     display: flex;
     align-items: center;
     flex-wrap: wrap; /* Allow flex items to wrap to the next line */
-    max-width: 1700px;
+    max-width: 80vw;
+    height: 15vh;
+    /* border: 5px solid green; */
+    margin-bottom: -25%;
+    margin-left: 2vw;
 }
 
 .input-box {
 margin-left: 70px;
 margin-right: 40px;
-  width: 75%;
-  height: 70px; /* Increase the height as desired */
-  max-height: 70px;
-  padding: 5px;
-  /* border: 2px solid #ccc; */
+   width: 75%;
+  /* max-height: 70px; */
   border-radius: 5px;
   box-sizing: border-box;
-  padding: 12px 20px;
   box-shadow: 0 0 5px #b571da;
   overflow: auto;
   background-color: #0c051a;
@@ -198,20 +222,23 @@ margin-right: 40px;
   margin-left: 10.5%;
   border: none;
   font-weight: 400;
-font-size: 18px;
-letter-spacing:1px;
+        font-size: 1.2vw;
+  letter-spacing:0.15vw;
 font-family: monospace;
-padding-top: 1.5%;
+  padding-top: 0.5vw;
+    padding-bottom: 0.1vw;
+    padding-left: 0.5vw;
+    padding-right: 0.1vw;/* margin-top: -5vh; */
+/* border: 10px solid darkcyan; */
 }
 .input-box:focus {
 outline:none;
 box-shadow: 0 0 8px #c88ce9;
 }
 .send-button-chat {
-width:45px;
-height:45x;
+width:3vw;
+height:5vh;
 background-color: #1c072e;
-border-radius: 30px;
 cursor: pointer;
 display: inline-block;
 font-weight: 600;
@@ -227,14 +254,14 @@ transition: transform 0.2s, box-shadow 0.2s;
 touch-action: manipulation;
    margin-left: -8%;
     border: none;
-    border-radius: 5px;
-    margin-top: 2px;
+border-radius: 1vw;
+    /* margin-top: 1vh; */
     /* box-shadow: 0 0 10px #ffd2f2; */
   }
 
   .send-button-chat:hover {
 background-color: #9963d7;
-transform: translateY(1px);
+transform: translateY(0.0vh);
 padding-top: 4px;
 box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.3);
 
@@ -247,8 +274,8 @@ margin-bottom: 20px;
 
 
 .avatar img {
-width: 40px;
-height: 40px;
+width:3.8vw;
+height:6vh;
 border-radius: 50%;
 }
 
@@ -258,9 +285,7 @@ white-space: pre-wrap; /* This property preserves newlines and wraps the text */
 
   font-family: 'Abril Fatface', cursive;
   color: #ecd9f6;
-  font-size: 16px;
-  /* font-family: Arial, sans-serif; */
-  font-size: 16px;
+  font-size: 1.1vw;
   line-height: 1.6;
 }
 
@@ -338,11 +363,11 @@ border-radius: 10px;
   color: #d6d2e0; /* Color for the enclosed text */
   background-color: #6f46cf;
   padding: 1px;
-  border-radius: 5px;
-  margin-bottom: 1px;
-  padding-left: 8px;
-
-  padding-right: 1px;
+  border-radius: 1vw;
+  padding-top: 0.1vw;
+  padding-bottom: 0.1vw;
+  padding-left: 0.5vw;
+  padding-right: 0.1vw;
   margin-right: 0%;
   /* margin-bottom: -20px; */
 /* box-shadow: 0 0 5px #cf99bf; */
@@ -351,19 +376,20 @@ font-family: monospace;
 white-space: nowrap; /* Prevent line breaks */
 
 font-weight: 500;
-font-size: 16px;
-/* width:max-content; */
+        font-size: 1.2vw;
+        /* width:max-content; */
 /* height: min-content; */
-margin-right: 4px; /* Adjust the margin as needed */
+margin-right: 0.4vw; /* Adjust the margin as needed */
 }
 
 .parapanel{
-  font-size: 24px;
+  font-size: 1.5vw;
   color: rgb(250, 253, 234) ;
-  margin-top: 40px;
+  margin-top: 9vh;
 }
 .headingpanel{
-  font-size: 30px;
+  font-size: 2vw;
   color: rgb(221, 188, 249) ;
+  margin-top: 2%;
   margin-bottom: 4%;
 }

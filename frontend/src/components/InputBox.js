@@ -22,14 +22,16 @@ const InputBox = ({ onSendMessage }) => {
     <div className="input-container">
             <textarea
         type="text"
-        placeholder="Type your message..."
+        placeholder="Send a message..."
         value={message}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         className="input-box"
         autoFocus
         rows={1} // Start with a single row
-        style={{ height: `${(message.split('\n').length + 1) * 30}px` }}
+        style={{ height: `${(message.split('\n').length + 1) * 4}vh`, 
+          padding: `${(message.split('\n').length + 1) }vh` 
+      }}
     
       />
       <button onClick={() => {onSendMessage(message);

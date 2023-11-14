@@ -67,7 +67,7 @@ const handleApiKeyDown = (e) => {
 </div>
                    <div className="profilecontainer">
       <div className="labelprofile">Usage:</div>
-           <div className="labelprofile">Api Key:</div>
+           <div className="labelprofile"> Api Key:</div>
            </div>
                               <div className="profilecontainer">
       <input type="text" className="inputprofile" value={userInfo.usage + ' tokens consumed'} readOnly /> 

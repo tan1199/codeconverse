@@ -14,6 +14,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from datetime import datetime, timedelta
 from pydantic import BaseModel
 import os, re,shutil
+import stat
 import zipfile
 import pandas as pd
 from pathlib import Path
@@ -60,7 +61,12 @@ def is_api_key_valid():
     else:
         return True
     
-    
+
+def make_writable(func, path, excinfo):
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
+
 async def simulate_processing_stage_1():
     # Simulate some processing for stage 1
     await asyncio.sleep(1)
@@ -246,7 +252,7 @@ def delete_files_with_string(root_dir, target_string):
             print(f"Deleted file: {item_path}")
         elif os.path.isdir(item_path) and target_string in item:
             try:
-                shutil.rmtree(item_path)
+                shutil.rmtree(item_path, onerror=make_writable)
                 print(f"Deleted directory and its contents: {item_path}")
             except Exception as e:
                  print(f"Error while deleting directory: {e}")
@@ -254,6 +260,8 @@ def delete_files_with_string(root_dir, target_string):
 @app.websocket("/ws/process")
 async def status_websocket(websocket: WebSocket):
     user = get_current_user(websocket.query_params.get("token"))
+    openai.api_key = user['apikey']
+    api_key_valid = is_api_key_valid()
     await websocket.accept()
     if not user:
             # Token has expired or is invalid, handle reauthentication
@@ -293,9 +301,6 @@ async def status_websocket(websocket: WebSocket):
                     deletechatId(filename, user['username'])
                     print("delte end")
                 elif message_data['type'] == 'filename':
-                    api_key_valid = is_api_key_valid()
-                    if not api_key_valid:
-                        pass
                     data = await websocket.receive_bytes()  # Receive binary data in chunks
                     await websocket.send_text(json.dumps({"action": "process", "message": f"Codebase Uploaded Successfully"}))
                     if data:
@@ -335,6 +340,13 @@ async def status_websocket(websocket: WebSocket):
                             await websocket.send_text(json.dumps({"action": "process", "message": f"Failed to upload Data Source "}))
                             await asyncio.sleep(2)
                             await websocket.send_text(json.dumps({"action": "process", "message": ""}))
+                            root_directory = f'{root}/repositories/{user["username"]}/data'
+                            delete_files_with_string(root_directory, f'{filename}') 
+                elif api_key_valid == False:
+                    await asyncio.sleep(1)
+                    await websocket.send_text(json.dumps({"action": "process", "message": "Please provide a valid OpenAI API Key"}))
+                    await asyncio.sleep(2)
+                    await websocket.send_text(json.dumps({"action": "process", "message": ""})) 
                 elif message_data['sourcetype'] == 'Code':
                     await asyncio.sleep(1)
                     await websocket.send_text(json.dumps({"action": "process", "message": "Identifying Source Code Language"}))
@@ -384,7 +396,8 @@ async def status_websocket(websocket: WebSocket):
                             await websocket.send_text(json.dumps({"action": "process", "message": f"Failed to upload Data Source {filename}"}))
                             await asyncio.sleep(2)
                             await websocket.send_text(json.dumps({"action": "process", "message": ""}))    
-
+                        root_directory = f'{root}/repositories/{user["username"]}/data'
+                        delete_files_with_string(root_directory, f'sourceCode-{num_source_code_files}{extension}')
                 elif message_data['type'] == 'url':
                     source_url=message_data['source_string']
                     if message_data['sourcetype'] == 'Github':
@@ -428,7 +441,9 @@ async def status_websocket(websocket: WebSocket):
                                     else:
                                         await websocket.send_text(json.dumps({"action": "process", "message": f"Failed to upload Data Source"}))
                                         await asyncio.sleep(2)
-                                        await websocket.send_text(json.dumps({"action": "process", "message": ""}))    
+                                        await websocket.send_text(json.dumps({"action": "process", "message": ""}))  
+                                    root_directory = f'{root}/repositories/{user["username"]}/data'
+                                    delete_files_with_string(root_directory, f'{user_name}_{repo_name}') 
                                 else:
                                     await websocket.send_text(json.dumps({"action": "process", "message": "Failed to clone GitHub Repository"}))
                                     await asyncio.sleep(2)

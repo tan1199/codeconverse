@@ -30,3 +30,5 @@ backend/__pycache__
 frontend/npm-debug.log*
 frontend/yarn-debug.log*
 frontend/yarn-error.log*
+backend/user_credentials.db
+backend/chats.db

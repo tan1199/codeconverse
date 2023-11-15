@@ -347,7 +347,7 @@ async def status_websocket(websocket: WebSocket):
                             await asyncio.sleep(2)
                             await websocket.send_text(json.dumps({"action": "process", "message": ""}))
                             root_directory = f'{root}/repositories/{user["username"]}/data'
-                            delete_files_with_string(root_directory, f'{filename}') 
+                            # delete_files_with_string(root_directory, f'{filename}') 
                 elif api_key_valid == False:
                     await asyncio.sleep(1)
                     await websocket.send_text(json.dumps({"action": "process", "message": "Please provide a valid OpenAI API Key"}))
@@ -403,7 +403,7 @@ async def status_websocket(websocket: WebSocket):
                             await asyncio.sleep(2)
                             await websocket.send_text(json.dumps({"action": "process", "message": ""}))    
                         root_directory = f'{root}/repositories/{user["username"]}/data'
-                        delete_files_with_string(root_directory, f'sourceCode-{num_source_code_files}{extension}')
+                        # delete_files_with_string(root_directory, f'sourceCode-{num_source_code_files}{extension}')
                 elif message_data['type'] == 'url':
                     source_url=message_data['source_string']
                     if message_data['sourcetype'] == 'Github':
@@ -449,7 +449,7 @@ async def status_websocket(websocket: WebSocket):
                                         await asyncio.sleep(2)
                                         await websocket.send_text(json.dumps({"action": "process", "message": ""}))  
                                     root_directory = f'{root}/repositories/{user["username"]}/data'
-                                    delete_files_with_string(root_directory, f'{user_name}_{repo_name}') 
+                                    # delete_files_with_string(root_directory, f'{user_name}_{repo_name}') 
                                 else:
                                     await websocket.send_text(json.dumps({"action": "process", "message": "Failed to clone GitHub Repository"}))
                                     await asyncio.sleep(2)

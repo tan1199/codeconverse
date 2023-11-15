@@ -2,8 +2,7 @@ import requests
 import subprocess
 from pathlib import Path
 import os
-API_KEY = os.getenv("OPENAI_API_KEY")
-print(API_KEY)
+
 
 
 def get_default_branch(repo_owner, repo_name):

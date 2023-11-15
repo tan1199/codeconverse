@@ -22,9 +22,7 @@ CREATE TABLE IF NOT EXISTS user_info (
         INSERT INTO user_info (username, password, email, apikey, timestamp)
         VALUES (?, ?, ?, ?, ?)
         '''
-        # print(message_id, chat_id, avatar, username, message_content, timestamp)
         cursor.execute(insert_query, (user_name, password, email_id, apikey, timestamp))
-        print("klklkl")
         conn.commit()    
     except sqlite3.Error as e:
         print("SQLite error:", e)
@@ -40,6 +38,17 @@ def select_user(username):
         conn = sqlite3.connect('user_credentials.db')
         cursor = conn.cursor()
         # de = 'delete FROM chistory where 1=1'
+        create_table_query = '''
+        CREATE TABLE IF NOT EXISTS user_info (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL,
+        email TEXT NOT NULL,
+        apikey TEXT,
+        timestamp INTEGER
+        )
+        '''
+        cursor.execute(create_table_query)
         select_query = 'select * from user_info  where username=?'
         cursor.execute(select_query, (username,))
         result = cursor.fetchall()
@@ -63,7 +72,6 @@ def select_user(username):
     return message
 
 def insert_message(message_id, chat_id, avatar, username, message_content,num_token, timestamp,user_id):      
-    print("ppppppppp")  
     try:
         conn = sqlite3.connect('chats.db')
         cursor = conn.cursor()
@@ -85,10 +93,8 @@ CREATE TABLE IF NOT EXISTS chathistory (
         INSERT INTO chathistory (id, chat_id, avatar, username, message,num_token, timestamp,user_id)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         '''
-        # print(message_id, chat_id, avatar, username, message_content, timestamp)
         cursor.execute(insert_query, (message_id, chat_id, avatar,
                        username, message_content,num_token, timestamp, user_id))
-        print("klklkl")
         conn.commit()    
     except sqlite3.Error as e:
         print("SQLite error:", e)
@@ -98,12 +104,25 @@ CREATE TABLE IF NOT EXISTS chathistory (
 
 
 def select_all_chats(user_id):
-    print("sss") 
     conversation_data = []
  
     try:
         conn = sqlite3.connect('chats.db')
         cursor = conn.cursor()
+        create_table_query = '''
+        CREATE TABLE IF NOT EXISTS chathistory (
+        id INTEGER ,
+        chat_id INTEGER,
+        avatar TEXT,
+        username TEXT,
+        message TEXT,
+        num_token INTEGER,
+        timestamp INTEGER,
+        user_id TEXT
+        )
+        '''
+
+        cursor.execute(create_table_query)
         # de = 'delete FROM chistory where 1=1'
         sel = 'select * FROM chathistory where user_id=?'
 
@@ -122,7 +141,6 @@ def select_all_chats(user_id):
                 'usage': row[5],
                 'timestamp': row[6]     # Assuming timestamp is in the sixth column
             }
-            # print("ytyt",row[4])
             chat_exists = False
             for chat in conversation_data:
                 if chat['chatId'] == row[1]:  # Assuming chatId is in the seventh column
@@ -147,13 +165,26 @@ def usage_for_user(user_id):
     try:
         conn = sqlite3.connect('chats.db')
         cursor = conn.cursor()
+        create_table_query = '''
+        CREATE TABLE IF NOT EXISTS chathistory (
+        id INTEGER ,
+        chat_id INTEGER,
+        avatar TEXT,
+        username TEXT,
+        message TEXT,
+        num_token INTEGER,
+        timestamp INTEGER,
+        user_id TEXT
+        )
+        '''
+
+        cursor.execute(create_table_query)
         # de = 'delete FROM chistory where 1=1'
         sel = 'select * FROM chathistory where user_id=?'
         sel = 'SELECT  SUM(num_token) AS total_tokens FROM chathistory  where user_id=? GROUP BY user_id'
         cursor.execute(sel, (user_id,))
 
         usage = cursor.fetchone()
-        print("uususu",usage)
         # return usage[0]
     except sqlite3.Error as e:
         print("SQLite error:", e)
@@ -165,7 +196,6 @@ def usage_for_user(user_id):
         return 0
 
 def deletechatId(chatId, user_id):
-    print("del") 
     try:
         conn = sqlite3.connect('chats.db')
         cursor = conn.cursor()
@@ -181,14 +211,12 @@ def deletechatId(chatId, user_id):
 
 def update_api_key(api_key,user_id):
     try:
-        print("klklkl", api_key, user_id)
         conn = sqlite3.connect('user_credentials.db')
         cursor = conn.cursor()
 
         update_query = '''
         UPDATE user_info SET apikey = ? WHERE username = ?
         '''
-        # print(message_id, chat_id, avatar, username, message_content, timestamp)
         update_status = cursor.execute(update_query, (api_key, user_id))
         
         conn.commit()    

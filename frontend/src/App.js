@@ -31,7 +31,6 @@ const App = () => {
   const [chatMessage, setChatMessage] = useState('');
   const [processSocket, setProcessSocket] = useState(null);
   const [chatSocket, setChatSocket] = useState(null);
-  const [userSocket, setUserSocket] = useState(null);
   const [valueList, setValueList] = useState([]);
   const [checkedValues, setCheckedValues] = useState([]);
   const [progressbar, setprogressbar] = useState(false);
@@ -103,22 +102,18 @@ const handleCheckboxChange = (value) => {
     if (!token){
       return;
     }
-    const newUserSocket = new WebSocket(`ws://localhost:8000/ws/user?token=${token}`);
-    newUserSocket.onopen = () => {
-      setUserSocket(newUserSocket);
-    };
 
-    const newProcessSocket = new WebSocket(`ws://localhost:8000/ws/process?token=${token}`);
+    const newProcessSocket = new WebSocket(`wss://cc-backend.up.railway.app/ws/process?token=${token}`);
     newProcessSocket.onopen = () => {
       setProcessSocket(newProcessSocket);
     };
 
-    const newChatSocket = new WebSocket(`ws://localhost:8000/ws/chat?token=${token}`);
+    const newChatSocket = new WebSocket(`wss://cc-backend.up.railway.app/ws/chat?token=${token}`);
     newChatSocket.onopen = () => {
       setChatSocket(newChatSocket);
     };
 
-    const initiatesocket = new WebSocket(`ws://localhost:8000/ws/initiate?token=${token}`);
+    const initiatesocket = new WebSocket(`wss://cc-backend.up.railway.app/ws/initiate?token=${token}`);
 
     initiatesocket.onopen = () => {
       console.log("WebSocket connection opened");
@@ -167,13 +162,7 @@ setIsAuthenticated(false);
       }
     };
     
-          newUserSocket.onclose = (event) => {
-      if (event.wasClean) {
-        console.log(`WebSocket connection closed cleanly, code=${event.code}, reason=${event.reason}`);
-      } else {
-        console.error("WebSocket connection abruptly closed.");
-      }
-    };  
+
     return () => {
       if (processSocket) {
         processSocket.close();
@@ -183,9 +172,6 @@ setIsAuthenticated(false);
       }
       // if ( initiatesocket) {
       //   initiatesocket.close();
-      // }
-      // if (newUserSocket) {
-      //   newUserSocket.close();
       // }
     };
   }, [token]);
@@ -414,7 +400,7 @@ google_auth=true
     }));
 username=email_id
       }
-    fetch("http://localhost:8000/token", {
+    fetch("https://cc-backend.up.railway.app/token", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -452,7 +438,7 @@ username=email_id
 
   };
   useEffect(() => {
-    if (!processSocket || !chatSocket || !userSocket) return;
+    if (!processSocket || !chatSocket) return;
       
     processSocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -503,7 +489,7 @@ else{
 else{
       handletoastmessage(`Please Set a Valid API key`)
 }    };
-}, [processSocket, chatSocket,userSocket, selectedChatId,checkedValues,valueList]);
+}, [processSocket, chatSocket, selectedChatId,checkedValues,valueList]);
 
   return (
     <div className="app">

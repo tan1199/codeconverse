@@ -33,13 +33,19 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+    "https://cc-deploy.up.railway.app",
+]
 
 app = FastAPI()
 # Configure CORS
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Replace with your frontend origin
+    # Replace with your frontend origin
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
@@ -126,7 +132,8 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     
     # Retrieve user details from the mock database
     user = select_user(username)
-    openai.api_key = user['apikey']
+    if user is not None:
+        openai.api_key = user['apikey']
     # if user is None:
     #     raise HTTPException(
     #         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -260,8 +267,6 @@ def delete_files_with_string(root_dir, target_string):
 @app.websocket("/ws/process")
 async def status_websocket(websocket: WebSocket):
     user = get_current_user(websocket.query_params.get("token"))
-    openai.api_key = user['apikey']
-    api_key_valid = is_api_key_valid()
     await websocket.accept()
     if not user:
             # Token has expired or is invalid, handle reauthentication
@@ -273,7 +278,8 @@ async def status_websocket(websocket: WebSocket):
         # await asyncio.sleep(1)
         # await websocket.send_text("Hello  now from FastAPI!")
     else:
-
+        openai.api_key = user['apikey']
+        api_key_valid = is_api_key_valid()
         try:
             while True:
                 print("nanan",user["username"])

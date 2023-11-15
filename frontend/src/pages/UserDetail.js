@@ -10,7 +10,7 @@ function UserDetail({handleUserDetail,isAuthenticated}) {
     const [googleCID, setGoogleCID] = useState(false);
 
   const handleGoogleLogin = () => {
-    fetch("http://localhost:8000/googlecidtoken", {
+    fetch("https://cc-backend.up.railway.app/googlecidtoken", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

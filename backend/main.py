@@ -57,10 +57,12 @@ no_Df=True
 
 def is_api_key_valid():
     try:
-        response = openai.Completion.create(
-            engine="davinci",
-            prompt="This is a test.",
-            max_tokens=5
+        response = openai.ChatCompletion.create(
+            model='gpt-3.5-turbo',
+            messages=[
+                {'role': 'user', 'content': "This is a test."}
+            ],
+            temperature=0
         )
     except:
         return False
